@@ -7,7 +7,7 @@ require "yaml"
 ORG="debianorg"
 SHORTORG="do"
 CONTACTGROUP="debianadmin"
-GENERATED_PREFIX="/etc/NOREPLY/generated/nagios/"
+GENERATED_PREFIX="./generated/"
 
 nagios_filename = {};
 %w(hosts hostgroups services dependencies hostextinfo serviceextinfo).each{
