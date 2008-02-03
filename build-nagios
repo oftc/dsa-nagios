@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 
-# Copyright (c) 2004, 2005, 2006, 2007 Peter Palfrader <peter@palfrader.org>
+# Copyright (c) 2004, 2005, 2006, 2007, 2008 Peter Palfrader <peter@palfrader.org>
 
 require "yaml"
 
-ORG="relativity"
-SHORTORG="rela"
-CONTACTGROUP="weaselgroup"
+ORG="debianorg"
+SHORTORG="do"
+CONTACTGROUP="debianadmin"
 GENERATED_PREFIX="/etc/NOREPLY/generated/nagios/"
 
 nagios_filename = {};
