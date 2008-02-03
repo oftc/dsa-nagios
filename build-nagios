@@ -1,0 +1,402 @@
+#!/usr/bin/ruby
+
+# Copyright (c) 2004, 2005, 2006, 2007 Peter Palfrader <peter@palfrader.org>
+
+require "yaml"
+
+ORG="relativity"
+SHORTORG="rela"
+CONTACTGROUP="weaselgroup"
+GENERATED_PREFIX="/etc/NOREPLY/generated/nagios/"
+
+nagios_filename = {};
+%w(hosts hostgroups services dependencies hostextinfo serviceextinfo).each{
+	|x| nagios_filename[x] = GENERATED_PREFIX+"auto-#{x}.cfg"
+}
+nagios_filename['nrpe'] = GENERATED_PREFIX+"nrpe_#{ ORG }.cfg"
+
+
+MAX_CHECK_ATTEMPTS_DEFAULT=6
+
+NRPE_CHECKNAME="#{ ORG }_check_nrpe"           # check that takes one argument:  service name to be checked
+NRPE_CHECKNAME_HOST="#{ ORG }_check_nrpe_host" # check that takes two arguments: relay host on which to run check, service name to be checked
+
+HOST_TEMPLATE_NAME='generic-host'          # host templates that all our host definitions use
+SERVICE_TEMPLATE_NAME='generic-service'    # host templates that all our host definitions use
+HOST_ALIVE_CHECK='check-host-alive'        # host alive check if server is pingable
+NRPE_PROCESS_SERVICE='process - nrpe'      # nrpe checks will depend on this one
+
+
+def warn (msg)
+	STDERR.puts msg
+end
+def set_if_unset(hash, key, value)
+	hash[key] = value unless hash.has_key?(key)
+end
+def set_complain_if_set(hash, key, value, type, name)
+	throw "#{type} definition '#{name}' has '#{key}' already defined" if hash.has_key?(key)
+	hash[key] = value
+end
+
+# Make an array out of something.  If there is nothing, create an empty array
+# if it is just a string, make a list with just that element, if it already is
+# an array keep it.
+def ensure_array(something)
+	if (something == nil)
+		result = []
+	elsif something.kind_of?(String)
+		result = [ something ]
+	elsif something.kind_of?(Array)
+		result = something
+	else
+		throw "Do now know how to make an array out of #{something}: " + something.to_yaml
+	end
+	return result
+end
+
+
+# This class keeps track of the checks done via NRPE and makes sure
+# each gets a unique name.
+#
+# Unforutunately NRPE limits check names to some 30 characters, so
+# we need to mangle service names near the end.
+class Nrpe
+	def initialize
+		@checks = {}
+	end
+
+	def make_name( name, check )
+		name = name.tr_s("^a-zA-Z", "_").gsub("process", "ps")
+
+		result = "#{ SHORTORG }_" + name[0,19]
+
+		hash = ''
+		skew = ''
+		while (@checks.has_key?(result + hash))
+			# hash it, so that we don't lose uniqeness by cutting it off
+			hash = (check+skew).crypt("$1$")
+			hash = hash[-5,5]  # 5 chars are enough
+			hash.tr!("/", "_")
+			skew += ' ' # change it a bit so the hash changes
+		end
+		result += hash
+		return result      # max of 32 or so chars
+	end
+
+	def add( name, check )
+		if @checks.has_value? check
+			@checks.each_pair{ |key, value|
+				return key if value == check
+			}
+		end
+		key = make_name(name, check)
+		@checks[ key ] = check
+		return key
+	end
+
+	def checks
+		return @checks
+	end
+end
+$nrpe = Nrpe.new()
+
+
+# Prints the keys and values of hash to a file
+# This is the function that prints the bodies of most our
+# host/service/etc definitions
+#
+# It skips over such keys as are listed in exclude_keys
+# and also skips private keys (those starting with an underscre)
+def print_block(fd, kind, hash, exclude_keys)
+	fd.puts "define #{kind} {"
+	hash.each_pair{ |key, value|
+		next if key[0,1] == '_'
+		next if exclude_keys.include? key
+		fd.puts "	#{key}		#{value}"
+	}
+	fd.puts "}"
+	fd.puts
+end
+
+
+# Add the service definition service to hosts
+# f is the file for service definitions, deps the file for dependencies
+def addService(hosts, service, files)
+
+	set_if_unset        service, 'use'               , SERVICE_TEMPLATE_NAME
+	set_complain_if_set service, 'host_name'         , hosts.join(',')      , 'Service', service['service_description']
+	set_if_unset        service, 'max_check_attempts', MAX_CHECK_ATTEMPTS_DEFAULT
+
+	service['max_check_attempts'] = MAX_CHECK_ATTEMPTS_DEFAULT + service['max_check_attempts'] if service['max_check_attempts'] < 0
+
+	if service['nrpe']
+		throw "We already have a check_command (#{service['check_command']}) but we are in the NRPE block (nrpe: #{service['nrpe']})."+
+			"  This should have been caught much earlier" if service.has_key?('check_command');
+
+		check = $nrpe.add(service['service_description'], service['nrpe'])
+		service['check_command'] = "#{ NRPE_CHECKNAME }!#{ check }"
+
+		service['depends'] = ensure_array( service['depends'] )
+		service['depends'] << NRPE_PROCESS_SERVICE unless service['service_description'] == NRPE_PROCESS_SERVICE  # Depend on NRPE unless we are it
+	end
+
+	print_block files['services'], 'service', service, %w(nrpe runfrom remotecheck
+	                                                      depends
+	                                                      hosts hostgroups excludehosts excludehostgroups)
+
+	if service['depends']
+		service['depends'].each{ |prerequisite|
+			hosts.each{ |host|
+				prerequisite_host = host
+				pre = prerequisite
+				# split off a hostname if there's one
+				bananasplit = prerequisite.split(':')
+				if bananasplit.size == 2
+					prerequisite_host = bananasplit[0]
+					pre = bananasplit[1]
+				elsif bananasplit.size > 2
+					throw "Cannot prase prerequisite #{prerequisite} for service #{service['service_description']} into host:service"
+				end
+				dependency = {
+					'host_name'                     => prerequisite_host,
+					'service_description'           => pre,
+					'dependent_host_name'           => host,
+					'dependent_service_description' => service['service_description'],
+					'execution_failure_criteria'    => 'n',
+					'notification_failure_criteria' => 'w,u,c'
+				};
+				print_block files['dependencies'], 'servicedependency', dependency, %w()
+			}
+		}
+	end
+
+
+	set_complain_if_set service['_extinfo'], 'service_description' , service['service_description'], 'serviceextinfo', service['service_description']
+	set_complain_if_set service['_extinfo'], 'host_name'           , hosts.join(',')               , 'serviceextinfo', service['service_description']
+
+	print_block files['serviceextinfo'], 'serviceextinfo', service['_extinfo'], %w()
+end
+
+# hostlists in services can be given as both, single hosts and hostgroups
+# This functinn merges hostgroups and a simple list of hosts
+#
+# it also takes a prefix so that it can be used for excludelists as well
+def merge_hosts_and_hostgroups(service, servers, hostgroups, prefix)
+	hosts = []
+	hosts = service[prefix+'hosts'].split(/,/).map{ |x| x.strip } if service[prefix+'hosts']
+	hosts.each{ |host|
+		throw "host #{host} does not exist - used in service #{service['service_description']}" unless servers[host]
+	};
+	if service[prefix+'hostgroups']
+		service[prefix+'hostgroups'].split(/,/).map{ |x| x.strip }.each{ |hg|
+			throw "hostgroup #{hg} does not exist - used in service #{service['service_description']}" unless hostgroups[hg]
+			hosts = hosts.concat hostgroups[hg]['_memberlist']
+		}
+	end
+
+	return hosts
+end
+
+# Figure out the hosts a given service applies to
+#
+# For a given service find the list of hosts minus excluded hosts that this service runs on
+def find_hosts(service, servers, hostgroups)
+	hosts        = merge_hosts_and_hostgroups service, servers, hostgroups, ''
+	excludehosts = merge_hosts_and_hostgroups service, servers, hostgroups, 'exclude'
+
+	excludehosts.each{ |host|
+		if hosts.delete(host) == nil
+			throw "Cannot remove host #{host} from service #{service['service_description']}: it's not included anyway or excluded twice."
+		end
+	}
+
+	return hosts
+end
+
+# Move all elements that have a key that starts with "extinfo-"
+# into the _extinfo subhash
+def split_away_extinfo(hash)
+	hash['_extinfo'] = {}
+	hash.keys.each{ |key|
+		if key[0, 8] == 'extinfo-'
+			hash['_extinfo'][ key[8, key.length-8] ] = hash[key]
+			hash.delete(key);
+		end
+	}
+end
+
+
+#############################################################################################
+#############################################################################################
+#############################################################################################
+
+# Load the config
+config = YAML::load( File.open( 'nagios-master.cfg' ) )
+
+files = {}
+# Remove old created files
+nagios_filename.each_pair{ |name, filename|
+	files[name] = File.new(filename, "w")
+}
+
+#################################
+# create a few hostgroups
+#################################
+# create the "all" and "pingable" hostgroups
+config['hostgroups']['all'] = {}
+config['hostgroups']['all']['alias'] = "all servers"
+config['hostgroups']['pingable'] = {}
+config['hostgroups']['pingable']['alias'] = "pingable servers"
+
+config['hostgroups'].each_pair{ |name, hg|
+	throw "Empty hostgroup or hostgroup #{name} not a hash" unless hg.kind_of?(Hash)
+	split_away_extinfo hg
+
+	hg['_memberlist'] = []
+}
+
+config['servers'].each_pair{ |name, server|
+	throw "Empty server or server #{name} not a hash" unless server.kind_of?(Hash)
+
+	split_away_extinfo server
+
+	throw "No hostgroups defined for #{name}" unless server['hostgroups']
+	server['_hostgroups'] = server['hostgroups'].split(/,/).map{ |x| x.strip };
+	server['_hostgroups'] << 'all'
+	server['_hostgroups'] << 'pingable' unless server['pingable'] == false
+
+	server['_hostgroups'].each{ |hg|
+		throw "Hostgroup #{hg} is not defined" unless config['hostgroups'].has_key?(hg)
+		config['hostgroups'][hg]['_memberlist'] << name
+	};
+}
+
+##############
+# HOSTS
+##############
+config['servers'].each_pair{ |name, server|
+	# Formerly we used 'ip' instead of 'address' in our source file
+	# Handle this change but warn					XXX
+	if server.has_key?('ip')
+		STDERR.puts("Host definition for #{name} has an 'ip' field.  Please use 'address' instead");
+		server['address'] = server['ip'];
+		server.delete('ip');
+	end
+
+	set_complain_if_set server, 'host_name'    , name, 'Host', name
+	set_if_unset        server, 'alias'        , name
+	set_if_unset        server, 'use'          , HOST_TEMPLATE_NAME
+	set_if_unset        server, 'check_command', HOST_ALIVE_CHECK    unless server['pingable'] == false
+
+	print_block files['hosts']      , 'host'       , server            , %w(hostgroups pingable)
+
+
+
+	# Handle hostextinfo
+	config['hostgroups'][  server['_hostgroups'].first  ]['_extinfo'].each_pair{ |k, v|
+		# substitute hostname into the notes_url
+		v = sprintf(v,name) if k == 'notes_url'
+
+		set_if_unset server['_extinfo'], k ,v
+	}
+
+	set_complain_if_set server['_extinfo'], 'host_name'       , name, 'hostextinfo', name
+	set_if_unset        server['_extinfo'], 'vrml_image'      , server['_extinfo']['icon_image'] if server['_extinfo'].has_key?('icon_image')
+	set_if_unset        server['_extinfo'], 'statusmap_image' , server['_extinfo']['icon_image'] if server['_extinfo'].has_key?('icon_image')
+
+	print_block files['hostextinfo'], 'hostextinfo', server['_extinfo'], %w()
+}
+
+
+
+##############
+# HOSTGROUPS
+##############
+config['hostgroups'].each_pair{ |name, hg|
+	next if hg['private']
+
+	set_complain_if_set hg, 'hostgroup_name', name                       , 'Hostgroup', name
+	set_complain_if_set hg, 'members'       , hg['_memberlist'].join(","), 'Hostgroup', name
+	set_if_unset        hg, 'contact_groups', CONTACTGROUP
+
+	print_block files['hostgroups'], 'hostgroup', hg, %w()
+}
+
+
+##############
+# SERVICES and DEPENDENCIES
+##############
+config['services'].each{ |service|
+	throw "Empty service or service not a hash" unless service.kind_of?(Hash)
+
+	split_away_extinfo service
+
+
+	# Both 'name' and 'service_description' are valid for a service's name
+	# Internally we only use service_description as that's nagios' official term
+	if service.has_key?('name')
+		throw "Service definition has both a name (#{service['name']})" +
+		      "and a service_description (#{service['service_description']})" if service.has_key?('service_description')
+		#STDERR.puts("Service definition #{service['name']} has a 'name' field.  Please use 'service_description' instead");
+		service['service_description'] = service['name'];
+		service.delete('name');
+	end
+	# Both 'check' and 'check_command' are valid for a service's check command
+	# Internally we only use check_command as that's nagios' official term
+	if service.has_key?('check')
+		throw "Service definition has both a check (#{service['check']})" +
+		      "and a check_command (#{service['check_command']})" if service.has_key?('check_command')
+		#STDERR.puts("Service definition #{service['service_description']} has a 'check' field.  Please use 'check_command' instead");
+		service['check_command'] = service['check'];
+		service.delete('check');
+	end
+
+
+	hosts = find_hosts service, config['servers'], config['hostgroups']
+	throw "no hosts for service #{service['service_description']}" if hosts.empty?
+
+	throw "nrpe, check, and remotecheck are mutually exclusive in service #{service['service_description']}" if 
+		(service['nrpe'] ? 1 : 0) +
+		(service['check_command'] ? 1 : 0) +
+		(service['remotecheck'] ? 1 : 0)  >= 2
+
+	if service['runfrom'] && service['remotecheck']
+		# If the service check is to be run from a remote monitor server ("relay")
+		# add that as an NRPE check to be run on the relay and make this
+		# service also depend on NRPE on the relay
+		relay = service['runfrom']
+
+		hosts.each{ |host|
+			# how to recursively copy this thing?
+			hostservice = YAML::load( service.to_yaml )
+			host_ip = config['servers'][host]['address']
+			throw "For some reason I do not have an address for #{host}.  This shouldn't be." unless host_ip
+
+			check = $nrpe.add("#{host}_#{hostservice['service_description']}", hostservice['remotecheck'].gsub(/\$HOSTADDRESS\$/, host_ip))
+			hostservice['check_command'] = "#{NRPE_CHECKNAME_HOST}!#{ config['servers'][ relay ]['address'] }!#{ check }"
+
+			# Make sure dependencies are an array.  If there are none, create an empty array
+			# if depends is just a string, make a list with just that element
+			hostservice['depends'] = ensure_array( hostservice['depends'] )
+			# And append this new dependency
+			hostservice['depends'] << "#{ relay }:#{ NRPE_PROCESS_SERVICE }";
+
+			addService( [ host ], hostservice, files)
+		}
+	elsif service['runfrom'] || service['remotecheck']
+		throw "runfrom and remotecheck must either appear both or not at all in service #{service['service_description']}"
+		throw "must not remotecheck without runfrom" if service['remotecheck']
+	else
+		addService(hosts, service, files)
+	end
+}
+
+
+##############
+# NRPE config file
+##############
+$nrpe.checks.each_pair{ |name, check|
+	files['nrpe'].puts "command[#{ name }]=#{ check }"
+}
+
+
