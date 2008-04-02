@@ -30,6 +30,14 @@ if [ -e /etc/nagios/nrpe.cfg ] ; then
 	fi
 fi
 
+if [ -e /etc/default/nagios-nrpe-server ] ; then
+	if ! grep '^DAEMON_OPTS="--no-ssl"$' /etc/default/nagios-nrpe-server > /dev/null; then
+		echo
+		echo "WARNING: /etc/default/nagios-nrpe-server probably does not set DAEMON_OPTS=\"--no-ssl\".  Please fix."
+		echo
+	fi
+fi
+
 #DEBHELPER#
 
 exit 0
