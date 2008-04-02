@@ -12,7 +12,7 @@ if [ -e /etc/nagios/nrpe.cfg ] ; then
 	fi
 	if ! grep '^allowed_hosts=' /etc/nagios/nrpe.cfg > /dev/null; then
 		echo
-		echo "WARNING: /etc/nagios/nrpe.cfg does not define allowed_hosts.  Please fix."
+		echo "WARNING: /etc/nagios/nrpe.cfg does not define allowed_hosts.  Please fix (set allowed_hosts=$NAGIOS_MASTER)."
 		echo
 	else
 		found=0
