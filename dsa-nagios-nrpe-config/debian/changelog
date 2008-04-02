@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (6) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- root <root@samosa.debian.org>  Wed,  2 Apr 2008 19:03:50 -0400
+
 dsa-nagios-nrpe-config (5) unstable; urgency=low
 
   * Automatically generated new version.
