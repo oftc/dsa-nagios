@@ -20,5 +20,6 @@ deb: generated/nrpe_dsa.cfg
 clean:
 	rm -rf generated
 	rm -rf Build-tree
+	rm -f dsa-nagios-nrpe-config/nrpe_dsa.cfg
 
 .PHONY: all deb
