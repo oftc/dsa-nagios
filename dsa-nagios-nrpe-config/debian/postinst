@@ -38,6 +38,14 @@ if [ -e /etc/default/nagios-nrpe-server ] ; then
 	fi
 fi
 
+
+
+if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+	invoke-rc.d nagios-nrpe-server restart || exit $?
+else
+	/etc/init.d/nagios-nrpe-server restart || exit $?
+fi
+
 #DEBHELPER#
 
 exit 0
