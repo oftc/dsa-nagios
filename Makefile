@@ -27,6 +27,10 @@ install: generated/nrpe_dsa.cfg
 	#
 	install -m 644 checkcommands.cfg /etc/nagios-plugins/config/local-dsa-checkcommands.cfg
 	#
+	install -m 644 nagios-conf/contacs.cfg /etc/nagios3/conf.d
+	install -m 644 nagios-conf/generic-host.cfg /etc/nagios3/conf.d
+	install -m 644 nagios-conf/generic-service.cfg /etc/nagios3/conf.d
+	install -m 644 nagios-conf/timeperiods.cfg /etc/nagios3/conf.d
 	install -m 644 generated/auto-dependencies.cfg /etc/nagios3/conf.d
 	install -m 644 generated/auto-hostextinfo.cfg /etc/nagios3/conf.d
 	install -m 644 generated/auto-hostgroups.cfg /etc/nagios3/conf.d
