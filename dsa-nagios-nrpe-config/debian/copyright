@@ -1,0 +1,5 @@
+This package was debianized by Peter Palfrader <weasel@debian.org> on
+Wed,  2 Apr 2008 22:19:07 +0200.
+
+The config file shipped with this package is generated automatically
+from the debian.org nagios config.

@@ -1,0 +1,14 @@
+Source: dsa-nagios-nrpe-config
+Section: local
+Priority: extra
+Maintainer: Peter Palfrader <weasel@debian.org>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: dsa-nagios-nrpe-config
+Architecture: all
+Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}
+Description: debian.org nagios-nrpe-server configuration
+ This package provides the debian.org configuration for the
+ nagios-nrpe-server, automatically created from the debian.org
+ nagios setup.

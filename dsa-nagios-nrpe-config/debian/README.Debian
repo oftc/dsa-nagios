@@ -1,0 +1,7 @@
+dsa-nagios-nrpe-config for Debian
+---------------------------------
+
+This package is automatically created from the debian.org nagios
+config.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 22:19:07 +0200

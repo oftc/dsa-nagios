@@ -1,0 +1,6 @@
+dsa-nagios-nrpe-config (1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 22:24:12 +0200
+
