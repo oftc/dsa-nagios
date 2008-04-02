@@ -37,7 +37,7 @@ install: generated/nrpe_dsa.cfg
 	@echo "Also run: "
 	@echo " cp Build-tree/*.deb /var/www/userdir-ldap/debian-admin &&"
 	@echo "   cd /var/www/userdir-ldap/debian-admin &&"
-	@echo "   zzzz_rebuild_index_here"
+	@echo "   ./zzzz_rebuild_index_here"
 	#
 	@echo
 	#
