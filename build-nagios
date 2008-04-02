@@ -5,8 +5,7 @@
 require "yaml"
 
 ORG="dsa"
-SHORTORG="do"
-CONTACTGROUP="debianadmin"
+SHORTORG="dsa"
 GENERATED_PREFIX="./generated/"
 
 nagios_filename = {};
