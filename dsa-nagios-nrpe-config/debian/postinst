@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+NAGIOS_MASTER=192.25.206.57
+
+if [ -e /etc/nagios/nrpe.cfg ] ; then
+	if ! grep '^include=/etc/nagios/nrpe_dsa.cfg$' /etc/nagios/nrpe.cfg > /dev/null; then
+		echo
+		echo "WARNING: /etc/nagios/nrpe.cfg does not include /etc/nagios/nrpe_dsa.cfg.  Please fix."
+		echo
+	fi
+	if ! grep '^allowed_hosts=' /etc/nagios/nrpe.cfg > /dev/null; then
+		echo
+		echo "WARNING: /etc/nagios/nrpe.cfg does not define allowed_hosts.  Please fix."
+		echo
+	else
+		found=0
+		for host in `grep '^allowed_hosts=' /etc/nagios/nrpe.cfg | sed -e 's/.*=//' | tr ',' "\n"`; do
+			if [ "$host" = "$NAGIOS_MASTER" ]; then
+				found=1
+				break
+			fi
+		done
+		if [ "$found" = "0" ]; then
+			echo
+			echo "WARNING: /etc/nagios/nrpe.cfg does not have $NAGIOS_MASTER in allowed_hosts.  Please fix."
+			echo
+		fi
+	fi
+fi
+
+#DEBHELPER#
+
+exit 0
