@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (10) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:24:11 -0400
+
 dsa-nagios-nrpe-config (9) unstable; urgency=low
 
   * Restart nagios-nrpe-server in postinst.
