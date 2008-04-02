@@ -317,7 +317,6 @@ config['hostgroups'].each_pair{ |name, hg|
 
 	set_complain_if_set hg, 'hostgroup_name', name                       , 'Hostgroup', name
 	set_complain_if_set hg, 'members'       , hg['_memberlist'].join(","), 'Hostgroup', name
-	set_if_unset        hg, 'contact_groups', CONTACTGROUP
 
 	print_block files['hostgroups'], 'hostgroup', hg, %w()
 }
