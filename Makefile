@@ -22,4 +22,25 @@ clean:
 	rm -rf Build-tree
 	rm -f dsa-nagios-nrpe-config/nrpe_dsa.cfg
 
+install: generated/nrpe_dsa.cfg
+	dh_testroot
+	#
+	install -m 644 checkcommands.cfg /etc/nagios-plugins/config/local-dsa-checkcommands.cfg
+	#
+	install -m 644 generated/auto-dependencies.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-hostextinfo.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-hostgroups.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-hosts.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-serviceextinfo.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-services.cfg /etc/nagios3/conf.d
+	#
+	@echo "Also run: "
+	@echo " cp Build-tree/*.deb /var/www/userdir-ldap/debian-admin &&"
+	@echo "   cd /var/www/userdir-ldap/debian-admin &&"
+	@echo "   zzzz_rebuild_index_here"
+	#
+	@echo
+	#
+	env -i /etc/init.d/nagios3 reload
+
 .PHONY: all deb
