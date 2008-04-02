@@ -4,7 +4,7 @@
 
 require "yaml"
 
-ORG="debianorg"
+ORG="dsa"
 SHORTORG="do"
 CONTACTGROUP="debianadmin"
 GENERATED_PREFIX="./generated/"
