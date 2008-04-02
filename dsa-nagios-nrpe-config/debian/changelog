@@ -1,3 +1,27 @@
+dsa-nagios-nrpe-config (5) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:39:24 -0400
+
+dsa-nagios-nrpe-config (4) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:55 -0400
+
+dsa-nagios-nrpe-config (3) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:48 -0400
+
+dsa-nagios-nrpe-config (2) unstable; urgency=low
+
+  * Automatically generated new version.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:24 -0400
+
 dsa-nagios-nrpe-config (1) unstable; urgency=low
 
   * Initial release.
