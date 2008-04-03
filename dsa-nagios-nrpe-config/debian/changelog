@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (21) unstable; urgency=low
+
+  * Add dsa-check-raid-sw.
+
+ -- Peter Palfrader <weasel@debian.org>  Thu,  3 Apr 2008 06:22:44 -0400
+
 dsa-nagios-nrpe-config (20) unstable; urgency=low
 
   * Do away with a new changelog entry and version for every build of the

@@ -3,3 +3,12 @@ Wed,  2 Apr 2008 22:19:07 +0200.
 
 The config file shipped with this package is generated automatically
 from the debian.org nagios config.
+
+
+########################################################################
+dsa-check-raid-sw:
+  Copied from http://svn.noreply.org/svn/weaselutils/trunk/nagios-check-raid.pl at r330
+  Copyright 2003 Thomas Nilsen
+  Copyright 2004, 2007, 2008 Peter Palfrader
+  License: GPL
+

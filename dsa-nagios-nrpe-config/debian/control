@@ -12,3 +12,5 @@ Description: debian.org nagios-nrpe-server configuration
  This package provides the debian.org configuration for the
  nagios-nrpe-server, automatically created from the debian.org
  nagios setup.
+ .
+ It also ships a few nagios checks.

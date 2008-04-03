@@ -14,6 +14,7 @@ install:
 	dh_installdirs
 
 	install -m 644 nrpe_dsa.cfg $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios
+	install -m 755 dsa-check-raid-sw $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 
 
 binary-indep: install
