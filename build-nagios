@@ -292,12 +292,17 @@ config['servers'].each_pair{ |name, server|
 
 
 	# Handle hostextinfo
-	config['hostgroups'][  server['_hostgroups'].first  ]['_extinfo'].each_pair{ |k, v|
-		# substitute hostname into the notes_url
-		v = sprintf(v,name) if k == 'notes_url'
+	#config['hostgroups'][  server['_hostgroups'].first  ]['_extinfo'].each_pair{ |k, v|
+	# find the first hostgroup that has extinfo
+	extinfo = server['_hostgroups'].collect{ |hgname | config['hostgroups'][hgname]['_extinfo'] }.delete_if{ |ei| ei.size == 0 }.first
+	if extinfo then
+		extinfo.each_pair do |k, v|
+			# substitute hostname into the notes_url
+			v = sprintf(v,name) if k == 'notes_url'
 
-		set_if_unset server['_extinfo'], k ,v
-	}
+			set_if_unset server['_extinfo'], k ,v
+		end
+	end
 
 	set_complain_if_set server['_extinfo'], 'host_name'       , name, 'hostextinfo', name
 	set_if_unset        server['_extinfo'], 'vrml_image'      , server['_extinfo']['icon_image'] if server['_extinfo'].has_key?('icon_image')
