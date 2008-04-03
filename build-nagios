@@ -244,8 +244,10 @@ nagios_filename.each_pair{ |name, filename|
 # create the "all" and "pingable" hostgroups
 config['hostgroups']['all'] = {}
 config['hostgroups']['all']['alias'] = "all servers"
+config['hostgroups']['all']['private'] = true
 config['hostgroups']['pingable'] = {}
 config['hostgroups']['pingable']['alias'] = "pingable servers"
+config['hostgroups']['pingable']['private'] = true
 
 config['hostgroups'].each_pair{ |name, hg|
 	throw "Empty hostgroup or hostgroup #{name} not a hash" unless hg.kind_of?(Hash)
