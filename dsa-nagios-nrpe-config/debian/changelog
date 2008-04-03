@@ -1,90 +1,13 @@
-dsa-nagios-nrpe-config (15) unstable; urgency=low
+dsa-nagios-nrpe-config (20) unstable; urgency=low
 
-  * Automatically generated new version.
+  * Do away with a new changelog entry and version for every build of the
+    package - it floods us with useless commit mails - and just
+    increase the version to $TIMESTAMP in the build area.
 
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 20:11:14 -0400
-
-dsa-nagios-nrpe-config (14) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 20:09:00 -0400
-
-dsa-nagios-nrpe-config (13) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:53:40 -0400
-
-dsa-nagios-nrpe-config (12) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:44:39 -0400
-
-dsa-nagios-nrpe-config (11) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:40:06 -0400
-
-dsa-nagios-nrpe-config (10) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:24:11 -0400
-
-dsa-nagios-nrpe-config (9) unstable; urgency=low
-
-  * Restart nagios-nrpe-server in postinst.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:21:34 -0400
-
-dsa-nagios-nrpe-config (8) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:19:10 -0400
-
-dsa-nagios-nrpe-config (7) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 19:18:46 -0400
-
-dsa-nagios-nrpe-config (6) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- root <root@samosa.debian.org>  Wed,  2 Apr 2008 19:03:50 -0400
-
-dsa-nagios-nrpe-config (5) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:39:24 -0400
-
-dsa-nagios-nrpe-config (4) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:55 -0400
-
-dsa-nagios-nrpe-config (3) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:48 -0400
-
-dsa-nagios-nrpe-config (2) unstable; urgency=low
-
-  * Automatically generated new version.
-
- -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 17:38:24 -0400
+ -- Peter Palfrader <weasel@debian.org>  Thu,  3 Apr 2008 05:38:27 -0400
 
 dsa-nagios-nrpe-config (1) unstable; urgency=low
 
   * Initial release.
 
  -- Peter Palfrader <weasel@debian.org>  Wed,  2 Apr 2008 22:24:12 +0200
-
