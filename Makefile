@@ -39,9 +39,9 @@ install: generated/nrpe_dsa.cfg
 	install -m 644 generated/auto-services.cfg /etc/nagios3/conf.d
 	#
 	@echo "Also run: "
-	@echo " cp Build-tree/*.deb /var/www/userdir-ldap/debian-admin &&"
-	@echo "   cd /var/www/userdir-ldap/debian-admin &&"
-	@echo "   ./zzzz_rebuild_index_here && cd -"
+	@echo " cp Build-tree/*.deb /org/db.debian.org/ftp-archive/archive/pool/etch/ && "
+	@echo "   cd /org/db.debian.org/ftp-archive && "
+	@echo "   make && cd -"
 	#
 	@echo
 	#
