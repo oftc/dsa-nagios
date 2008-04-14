@@ -38,7 +38,14 @@ if [ -e /etc/default/nagios-nrpe-server ] ; then
 	fi
 fi
 
-
+if [ -e /etc/sudoers ] ; then
+	if ! grep '^nagios.*/usr/lib/nagios/plugins/dsa-check-dabackup' /etc/sudoers > /dev/null; then
+		echo
+		echo 'WARNIG: Add this line to sudoers:'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/lib/nagios/plugins/dsa-check-dabackup ""'
+		echo
+	fi
+fi
 
 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
 	invoke-rc.d nagios-nrpe-server restart || exit $?

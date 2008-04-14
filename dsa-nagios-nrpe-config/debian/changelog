@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (24) unstable; urgency=low
+
+  * Check for dsa-check-backup sudoers entry
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 11:48:48 -0400
+
 dsa-nagios-nrpe-config (23) unstable; urgency=low
 
   * Add dsa-check-dabackup
