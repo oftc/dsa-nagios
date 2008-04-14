@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (31) unstable; urgency=low
+
+  * dsa-check-dabackup: Use last time's log file if backup is currently running.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 17:37:54 -0400
+
 dsa-nagios-nrpe-config (30) unstable; urgency=low
 
   * dsa-check-raid-sw: cleaner output.
