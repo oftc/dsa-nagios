@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (28) unstable; urgency=low
+
+  * dsa-check-dabackup: ignore .bak files in confdir.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 12:23:25 -0400
+
 dsa-nagios-nrpe-config (27) unstable; urgency=low
 
   * Change OK text when da-backup not installed.

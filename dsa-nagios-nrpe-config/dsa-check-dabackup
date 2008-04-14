@@ -104,7 +104,7 @@ die ("No confdir found in $DABACKUP_CONF") unless defined $confdir;
 die ("No logdir found in $DABACKUP_CONF") unless defined $logdir;
 
 opendir(DIR, $confdir) or die ("Cannot opendir $confdir: $!\n");
-my %conffiles = map {$_ => 1} grep { !/^\./ } readdir(DIR);
+my %conffiles = map {$_ => 1} grep { !/^\./ && !/\.bak$/} readdir(DIR);
 closedir(DIR);
 
 opendir(DIR, $logdir) or die ("Cannot opendir $logdir: $!\n");
