@@ -5,7 +5,7 @@ generated/nrpe_dsa.cfg: nagios-master.cfg build-nagios
 	./build-nagios
 
 
-deb: generated/nrpe_dsa.cfg
+deb: generated/nrpe_dsa.cfg dsa-nagios-nrpe-config/debian/changelog
 	if ! [ -e Build-tree/dsa-nagios-nrpe-config/nrpe_dsa.cfg ] || \
 	   ! diff generated/nrpe_dsa.cfg Build-tree/dsa-nagios-nrpe-config/nrpe_dsa.cfg > /dev/null; then \
 		cp -a generated/nrpe_dsa.cfg dsa-nagios-nrpe-config && \
