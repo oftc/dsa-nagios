@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (26) unstable; urgency=low
+
+  * dsa-check-dabackup: Warn if installed but no backups configured.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 12:13:30 -0400
+
 dsa-nagios-nrpe-config (25) unstable; urgency=low
 
   * Install dsa-check-dabackup

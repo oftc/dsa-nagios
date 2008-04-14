@@ -116,14 +116,15 @@ for my $f (keys %conffiles) {
 		problem('WARNING', "$f has no log");
 	}
 }
-for my $f (keys %logfiles) {
-	unless (exists $conffiles{$f}) {
-		problem('WARNING', "log $f has no config");
-	}
-}
+problem('WARNING', 'da-backup installed but no backups configured') if (scalar keys %conffiles == 0);
 
 FILE:
-for my $f (keys %logfiles) {
+for my $f (sort {$a cmp $b} keys %logfiles) {
+	unless (exists $conffiles{$f}) {
+		problem('WARNING', "log $f has no config");
+		next;
+	}
+
 	my @stat = stat("$logdir/$f") or die ("Cannot stat $logdir/$f: $!\n");
 	my $age = time - $stat[10];
 	if ($age < 0) {
