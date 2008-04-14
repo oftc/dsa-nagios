@@ -84,7 +84,7 @@ unless (-e $DABACKUP_CONF) {
 		print "WARNING: No $DABACKUP_CONF, but we have /var/log/da-backup/\n";
 		exit $CODE{'WARNING'};
 	};
-	print "OK: no backup configured\n";
+	print "OK: da-backup not installed\n";
 	exit $CODE{'OK'};
 };
 
