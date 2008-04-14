@@ -1,0 +1,162 @@
+#!/usr/bin/perl -w
+
+# Check the status of da-backup backups
+# Copyright 2007 Stephen Gran <sgran@debian.org>
+# Copyright 2008 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+use strict;
+use warnings;
+use English;
+use Getopt::Long;
+use Fcntl qw(:seek);
+
+my $DABACKUP_CONF = '/etc/da-backup.conf';
+my $MAX_AGE = 24*60*60;
+my %CODE = (
+	'UNDEF'         => -1,
+	'OK'            => 0,
+	'WARNING'       => 1,
+	'CRITICAL'      => 2,
+	'UNKNOWN'       => 3
+);
+$SIG{__DIE__ } = sub() {
+	print shift;
+	exit $CODE{'UNKNOWN'};
+};
+
+
+my $EXITCODE = 'UNDEF';
+my @MESSAGE = ();
+
+sub problem($$) {
+	my ($code, $msg) = @_;
+	push @MESSAGE, $msg;
+	$EXITCODE = ($CODE{$code} > $CODE{$EXITCODE}) ? $code : $EXITCODE;
+};
+
+
+sub help($$) {
+	my ($exitcode, $fd) = @_;
+	version ($fd, 0);
+	print $fd "Usage: $PROGRAM_NAME --help\n";
+	print $fd "Usage: $PROGRAM_NAME";
+	exit $exitcode
+};
+
+my $params = {};
+
+Getopt::Long::config('bundling');
+if (!GetOptions (
+	'h|help'        =>  \$params->{'help'},
+	)) {
+	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
+};
+
+help(0, *STDOUT) if $params->{'help'};
+help(1, *STDERR) if scalar @ARGV > 0;
+
+
+unless (-e $DABACKUP_CONF) {
+	if (-e '/etc/da-backup') {
+		print "WARNING: No $DABACKUP_CONF, but we have /etc/da-backup/\n";
+		exit $CODE{'WARNING'};
+	};
+	if (-e '/var/log/da-backup') {
+		print "WARNING: No $DABACKUP_CONF, but we have /var/log/da-backup/\n";
+		exit $CODE{'WARNING'};
+	};
+	print "OK: no backup configured\n";
+	exit $CODE{'OK'};
+};
+
+my $confdir;
+my $logdir;
+
+open (FH, "< $DABACKUP_CONF") or die ("Cannot open $DABACKUP_CONF: $!\n");
+while (<FH>) {
+	if (/confdir=(.*)/) {
+		$confdir = $1;
+	} elsif (/logdir=(.*)/) {
+		$logdir = $1;
+	};
+};
+
+die ("No confdir found in $DABACKUP_CONF") unless defined $confdir;
+die ("No logdir found in $DABACKUP_CONF") unless defined $logdir;
+
+opendir(DIR, $confdir) or die ("Cannot opendir $confdir: $!\n");
+my %conffiles = map {$_ => 1} grep { !/^\./ } readdir(DIR);
+closedir(DIR);
+
+opendir(DIR, $logdir) or die ("Cannot opendir $logdir: $!\n");
+my %logfiles = map {$_ => 1} grep { !/^\./ && !/\.[0-9]+(\.gz)?$/} readdir(DIR);
+closedir(DIR);
+
+for my $f (keys %conffiles) {
+	unless (exists $logfiles{$f}) {
+		problem('WARNING', "$f has no log");
+	}
+}
+for my $f (keys %logfiles) {
+	unless (exists $conffiles{$f}) {
+		problem('WARNING', "log $f has no config");
+	}
+}
+
+FILE:
+for my $f (keys %logfiles) {
+	my @stat = stat("$logdir/$f") or die ("Cannot stat $logdir/$f: $!\n");
+	my $age = time - $stat[10];
+	if ($age < 0) {
+		problem('WARNING', "%f is from the future");
+		next;
+	} elsif ($age > $MAX_AGE) {
+		my $hage;
+
+		if ($age > 48 * 3600) {
+			$hage = sprintf("%d days", $age / 24 / 3600);
+		} else {
+			$hage = sprintf("%d hours", $age /  3600);
+		};
+		problem('WARNING', "$f is $hage old");
+		next;
+	};
+
+	open(FH, "< $logdir/$f") or die ("Cannot open $logdir/$f: $!\n");
+	sysseek(FH, -1024, SEEK_END); # just try it - doesn't matter if it fails
+	my $last2 = '';
+	my $last = '';
+	while (<FH>) {
+		chomp;
+		if (/^sent\s+\d+\s+bytes\s+received\s+\d+\s+bytes\s+[\d\.]+\s+bytes\/sec$/) {
+			problem('OK', "$f probably ok");
+			close(FH);
+			next FILE;
+		};
+		$last2 = $last;
+		$last = $_;
+	};
+	problem('CRITICAL', "$f failed ($last2 $last)");
+};
+
+print $EXITCODE,": ", join(";  ", @MESSAGE), "\n";
+exit $CODE{$EXITCODE};
