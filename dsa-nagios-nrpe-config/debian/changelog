@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (30) unstable; urgency=low
+
+  * dsa-check-raid-sw: cleaner output.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 17:05:17 -0400
+
 dsa-nagios-nrpe-config (29) unstable; urgency=low
 
   * dsa-check-dabackup: terser output.

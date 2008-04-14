@@ -84,9 +84,8 @@ alarm($timeout);
 
 # Start checking the file...
 open (FH, $stat) or print("UNKNOWN: Cannot open $stat: $!\n"), exit $ERRORS{'UNKNOWN'};
-$state = $ERRORS{'OK'};
-$msg ="";
 
+my @failed = ();
 my @resyncing = ();
 my $device = '';
 
@@ -96,8 +95,7 @@ while (<FH>) {
 	if ($line =~ /^(md\S*) /) {
 		$device = $1;
 	} elsif( $line =~ / \[_|_\]|U_|_U /) {
-		$state = $ERRORS{'CRITICAL'};
-		$msg = $msg . $device . ": - ";
+		push @failed, $device;
 	}
 	elsif ( $line =~ / resync /) {
 		#       [==>..................]  resync = 10.3% (15216320/146994624) finish=2153.2min speed=1018K/sec
@@ -109,14 +107,20 @@ while (<FH>) {
 }
 close (FH);
 
-if ( $state == $ERRORS{'CRITICAL'} ) { 
-	print "CRITICAL - Device(s) $msg have failed\n"; 
-} elsif ( scalar @resyncing > 0 ) {
+if (scalar @failed > 0) {
+	if (scalar @failed == 1) {
+		print "CRITICAL - Device $failed[0] has failed.\n";
+	} else {
+		print "CRITICAL - Devices ".join(", ", @failed)." have failed.\n"
+	};
+	exit $ERRORS{'CRITICAL'};
+} elsif (scalar @resyncing > 0 ) {
 	print "WARNING: Resyncing: ".(join "; ", @resyncing)."\n";
-	$state = $ERRORS{'WARNING'};
-} elsif ( $state == $ERRORS{'OK'} )
-	 { print "OK - All devices are online\n"; }
-exit $state;
+	exit $ERRORS{'WARNING'};
+} else {
+	print "OK - All devices are online\n";
+	exit $ERRORS{'OK'};
+};
 
 
 sub print_usage () {
