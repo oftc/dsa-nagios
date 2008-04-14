@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (29) unstable; urgency=low
+
+  * dsa-check-dabackup: terser output.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 14 Apr 2008 13:09:07 -0400
+
 dsa-nagios-nrpe-config (28) unstable; urgency=low
 
   * dsa-check-dabackup: ignore .bak files in confdir.

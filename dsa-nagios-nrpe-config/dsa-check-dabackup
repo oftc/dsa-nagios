@@ -45,11 +45,12 @@ $SIG{__DIE__ } = sub() {
 
 
 my $EXITCODE = 'UNDEF';
-my @MESSAGE = ();
+my %MESSAGE = ();
 
-sub problem($$) {
-	my ($code, $msg) = @_;
-	push @MESSAGE, $msg;
+sub problem($$$) {
+	my ($code, $msg, $resource) = @_;
+	$MESSAGE{$msg} = [] unless defined $MESSAGE{$msg};
+	push @{$MESSAGE{$msg}}, $resource;
 	$EXITCODE = ($CODE{$code} > $CODE{$EXITCODE}) ? $code : $EXITCODE;
 };
 
@@ -111,24 +112,28 @@ opendir(DIR, $logdir) or die ("Cannot opendir $logdir: $!\n");
 my %logfiles = map {$_ => 1} grep { !/^\./ && !/\.[0-9]+(\.gz)?$/} readdir(DIR);
 closedir(DIR);
 
+if (scalar keys %conffiles == 0) {
+	print "WARNING: da-backup installed but no backups configured\n";
+	exit $CODE{'WARNING'};
+};
+
 for my $f (keys %conffiles) {
 	unless (exists $logfiles{$f}) {
-		problem('WARNING', "$f has no log");
+		problem('WARNING', 'no log', $f);
 	}
 }
-problem('WARNING', 'da-backup installed but no backups configured') if (scalar keys %conffiles == 0);
 
 FILE:
 for my $f (sort {$a cmp $b} keys %logfiles) {
 	unless (exists $conffiles{$f}) {
-		problem('WARNING', "log $f has no config");
+		problem('WARNING', 'no config', $f);
 		next;
 	}
 
 	my @stat = stat("$logdir/$f") or die ("Cannot stat $logdir/$f: $!\n");
 	my $age = time - $stat[10];
 	if ($age < 0) {
-		problem('WARNING', "%f is from the future");
+		problem('WARNING', 'future timestamp', $f);
 		next;
 	} elsif ($age > $MAX_AGE) {
 		my $hage;
@@ -138,7 +143,7 @@ for my $f (sort {$a cmp $b} keys %logfiles) {
 		} else {
 			$hage = sprintf("%d hours", $age /  3600);
 		};
-		problem('WARNING', "$f is $hage old");
+		problem('WARNING', 'old', "$f ($hage)");
 		next;
 	};
 
@@ -149,15 +154,16 @@ for my $f (sort {$a cmp $b} keys %logfiles) {
 	while (<FH>) {
 		chomp;
 		if (/^sent\s+\d+\s+bytes\s+received\s+\d+\s+bytes\s+[\d\.]+\s+bytes\/sec$/) {
-			problem('OK', "$f probably ok");
+			problem('OK', 'probably ok', $f);
 			close(FH);
 			next FILE;
 		};
 		$last2 = $last;
 		$last = $_;
 	};
-	problem('CRITICAL', "$f failed ($last2 $last)");
+	problem('CRITICAL', 'FAILED', "$f ($last2 $last)");
 };
 
-print $EXITCODE,": ", join(";  ", @MESSAGE), "\n";
+my $msg = join("; ", map {"$_: ".join(', ', @{$MESSAGE{$_}}) } (sort {$a cmp $b} keys %MESSAGE));
+print $EXITCODE, ": ", $msg, "\n";
 exit $CODE{$EXITCODE};
