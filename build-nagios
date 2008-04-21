@@ -9,7 +9,7 @@ SHORTORG="dsa"
 GENERATED_PREFIX="./generated/"
 
 nagios_filename = {};
-%w(hosts hostgroups services dependencies hostextinfo serviceextinfo).each{
+%w(hosts hostgroups services dependencies hostextinfo serviceextinfo servicegroups).each{
 	|x| nagios_filename[x] = GENERATED_PREFIX+"auto-#{x}.cfg"
 }
 nagios_filename['nrpe'] = GENERATED_PREFIX+"nrpe_#{ ORG }.cfg"
@@ -279,6 +279,8 @@ config['servers'].each_pair{ |name, server|
 	};
 }
 
+config['servicegroups'] = {} unless config.has_key? 'servicegroups'
+
 ##############
 # HOSTS
 ##############
@@ -401,6 +403,17 @@ config['services'].each{ |service|
 	else
 		addService(hosts, service, files, config['servers'])
 	end
+}
+
+
+
+##############
+# SERVICEGROUPS
+##############
+config['servicegroups'].each_pair{ |name, sg|
+	set_complain_if_set sg, 'servicegroup_name', name                       , 'Servicegroup', name
+
+	print_block files['servicegroups'], 'servicegroup', sg, %w()
 }
 
 

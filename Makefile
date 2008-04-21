@@ -37,6 +37,7 @@ install: generated/nrpe_dsa.cfg
 	install -m 644 generated/auto-hosts.cfg /etc/nagios3/conf.d
 	install -m 644 generated/auto-serviceextinfo.cfg /etc/nagios3/conf.d
 	install -m 644 generated/auto-services.cfg /etc/nagios3/conf.d
+	install -m 644 generated/auto-servicegroups.cfg /etc/nagios3/conf.d
 	#
 	@echo "Also run: "
 	@echo " cp Build-tree/*.deb /org/db.debian.org/ftp-archive/archive/pool/etch/ && "
