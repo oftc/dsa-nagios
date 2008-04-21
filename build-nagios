@@ -120,10 +120,9 @@ end
 
 # Add the service definition service to hosts
 # f is the file for service definitions, deps the file for dependencies
-def addService(hosts, service, files)
+def addService(hosts, service, files, servers)
 
 	set_if_unset        service, 'use'               , SERVICE_TEMPLATE_NAME
-	set_complain_if_set service, 'host_name'         , hosts.join(',')      , 'Service', service['service_description']
 	set_if_unset        service, 'max_check_attempts', MAX_CHECK_ATTEMPTS_DEFAULT
 
 	service['max_check_attempts'] = MAX_CHECK_ATTEMPTS_DEFAULT + service['max_check_attempts'] if service['max_check_attempts'] < 0
@@ -139,9 +138,17 @@ def addService(hosts, service, files)
 		service['depends'] << NRPE_PROCESS_SERVICE unless service['service_description'] == NRPE_PROCESS_SERVICE  # Depend on NRPE unless we are it
 	end
 
-	print_block files['services'], 'service', service, %w(nrpe runfrom remotecheck
-	                                                      depends
-	                                                      hosts hostgroups excludehosts excludehostgroups)
+	hosts.each{ |host|
+		s = service.clone
+		set_complain_if_set s, 'host_name', host, 'Service', s['service_description']
+		%w{contacts contact_groups}.each{ |k|
+			set_if_unset(s, k, servers[host][k]) if servers[host].has_key? k
+		}
+
+		print_block files['services'], 'service', s, %w(nrpe runfrom remotecheck
+		                                                depends
+		                                                hosts hostgroups excludehosts excludehostgroups)
+	}
 
 	if service['depends']
 		service['depends'].each{ |prerequisite|
@@ -386,13 +393,13 @@ config['services'].each{ |service|
 			# And append this new dependency
 			hostservice['depends'] << "#{ relay }:#{ NRPE_PROCESS_SERVICE }";
 
-			addService( [ host ], hostservice, files)
+			addService( [ host ], hostservice, files, config['servers'])
 		}
 	elsif service['runfrom'] || service['remotecheck']
 		throw "runfrom and remotecheck must either appear both or not at all in service #{service['service_description']}"
 		throw "must not remotecheck without runfrom" if service['remotecheck']
 	else
-		addService(hosts, service, files)
+		addService(hosts, service, files, config['servers'])
 	end
 }
 
