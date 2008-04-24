@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Nagios check for Mylex DAC960/AcceleRAID/eXtremeRAID PCI RAID Controllers
+#
+# Some background information on the driver is available at
+# http://home.germany.net/100-120220/mylex/DAC960.README
+#
+# Written 2008 Peter Palfrader
+
+if [ -e /proc/rd/status ]; then
+	status=`cat /proc/rd/status`
+	if [ "$status" = "OK" ]; then
+		echo "OK: all DAC960 controllers operating normally; no (non-standby) failures have occurred"
+		exit 0;
+	else
+		echo "CRITICAL: proc/rd/status is $status"
+		exit 2;
+	fi;
+else
+	echo "UNKNOWN: No DAC960 controllers in the system"
+	exit 3;
+fi
