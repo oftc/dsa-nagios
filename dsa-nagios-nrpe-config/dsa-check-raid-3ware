@@ -1,0 +1,111 @@
+#!/usr/bin/perl -Tw
+
+# Copyright (C) 2006 Peter Palfrader <peter@palfrader.org>
+
+# Need to allow /usr/local/bin/tw_cli info c0 u0 status in sudoers:
+#
+#  nagios          ALL=(ALL) NOPASSWD: /usr/local/bin/tw_cli info c0 u0 status
+#
+
+use strict;
+use English;
+use Getopt::Long;
+
+$ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+my $TW_CLI = '/usr/local/bin/tw_cli';
+my $SVN_REVISION_STRING = '$Rev: 313 $';
+my ($SVN_REVISION) = ($SVN_REVISION_STRING =~ /([0-9]+)/);
+    $SVN_REVISION  = 'unknown' unless defined $SVN_REVISION;
+my $VERSION = '0.0.0.'.$SVN_REVISION;
+
+# nagios exit codes
+my $UNKNOWN = -1;
+my $OK = 0;
+my $WARNING = 1;
+my $CRITICAL = 2;
+
+my $params = {
+	'no-sudo'    => 0,
+	'controller' => 0,
+	'unit'       => 0
+	};
+
+Getopt::Long::config('bundling');
+if (!GetOptions (
+	'--help'		=> \$params->{'help'},
+	'--version'		=> \$params->{'version'},
+	'--verbose'		=> \$params->{'verbose'},
+	'--controller=i'	=> \$params->{'controller'},
+	'--unit=i'		=> \$params->{'unit'},
+	'--no-sudo'		=> \$params->{'no-sudo'},
+	)) {
+	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--verbose] [--no-sudo] [--controller=<n>] [--unit=<n>]\n");
+};
+if ($params->{'help'}) {
+	print "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--verbose] [--no-sudo] [--controller=<n>] [--unit=<n>]\n";
+	print "Checks status of 3ware raid arrays.\n";
+	exit (0);
+};
+if ($params->{'version'}) {
+	print "nagios-check-raid-3ware $VERSION\n";
+	print "nagios check for 3ware raids\n";
+	print "Copyright (c) 2006 Peter Palfrader <peter\@palfrader.org>\n";
+	exit (0);
+};
+
+$SIG{'__DIE__'} = sub {
+	print STDERR @_;
+	exit $UNKNOWN;
+};
+
+unless (-e $TW_CLI) {
+	print "Cannot find '$TW_CLI'.\n";
+	exit $UNKNOWN;
+};
+
+my $sudo = $params->{'no-sudo'} ? '' : 'sudo ';
+my $command = "$sudo $TW_CLI info c$params->{'controller'} u$params->{'unit'} status";
+print STDERR "Running $command\n" if $params->{'verbose'};
+open (TW, "$command|") or die ("Cannot run $command: $!\n");
+my @tw=<TW>;
+close TW;
+if ($CHILD_ERROR) { # program failed
+	die("$command returned with non-zero exit code: ".($CHILD_ERROR / 256)."\n");
+};
+
+
+my $exit = $UNKNOWN;
+my $msg = '';
+for my $line (@tw)  {
+	chomp $line;
+	next if $line =~ /^$/;
+	my ($device, $status) = $line =~ m#^(/c[0-9]+/u[0-9]+) status = ([A-Z]+)$#;
+	unless (defined($device) && defined($status)) {
+		print "Cannot parse line '$line'\n";
+		exit $UNKNOWN;
+	};
+	if ($status eq 'OK' ||
+	    $status eq 'VERIFYING') {
+		$msg .= ($msg eq '' ? '' : '; '). "$device: $status";
+		$exit = $exit > $OK ? $exit : $OK;
+	} elsif ($status eq 'DEGRADED') {
+		$msg .= ($msg eq '' ? '' : '; '). "$device: $status";
+		$exit = $exit > $CRITICAL ? $exit : $CRITICAL;
+	} elsif ($status eq 'OFFLINE') {
+		$msg .= ($msg eq '' ? '' : '; '). "$device: $status";
+		$exit = $exit > $CRITICAL ? $exit : $CRITICAL;
+	} else {
+		$msg .= ($msg eq '' ? '' : '; '). "$device: UNKNOWN STATUS '$status'";
+		$exit = $exit > $UNKNOWN ? $exit : $UNKNOWN;
+	};
+};
+
+if ($msg eq '') {
+	$msg = "No devices found";
+	die ("exit is not UNKNOWN but $exit") if ($exit != $UNKNOWN);
+}
+
+print $msg,"\n";
+exit $exit;

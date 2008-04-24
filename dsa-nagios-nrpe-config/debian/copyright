@@ -17,3 +17,8 @@ dsa-check-dabackup:
   Copyright: 2007 Stephen Gran
   Copyright: 2008 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-raid-3ware
+  Copyright: 2006 Peter Palfrader
+  License: MIT
