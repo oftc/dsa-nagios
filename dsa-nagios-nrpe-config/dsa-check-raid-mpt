@@ -1,0 +1,70 @@
+#!/usr/bin/perl -Tw
+
+# Copyright (C) 2008 Peter Palfrader <peter@palfrader.org>
+
+# Need to allow /usr/local/bin/tw_cli info c0 u0 status in sudoers:
+#
+#  nagios          ALL=(ALL) NOPASSWD: /usr/sbin/mpt-status -s
+#
+
+use strict;
+use English;
+use Getopt::Long;
+
+$ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+my $MPT_STATUS = '/usr/sbin/mpt-status';
+
+# nagios exit codes
+my $UNKNOWN = -1;
+my $OK = 0;
+my $WARNING = 1;
+my $CRITICAL = 2;
+
+$SIG{'__DIE__'} = sub {
+	print STDERR @_;
+	exit $UNKNOWN;
+};
+
+unless (-e $MPT_STATUS) {
+	print "Cannot find '$MPT_STATUS'.\n";
+	exit $UNKNOWN;
+};
+
+my $command = "sudo $MPT_STATUS -s";
+open (MPT, "$command|") or die ("Cannot run $command: $!\n");
+my @tw=<MPT>;
+close MPT;
+if ($CHILD_ERROR) { # program failed
+	die("$command returned with non-zero exit code: ".($CHILD_ERROR / 256)."\n");
+};
+
+
+my $exit = $UNKNOWN;
+my $msg = '';
+for my $line (@tw)  {
+	chomp $line;
+	next if $line =~ /^$/;
+	my ($device, $num, $status) = $line =~ m#^(vol_id|phys_id)\s+([0-9]+)\s+(.*)$#;
+	unless (defined($device) && defined($num) && defined($status)) {
+		print "Cannot parse line '$line'\n";
+		exit $UNKNOWN;
+	};
+	if ($status eq 'OPTIMAL' ||
+	    $status eq 'ONLINE') {
+		$msg .= ($msg eq '' ? '' : '; '). "$device $num: $status";
+		$exit = $exit > $OK ? $exit : $OK;
+	} else {
+		$msg .= ($msg eq '' ? '' : '; '). "$device $num: $status";
+		$exit = $exit > $CRITICAL ? $exit : $CRITICAL;
+	};
+};
+
+if ($msg eq '') {
+	$msg = "No devices found";
+	die ("exit is not UNKNOWN but $exit") if ($exit != $UNKNOWN);
+}
+
+print $msg,"\n";
+exit $exit;

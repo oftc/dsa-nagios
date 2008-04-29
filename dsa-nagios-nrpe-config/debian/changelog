@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (35) unstable; urgency=low
+
+  * dsa-check-raid-mpt
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 29 Apr 2008 12:57:50 +0000
+
 dsa-nagios-nrpe-config (34) unstable; urgency=low
 
   * dsa-check-raid-3ware
