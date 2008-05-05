@@ -66,15 +66,20 @@ get_image() {
 	echo "ERROR: Unable to extract kernel image." 2>&1
 	exit 1
 }
+on_disk_compressed="/boot/vmlinuz-`uname -r`"
+on_disk_uncompressed="/boot/vmlinux-`uname -r`"
 
-on_disk="/boot/vmlinuz-`uname -r`"
-
-if ! [ -e "$on_disk" ] ; then
-	echo "WARNING: $on_disk does not exist - I have no idea which kernel I am running"
-	exit $WARN
+if [ -e "$on_disk_compressed" ]; then
+	on_disk="$on_disk_compressed"
+	on_disk_version="`get_image "$on_disk" | strings | grep 'Linux version' | head -n1`"
+elif [ -e "$on_disk_uncompressed" ]; then
+	on_disk="$on_disk_uncompressed"
+	on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
+else
+	echo "WARNING: Neither $on_disk_uncompressed nor $on_disk_compressed do exist - I have no idea which kernel I am running"
+	exit $WARNING
 fi
 
-on_disk_version="`get_image $on_disk | strings | grep 'Linux version' | head -n1`"
 if [ -z "$on_disk_version" ] ; then
 	echo "UNKNOWN: Failed to get a version string from image $on_disk"
 	exit $UNKNOWN

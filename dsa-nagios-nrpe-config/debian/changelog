@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (37) unstable; urgency=low
+
+  * dsa-check-running-kernel: also check /boot/vmlinux-`uname -r`
+  * Depend on binutils for string(1).
+
+ -- Peter Palfrader <weasel@debian.org>  Mon,  5 May 2008 17:41:13 +0000
+
 dsa-nagios-nrpe-config (36) unstable; urgency=low
 
   * Add dsa-check-running-kernel
