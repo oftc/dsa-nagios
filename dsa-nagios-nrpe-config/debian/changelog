@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (36) unstable; urgency=low
+
+  * Add dsa-check-running-kernel
+
+ -- Peter Palfrader <weasel@debian.org>  Mon,  5 May 2008 17:11:54 +0000
+
 dsa-nagios-nrpe-config (35) unstable; urgency=low
 
   * dsa-check-raid-mpt
