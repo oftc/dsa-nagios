@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (38) unstable; urgency=low
+
+  * Try harder to find version string.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon,  5 May 2008 17:48:42 +0000
+
 dsa-nagios-nrpe-config (37) unstable; urgency=low
 
   * dsa-check-running-kernel: also check /boot/vmlinux-`uname -r`

@@ -59,31 +59,38 @@ get_image() {
 	fi
 	if [ "$off" -eq "0" ]; then
 		zcat < "$image"
+		return
 	elif [ "$off" -ne "-1" ]; then
 		(dd ibs="$off" skip=1 count=0 && dd bs=512k) < "$image"  2>/dev/null | zcat 2>/dev/null
+		return
 	fi
 
 	echo "ERROR: Unable to extract kernel image." 2>&1
 	exit 1
 }
-on_disk_compressed="/boot/vmlinuz-`uname -r`"
-on_disk_uncompressed="/boot/vmlinux-`uname -r`"
 
-if [ -e "$on_disk_compressed" ]; then
-	on_disk="$on_disk_compressed"
-	on_disk_version="`get_image "$on_disk" | strings | grep 'Linux version' | head -n1`"
-elif [ -e "$on_disk_uncompressed" ]; then
-	on_disk="$on_disk_uncompressed"
-	on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
-else
-	echo "WARNING: Neither $on_disk_uncompressed nor $on_disk_compressed do exist - I have no idea which kernel I am running"
+searched=""
+for on_disk in \
+	"/boot/vmlinuz-`uname -r`"\
+	"/boot/vmlinux-`uname -r`"; do
+
+	if [ -e "$on_disk" ]; then
+		on_disk_version="`get_image "$on_disk" | strings | grep 'Linux version' | head -n1`"
+		[ -z "$on_disk_version" ] || break
+		on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
+		[ -z "$on_disk_version" ] || break
+
+		echo "UNKNOWN: Failed to get a version string from image $on_disk"
+		exit $UNKNOWN
+	fi
+	searched="$searched $on_disk"
+done
+
+if ! [ -e "$on_disk" ]; then
+	echo "WARNING: Did not find a kernel image (checked$searched) - I have no idea which kernel I am running"
 	exit $WARNING
 fi
 
-if [ -z "$on_disk_version" ] ; then
-	echo "UNKNOWN: Failed to get a version string from image $on_disk"
-	exit $UNKNOWN
-fi
 
 running_version="`cat /proc/version`"
 if [ -z "$running_version" ] ; then
