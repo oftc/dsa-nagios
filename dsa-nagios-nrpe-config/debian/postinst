@@ -47,6 +47,17 @@ if [ -e /etc/sudoers ] ; then
 	fi
 fi
 
+if [ -e /usr/sbin/hpacucli ] && [ -e /dev/cciss/c0d0 ] ; then
+	if ! grep '^nagios.*hpacucli' /etc/sudoers > /dev/null; then
+		echo
+		echo 'WARNIG: Add these lines to sudoers:'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller all show'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd all show'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 show status'
+		echo
+	fi
+fi
+
 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
 	invoke-rc.d nagios-nrpe-server restart || exit $?
 else
