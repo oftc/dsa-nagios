@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (39) unstable; urgency=low
+
+  * Add dsa-check-hpacucli.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  7 May 2008 19:54:18 +0000
+
 dsa-nagios-nrpe-config (38) unstable; urgency=low
 
   * Try harder to find version string.

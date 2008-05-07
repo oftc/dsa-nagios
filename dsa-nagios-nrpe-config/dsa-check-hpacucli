@@ -1,0 +1,144 @@
+#!/usr/bin/perl -w
+
+# check _physical_ disk status of disks on HP smart array controllers
+# requires hpacucli
+#
+# does _not_ check raid status.  use arrayprobe for that.
+
+# Copyright (c) 2008 Peter Palfrader <peter@palfrader.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+use strict;
+
+# nagios exit codes
+my %CODE = (
+	'OK'            => 0,
+	'WARNING'       => 1,
+	'CRITICAL'      => 2,
+	'UNKNOWN'       => 3
+);
+
+my $EXITCODE = 'OK';
+
+$SIG{'__DIE__'} = sub {
+	print STDERR @_;
+	exit $CODE{'UNKNOWN'};
+};
+
+sub runcmd($) {
+	my ($cmd) = @_;
+	$cmd = "sudo hpacucli $cmd";
+	open(FH, $cmd."|") or die ("Cannot run $cmd: $!");
+	my @lines = <FH>;
+	close FH;
+	die ("no results from $cmd\n") if (scalar @lines == 0);
+	return \@lines;
+}
+
+sub record($) {
+	my ($newexit) = @_;
+	die "code $newexit not defined\n" unless defined $CODE{$newexit};
+
+	if ($CODE{$newexit} > $CODE{$EXITCODE}) {
+		$EXITCODE = $newexit;
+	};
+}
+
+
+my $ctrlallshow = runcmd("controller all show");
+my @controllers;
+for (@$ctrlallshow) {
+	chomp;
+	next if /^$/;
+	if (/in Slot ([0-9]+) /) {
+		push @controllers, $1;
+		next;
+	};
+	die ("Cannot read line '$_' gotten from hpacucli controller all show\n");
+};
+
+if (scalar @controllers == 0) {
+	print "UNKNONW: No smartarray controllers found with hpacucli\n";
+	exit $CODE{'UNKNOWN'}
+};
+
+my @resultstr;
+
+for my $slot (sort @controllers) {
+	my $pds = runcmd("controller slot=$slot pd all show");
+	my $nodrives = 0;
+	my %status;
+	for (@$pds) {
+		chomp;
+		next if /^$/;
+		next if /^ *array [A-Z]$/;
+		next if (/^\S.*in Slot $slot/);
+		if (/^Error: The specified controller does not have any physical drives on it.$/) {
+			$nodrives = 1;
+		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed)(?:, spare)?\)$/) {
+			my $drive = $1;
+			my $status = $2;
+			push @{$status{$status}}, $drive;
+			if ($status eq 'OK') {
+			} elsif ($status eq 'Predictive Failure') {
+				record('WARNING');
+			} elsif ($status eq 'Failed') {
+				record('CRITICAL');
+			} else {
+				record('UNKNOWN');
+			};	
+		} else {
+			die ("Cannot read line '$_' gotten from hpacucli controller slot=$slot pd all show\n");
+		};
+	};
+
+	if ($nodrives && scalar keys %status > 0) {
+		push @resultstr, "Slot $slot: have no drives but status results?";
+		record('UNKNOWN');
+		next;
+	} elsif ($nodrives) {
+		push @resultstr, "Slot $slot: no drives";
+		next;
+	};
+
+	my $cst = runcmd("controller slot=$slot show status");
+	for (@$cst) {
+		chomp;
+		next if /^$/;
+		next if (/^\S.*in Slot $slot/);
+		if (/^ *(.*) Status: (.*)$/) {
+			my $system = $1;
+			my $status = $2;
+			push @{$status{$status}}, $system;
+			if ($status ne 'OK') {
+				record('WARNING');
+			};
+		} else {
+			die ("Cannot read line '$_' gotten from hpacucli controller slot=$slot show status\n");
+		};
+	};
+
+	my $status = join("; ", (map { $_.": ".join(", ", @{$status{$_}}) } keys %status));
+	push @resultstr, "Slot $slot: $status";
+};
+
+print "$EXITCODE: ", join(" - ", @resultstr), "\n";
+exit $CODE{$EXITCODE};

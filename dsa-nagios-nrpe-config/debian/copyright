@@ -27,3 +27,8 @@ dsa-check-raid-3ware:
 dsa-check-running-kernel:
   Copyright: 2008 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-hpacucli:
+  Copyright: 2008 Peter Palfrader
+  License: MIT
