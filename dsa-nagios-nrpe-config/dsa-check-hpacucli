@@ -136,9 +136,9 @@ for my $slot (sort @controllers) {
 		};
 	};
 
-	my $status = join("; ", (map { $_.": ".join(", ", @{$status{$_}}) } keys %status));
+	my $status = join(" - ", (map { $_.": ".join(", ", @{$status{$_}}) } keys %status));
 	push @resultstr, "Slot $slot: $status";
 };
 
-print "$EXITCODE: ", join(" - ", @resultstr), "\n";
+print "$EXITCODE: ", join(" --- ", @resultstr), "\n";
 exit $CODE{$EXITCODE};
