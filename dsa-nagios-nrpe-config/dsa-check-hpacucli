@@ -93,12 +93,13 @@ for my $slot (sort @controllers) {
 		next if (/^\S.*in Slot $slot/);
 		if (/^Error: The specified controller does not have any physical drives on it.$/) {
 			$nodrives = 1;
-		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed)(?:, spare)?\)$/) {
+		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed|Rebuilding)(?:, spare)?\)$/) {
 			my $drive = $1;
 			my $status = $2;
 			push @{$status{$status}}, $drive;
 			if ($status eq 'OK') {
-			} elsif ($status eq 'Predictive Failure') {
+			} elsif ($status eq 'Predictive Failure' ||
+			         $status eq 'Rebuilding') {
 				record('WARNING');
 			} elsif ($status eq 'Failed') {
 				record('CRITICAL');

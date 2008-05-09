@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (40) unstable; urgency=low
+
+  * Teach dsa-check-hpacucli about rebuilding.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri,  9 May 2008 12:55:07 +0000
+
 dsa-nagios-nrpe-config (39) unstable; urgency=low
 
   * Add dsa-check-hpacucli.
