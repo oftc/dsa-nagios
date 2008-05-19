@@ -1,0 +1,81 @@
+#!/usr/bin/ruby
+
+# Relay the status of a check that was previously run and which stored
+# its result in a file to nagios.
+#
+# Copyright 2008 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+require 'resolv'
+require 'optparse'
+
+NAGIOS_STATUS = { "OK" => 0, "WARNING" => 1, "CRITICAL" => 2, "UNKNOWN" => 3 }
+UNITS_TO_SECONDS = { 's' => 1, 'm' => 60, 'h' => 60*60, 'd' => 24*60*60 }
+
+def show_help(parser, code=0, io=STDOUT)
+  program_name = File.basename($0, '.*')
+  io.puts "Usage: #{program_name} [options] <statusfile>"
+  io.puts parser.summarize
+  exit(code)
+end
+
+max_age = "26h"
+ARGV.options do |opts|
+        opts.on_tail("-h", "--help" , "Display this help screen")                                               { show_help(opts) }
+        opts.on("-a", "--age=AGE"  , String, "maximum age, in seconds (or use Nm, Nh or Nd) - default is 26h")  { |max_age| }
+        opts.parse!
+end
+show_help(ARGV.options, 1, STDERR) if ARGV.length != 1
+
+statusfile = ARGV.shift
+
+# find out what the max age is that we accept
+unless (m = /^([0-9]+)([smhd])?$/.match max_age)
+	STDERR.puts "Invalid age #{age}."
+	show_help(ARGV.options, 1, STDERR) if ARGV.length != 1
+end
+max_age = m[1].to_i * UNITS_TO_SECONDS[m[2] ? m[2] : 's']
+
+# let's see if it exists
+unless File.exists? statusfile
+	puts "UNKNOWN: #{statusfile} does not exist."
+	exit NAGIOS_STATUS['UNKNOWN']
+end
+
+
+mtime = File.stat(statusfile).mtime
+if mtime + max_age < Time.now
+	puts "WARNING: #{statusfile} is old: #{mtime}"
+	exit NAGIOS_STATUS['WARNING']
+end
+
+status = File.new(statusfile)
+returnvalue = status.readline.chomp
+
+unless NAGIOS_STATUS.has_key? returnvalue
+	puts "UNKNOWN: #{statusfile} has invalid return value: #{returnvalue}"
+	exit NAGIOS_STATUS['UNKNOWN']
+end
+
+status.readlines.each do |line|
+	print line
+end
+exit NAGIOS_STATUS[returnvalue]

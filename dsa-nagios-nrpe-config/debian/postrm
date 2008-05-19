@@ -1,0 +1,23 @@
+#!/bin/sh
+# postrm script for dsa-ssh-weak-keys
+#
+# see: dh_installdeb(1)
+
+set -e
+
+case "$1" in
+    purge)
+	rm -f /var/cache/dsa/nagios/weak-ssh-keys
+    ;;
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

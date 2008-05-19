@@ -24,12 +24,15 @@ install:
 	install -m 755 dsa-check-dabackup $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-udldap-freshness $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 
+	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa/weak-ssh-keys-check
+
 
 binary-indep: install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs 
+	dh_installchangelogs
 	dh_installdocs
+	dh_installcron
 	dh_compress
 	dh_fixperms
 	dh_installdeb

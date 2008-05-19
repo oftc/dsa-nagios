@@ -1,3 +1,12 @@
+dsa-nagios-nrpe-config (41) unstable; urgency=low
+
+  * Add dsa-check-statusfile.
+  * Add weak-ssh-keys-check to be run from cron.daily.  Depend on
+    libberkeleydb-perl and dsa-ssh-weak-keys now.
+  * Remove up /var/cache/dsa/nagios/weak-ssh-keys in postrm purge.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 19 May 2008 15:55:43 +0200
+
 dsa-nagios-nrpe-config (40) unstable; urgency=low
 
   * Teach dsa-check-hpacucli about rebuilding.

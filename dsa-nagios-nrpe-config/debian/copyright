@@ -32,3 +32,13 @@ dsa-check-running-kernel:
 dsa-check-hpacucli:
   Copyright: 2008 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-statusfile:
+  Copyright: 2008 Peter Palfrader
+  License: MIT
+
+########################################################################
+weak-ssh-keys-check:
+  Copyright: 2008 Florian Weimer, Alexander Wirt
+  License: ISC
