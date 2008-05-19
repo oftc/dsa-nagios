@@ -227,6 +227,7 @@ sub from_ssh_auth_file ($) {
 	chomp $line;
 	my $lineno = $.;
 	clear_tmp $tmp;
+	next if $line =~ m/^$/; # ignore empty lines
 	next if $line =~ m/^#/; # ignore comments
 	if ($line =~ m/^ssh-dss/) {
 		$dsa_keys++;
