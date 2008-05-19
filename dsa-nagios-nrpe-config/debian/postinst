@@ -64,6 +64,8 @@ else
 	/etc/init.d/nagios-nrpe-server restart || exit $?
 fi
 
+/usr/share/dsa/weak-ssh-keys-check -s /var/cache/dsa/nagios/weak-ssh-keys
+
 #DEBHELPER#
 
 exit 0
