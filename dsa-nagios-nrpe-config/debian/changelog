@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (44) unstable; urgency=low
+
+  * Fix ssh-dss detection.  It need not be at the start of a line
+    (think >from="1.2.3.4" ssh-dss< ...).
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 19 May 2008 14:34:23 +0000
+
 dsa-nagios-nrpe-config (43) unstable; urgency=low
 
   * Depend on ruby.

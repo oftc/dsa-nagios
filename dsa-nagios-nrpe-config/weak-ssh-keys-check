@@ -194,7 +194,7 @@ sub from_ssh_key_file ($) {
     my $name = shift;
     if (open (my $FH, '<', $name)) {
 	my $key = <$FH>; 
-	if ($key =~ m/^ssh-dss/) {
+	if ($key =~ m/ssh-dss/) {
 		$dsa_keys++;
 		$text .= "$name is a DSA key\n";
 	}
@@ -229,7 +229,7 @@ sub from_ssh_auth_file ($) {
 	clear_tmp $tmp;
 	next if $line =~ m/^$/; # ignore empty lines
 	next if $line =~ m/^#/; # ignore comments
-	if ($line =~ m/^ssh-dss/) {
+	if ($line =~ m/ssh-dss/) {
 		$dsa_keys++;
 		$text .= "$name:$lineno is a DSA key\n";
 	}
