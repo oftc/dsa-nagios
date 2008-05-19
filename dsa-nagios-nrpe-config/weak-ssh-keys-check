@@ -253,6 +253,7 @@ sub from_ssh_host (@) {
     my $tmp = new File::Temp;
     for my $line (@lines) {
 	next if $line =~ /^#/;
+	next if $line =~ /^no hostkey alg/;
 	my ($host, $data) = $line =~ /^(\S+) (.*)$/;
 	clear_tmp $tmp;
 	print $tmp "$data\n" or die "print: $!";

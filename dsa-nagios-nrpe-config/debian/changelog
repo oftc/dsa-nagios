@@ -1,9 +1,10 @@
 dsa-nagios-nrpe-config (42) unstable; urgency=low
 
   * weak-ssh-keys-check: Ignore empty lines in authorized-keys files.
+  * weak-ssh-keys-check: Handle servers not doing DSA in from_ssh_host().
   * Run weak-ssh-keys-check on install.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 19 May 2008 14:01:02 +0000
+ -- Peter Palfrader <weasel@debian.org>  Mon, 19 May 2008 14:05:10 +0000
 
 dsa-nagios-nrpe-config (41) unstable; urgency=low
 
