@@ -42,3 +42,9 @@ dsa-check-statusfile:
 weak-ssh-keys-check:
   Copyright: 2008 Florian Weimer, Alexander Wirt
   License: ISC
+
+########################################################################
+apt-status-check:
+  Copyright (C) 2004 SILVER SERVER Gmbh
+  Copyright (C) 2004, 2005, 2006, 2007, 2008 Peter Palfrader
+  License: GPL

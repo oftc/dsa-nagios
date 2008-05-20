@@ -25,7 +25,8 @@ install:
 	install -m 755 dsa-check-udldap-freshness $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-statusfile $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 
-	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa/weak-ssh-keys-check
+	install -m 755 apt-status-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
+	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
 
 
 binary-indep: install
