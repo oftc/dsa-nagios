@@ -22,10 +22,9 @@
 		 exit 1
 	fi
 
-	set -e
 	tmp=`tempfile`
 	trap "rm -f '$tmp'" exit
-	/usr/share/dsa/apt-status-check --noupdate > "$tmp"
+	/usr/share/dsa/apt-status-check --noupdate --timeout=600 > "$tmp"
 	result="$?"
 	case "$result" in
 	  0)
