@@ -121,7 +121,8 @@ my %key_sizes;
 
 
 
-&from_user_all;
+#&from_user_all;
+&from_debianorg_places;
 &from_ssh_host(qw(localhost));
 
 my $status="OK";
@@ -287,6 +288,46 @@ sub from_user_all () {
 	from_user $name;
     }
     endpwent;
+}
+
+
+sub from_debianorg_places () {
+    open(F, "/etc/ssh/sshd_config") or die ("Cannot open /etc/ssh/sshd_config: $!\n");
+    my @lines = <F>;
+    close(F);
+
+    my @ak = grep { /^AuthorizedKeysFile\s/i } @lines;
+    my @ak2 = grep { /^AuthorizedKeysFile2\s/i } @lines;
+
+    if (scalar @ak != 1) {
+	print $fh "UNKNOWN\n";
+	print $fh "There is more than one AuthorizedKeysFile definition in sshd_config\n";
+	exit
+    }
+    if (scalar @ak2 != 1) {
+	print $fh "UNKNOWN\n";
+	print $fh "There is more than one AuthorizedKeysFile2 definition in sshd_config\n";
+	exit
+    }
+    unless ($ak[0] =~ m#^((?i)AuthorizedKeysFile)\s+/etc/ssh/userkeys/%u$# ) {
+	print $fh "UNKNOWN\n";
+	print $fh "The AuthorizedKeysFile definition has an unexpected value.  Should be /etc/ssh/userkeys/%u\n";
+	exit
+    }
+    unless ($ak2[0] =~ m#^((?i)AuthorizedKeysFile2)\s+/var/lib/misc/userkeys/%u$# ) {
+	print $fh "UNKNOWN\n";
+	print $fh "The AuthorizedKeysFile2 definition has an unexpected value.  Should be /var/lib/misc/userkeys/%u\n";
+	exit
+    }
+
+    for my $d (qw{/etc/ssh/userkeys /var/lib/misc/userkeys}) {
+	next unless (-d $d);
+	opendir(D, $d) or die "Cannot opendir $d: $!\n";
+	for my $file (grep { $_ ne "." && $_ ne ".."  } readdir(D)) {
+	    my $f = $d.'/'.$file;
+	    from_ssh_key_file $f if -r $f;
+	};
+    };
 }
 
 
