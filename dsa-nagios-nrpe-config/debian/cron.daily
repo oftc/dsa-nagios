@@ -1,5 +1,0 @@
-#!/bin/bash
-
-[ -x /usr/share/dsa/weak-ssh-keys-check ] && /usr/share/dsa/weak-ssh-keys-check -s /var/cache/dsa/nagios/weak-ssh-keys
-
-[ -x /usr/sbin/dsa-update-apt-status ] && /usr/sbin/dsa-update-apt-status &
