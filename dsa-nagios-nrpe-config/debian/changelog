@@ -2,8 +2,13 @@ dsa-nagios-nrpe-config (XX) unstable; urgency=low
 
   * Move apt status update from cron.daily to usr/sbin/dsa-update-apt-status.
   * Move script calls from cron.daily to cron.d @daily and @reboot.
+  * Introduce hourly runs for dsa-update-apt-status that happen if the system
+    changed in the meantime, that is if /var/lib/dpkg/status or
+    /var/cache/apt/pkgcache.bin are newer than the status file.
+    Also run if the status file does not exist, or if the last apt-get update
+    call failed.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 06 Jul 2008 11:27:36 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 06 Jul 2008 11:41:41 +0200
 
 dsa-nagios-nrpe-config (45) unstable; urgency=low
 

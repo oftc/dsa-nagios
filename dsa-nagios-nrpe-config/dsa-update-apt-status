@@ -3,9 +3,27 @@
 UPDATE_RUNS=3
 STATUS=/var/cache/dsa/nagios/apt
 
+run_required() {
+	local run=0
+	local norun=1
+
+	[ -e "$STATUS" ] || return $run
+	[ /var/lib/dpkg/status -nt "$STATUS" ] && return $run
+	[ /var/cache/apt/pkgcache.bin -nt "$STATUS" ] && return $run
+	grep "apt-get update failed" "$STATUS" > /dev/null && return $run
+}
+
+sleep_max=7200
+
+if [ "$1" == "hourly" ] ; then
+	# on the hourly run, only update when the system changed since the last run
+	run_required || exit
+	sleep_max=900
+fi
+
 # sleep if called non-interactively
 if [ -z "$TERM" -o "$TERM" = "dumb" ]; then
-	sleep $(( $RANDOM % 7200 ))
+	sleep $(( $RANDOM % $sleep_max ))
 fi
 
 # run apt-get update, retry a few times if it fails
