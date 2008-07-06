@@ -2,3 +2,4 @@ etc/nagios
 usr/lib/nagios/plugins
 usr/share/dsa
 var/cache/dsa/nagios
+usr/sbin
