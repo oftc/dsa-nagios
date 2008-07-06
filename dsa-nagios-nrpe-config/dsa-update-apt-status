@@ -23,7 +23,7 @@ run_required() {
 	local last_mod
 	last_mod=`stat -c "%Y" "$STATUS"`
 	now=`date +%s`
-	age=$(( "$now" - "$last_mod" ))
+	age=$(( $now - $last_mod ))
 	[ "$age" -gt "$MAX_AGE" ] && return $run
 
 	return $norun
