@@ -28,6 +28,8 @@ install:
 	install -m 755 apt-status-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
 	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
 
+	install -m 755 dsa-update-apt-status $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/sbin
+
 
 binary-indep: install
 	dh_testdir

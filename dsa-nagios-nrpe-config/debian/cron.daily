@@ -2,43 +2,4 @@
 
 [ -x /usr/share/dsa/weak-ssh-keys-check ] && /usr/share/dsa/weak-ssh-keys-check -s /var/cache/dsa/nagios/weak-ssh-keys
 
-(
-	UPDATE_RUNS=3
-	STATUS=/var/cache/dsa/nagios/apt
-
-	if [ -z "$TERM" -o "$TERM" = "dumb" ]; then
-		sleep $(( $RANDOM % 7200 ))
-	fi
-	count=0
-	while [ "$count" -lt "$UPDATE_RUNS" ]; do
-		apt-get update -qq
-		if [ "$?" = "0" ]; then break; fi
-		sleep $(( $RANDOM % 600 ))
-		count="$(( $count + 1 ))"
-	done
-	if [ "$count" -ge "$UPDATE_RUNS" ]; then
-		(echo "WARNING"
-		 echo "apt-get update failed") > "$STATUS"
-		 exit 1
-	fi
-
-	tmp=`tempfile`
-	trap "rm -f '$tmp'" exit
-	/usr/share/dsa/apt-status-check --noupdate --timeout=600 > "$tmp"
-	result="$?"
-	case "$result" in
-	  0)
-	  	st="OK"
-		;;
-	  1)
-		st="WARNING"
-		;;
-	  2)
-		st="CRITICAL"
-		;;
-	  *)
-		st="UNKNOWN"
-		;;
-	esac
-	(echo "$st"; cat "$tmp") > "$STATUS"
-)&
+[ -x /usr/sbin/dsa-update-apt-status ] && /usr/sbin/dsa-update-apt-status &
