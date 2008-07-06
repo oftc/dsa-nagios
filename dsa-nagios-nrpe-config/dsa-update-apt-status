@@ -2,7 +2,15 @@
 
 UPDATE_RUNS=3
 STATUS=/var/cache/dsa/nagios/apt
+SLEEP_MAX=$(( 15 * 60 ))
+MAX_AGE=$(( 23 * 60 * 60 ))
 
+# we want to run if any of the following things is true
+#  - we have never run before
+#  - var/lib/dpkg/status has been touched since the last run
+#  - var/cache/apt/pkgcache.bin has been touched since the last run
+#  - our last run ended with 'apt-get update failed'
+#  - our last run has been more than MAX_AGE (23hrs) ago
 run_required() {
 	local run=0
 	local norun=1
@@ -11,19 +19,22 @@ run_required() {
 	[ /var/lib/dpkg/status -nt "$STATUS" ] && return $run
 	[ /var/cache/apt/pkgcache.bin -nt "$STATUS" ] && return $run
 	grep "apt-get update failed" "$STATUS" > /dev/null && return $run
+
+	local last_mod
+	last_mod=`stat -c "%Y" "$STATUS"`
+	now=`date +%s`
+	age=$(( "$now" - "$last_mod" ))
+	[ "$age" -gt "$MAX_AGE" ] && return $run
+
+	return $norun
 }
 
-sleep_max=7200
-
-if [ "$1" == "hourly" ] ; then
-	# on the hourly run, only update when the system changed since the last run
-	run_required || exit
-	sleep_max=900
-fi
+# do stuff only when required
+run_required || exit
 
 # sleep if called non-interactively
 if [ -z "$TERM" -o "$TERM" = "dumb" ]; then
-	sleep $(( $RANDOM % $sleep_max ))
+	sleep $(( $RANDOM % $SLEEP_MAX ))
 fi
 
 # run apt-get update, retry a few times if it fails

@@ -6,9 +6,10 @@ dsa-nagios-nrpe-config (XX) unstable; urgency=low
     changed in the meantime, that is if /var/lib/dpkg/status or
     /var/cache/apt/pkgcache.bin are newer than the status file.
     Also run if the status file does not exist, or if the last apt-get update
-    call failed.
+    call failed, or if the last run was more than a day ago.
+  * No longer do @daily runs of dsa-update-apt-status
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 06 Jul 2008 11:41:41 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 06 Jul 2008 11:49:37 +0200
 
 dsa-nagios-nrpe-config (45) unstable; urgency=low
 
