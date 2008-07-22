@@ -143,7 +143,19 @@ for my $slot (sort @controllers) {
 		my $expected;
 		if ($type eq 'SCSI') {
 			$key = 'Transfer Speed';
-			$expected = '320 MB/Sec';
+			if (!defined $value{'Transfer Mode'}) {
+				record('WARNING');
+				push @{$status{'unknown transfer mode'}}, $drive;
+				next;
+			} elsif ($value{'Transfer Mode'} eq 'Ultra 3 Wide') {
+				$expected = '160 MB/Sec';
+			} elsif ($value{'Transfer Mode'} eq 'Ultra 320 Wide') {
+				$expected = '320 MB/Sec';
+			} else {
+				record('WARNING');
+				push @{$status{'unknown transfer mode'}}, $drive."(".$value{'Transfer Mode'}.")";
+				next;
+			};
 		} elsif ($type eq 'SAS') {
 			$key = 'PHY Transfer Rate';
 			$expected = '3.0GBPS';

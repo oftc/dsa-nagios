@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (49) unstable; urgency=low
+
+  * dsa-check-hpacucli: Learn correct transfer speed for Ultra 3 Wide (160mb/s)
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 23 Jul 2008 00:56:54 +0200
+
 dsa-nagios-nrpe-config (48) unstable; urgency=low
 
   * Don't just print the sudoers lines to stdout, tell the admin to add them
