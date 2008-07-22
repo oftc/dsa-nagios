@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (48) unstable; urgency=low
+
+  * Don't just print the sudoers lines to stdout, tell the admin to add them
+    also.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 22 Jul 2008 21:25:56 +0000
+
 dsa-nagios-nrpe-config (47) unstable; urgency=low
 
   * dsa-check-hpacucli: Check transfer speed of disks.
