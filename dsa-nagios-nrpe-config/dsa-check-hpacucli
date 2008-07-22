@@ -84,6 +84,7 @@ my @resultstr;
 
 for my $slot (sort @controllers) {
 	my $pds = runcmd("controller slot=$slot pd all show");
+	my @drives;
 	my $nodrives = 0;
 	my %status;
 	for (@$pds) {
@@ -106,8 +107,57 @@ for my $slot (sort @controllers) {
 			} else {
 				record('UNKNOWN');
 			};	
+			push @drives, $drive;
 		} else {
 			die ("Cannot read line '$_' gotten from hpacucli controller slot=$slot pd all show\n");
+		};
+	};
+
+	# Check that all drives have the proper transfer speed.
+	# sometimes stuff breaks and they fall back to 10mb/sec.
+	for my $drive (@drives) {
+		my $type;
+		if ($drive =~ /^[0-9]+:[0-9]+$/) { # scsi drives
+			$type = 'SCSI';
+		} elsif ($drive =~ /^[0-9]+I:[0-9]+:[0-9]+$/) { # SAS
+			$type = 'SAS';
+		} else {
+			# I'm not going to run pass arguments of unknown form to the shell..
+			warn ("Unknown diskdrive ID $drive\n");
+			next;
+		}
+
+		my $pd = runcmd("controller slot=$slot pd $drive show");
+		while (defined $pd->[0] && !($pd->[0] =~ /physicaldrive/)) {
+			shift @$pd;
+		};
+		shift @$pd;
+		my %value;
+		for (@$pd) {
+			if (m/^\s*(.*?):\s*(.*?)\s*$/) {
+				$value{$1} = $2;
+			}
+		}
+
+		my $key;
+		my $expected;
+		if ($type eq 'SCSI') {
+			$key = 'Transfer Speed';
+			$expected = '320 MB/Sec';
+		} elsif ($type eq 'SAS') {
+			$key = 'PHY Transfer Rate';
+			$expected = '3.0GBPS';
+		} else {
+			warn "Should not be here.  Do not know what to do with type '$type'\n";
+			next;
+		}
+
+		if (!defined $value{$key}) {
+			record('WARNING');
+			push @{$status{'unknown transfer speed'}}, $drive;
+		} elsif ($value{$key} ne $expected) {
+			record('WARNING');
+			push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
 		};
 	};
 

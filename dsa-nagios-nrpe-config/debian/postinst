@@ -53,8 +53,13 @@ if [ -e /usr/sbin/hpacucli ] && [ -e /dev/cciss/c0d0 ] ; then
 		echo 'WARNIG: Add these lines to sudoers:'
 		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller all show'
 		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd all show'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd [0-9]\:[0-9] show'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd [0-9]I\:[0-9]\:[0-9] show'
 		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 show status'
 		echo
+	elif ! grep '^nagios.*hpacucli.* pd .*:.* show' /etc/sudoers > /dev/null; then
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd [0-9]\:[0-9] show'
+		echo 'nagios  ALL=(ALL) NOPASSWD: /usr/sbin/hpacucli controller slot=0 pd [0-9]I\:[0-9]\:[0-9] show'
 	fi
 fi
 
