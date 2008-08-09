@@ -90,9 +90,12 @@ for my $slot (sort @controllers) {
 	for (@$pds) {
 		chomp;
 		next if /^$/;
-		next if /^ *array [A-Z]$/;
 		next if (/^\S.*in Slot $slot/);
-		if (/^Error: The specified controller does not have any physical drives on it.$/) {
+		next if /^ *array [A-Z]$/;
+		if (/^ *(array [A-Z]) \(Failed\)$/) {
+			record('CRITICAL');
+			push @{$status{'Failed'}}, $1;
+		} elsif (/^Error: The specified controller does not have any physical drives on it.$/) {
 			$nodrives = 1;
 		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed|Rebuilding)(?:, spare)?\)$/) {
 			my $drive = $1;
