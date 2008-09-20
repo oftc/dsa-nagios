@@ -1,0 +1,216 @@
+#!/usr/bin/perl -w
+
+# check_samhain.pl - check to see how many policy violations are reported
+#   by the samhain file integrity checker.
+#
+# Copyright Rainer Wichmann (2004)
+# Copyright Martin Zobel-Helas (2008)
+#
+# License Information:
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+############################################################################
+
+# -------------------------------------------------------------------[ Uses ]--
+
+use strict;
+use Getopt::Long;
+use vars qw($PROGNAME $SAMHAIN $opt_V $opt_h $opt_v $verbose $opt_w $opt_c $opt_t $status $msg $state $retval);
+use lib "/usr/lib/nagios/plugins";
+use utils qw(%ERRORS &print_revision);
+
+#my $TIMEOUT = 15;
+#my %ERRORS=('OK'=>0,'WARNING'=>1,'CRITICAL'=>2,'UNKNOWN'=>3,'DEPENDENT'=>4);
+#sub print_revision ($$);
+
+# ----------------------------------------------------[ Function Prototypes ]--
+
+sub print_help ();
+sub print_usage ();
+sub process_arguments ();
+
+# ------------------------------------------------------------[ Environment ]--
+
+$ENV{'PATH'}='';
+$ENV{'BASH_ENV'}=''; 
+$ENV{'ENV'}='';
+
+# -----------------------------------------------------------------[ Global ]--
+
+$PROGNAME = "dsa-check-samhain";
+$SAMHAIN = "sudo /usr/sbin/samhain"; 
+
+# ----------------------------------------------------------------[ options ]--
+
+Getopt::Long::Configure('bundling');
+$status = process_arguments();
+if ($status){
+	print "ERROR: processing arguments\n";
+	exit $ERRORS{"UNKNOWN"};
+}
+
+# ----------------------------------------------------------------[ timeout ]--
+
+$SIG{'ALRM'} = sub {
+	print ("ERROR: timed out waiting for $SAMHAIN\n");
+	exit $ERRORS{"WARNING"};
+};
+alarm($opt_t);
+
+# ----------------------------------------------------------[ start samhain ]--
+
+if ( defined $SAMHAIN && -x $SAMHAIN ) {
+    if (! open (SHPIPE, "$SAMHAIN -t check --foreground -p err -s none -l none -m none 2>&1 | " ) ) {
+	print "ERROR: could not popen $SAMHAIN \n";
+	exit $ERRORS{'UNKNOWN'};
+    }
+}else{
+    print "ERROR: Could not find samhain executable!\n";
+    exit $ERRORS{'UNKNOWN'};
+}
+
+# ---------------------------------------------------------[ read from pipe ]--
+
+$status = 0;
+
+while (<SHPIPE>) {
+    if (/POLICY/) {
+	++$status;
+	print $_ if $verbose;
+    }
+}    
+
+if ($status < $opt_w) {
+    $msg = "OK: $status policy violations (threshold $opt_w/$opt_c)";
+    $state = $ERRORS{'OK'};
+} elsif ($status >= $opt_w  && $status < $opt_c) {
+    $msg = "WARNING: $status policy violations (threshold w=$opt_w)";
+    $state = $ERRORS{'WARNING'};
+} else {
+    $msg = "CRITICAL: $status policy violations (threshold w=$opt_w)";
+    $state = $ERRORS{'CRITICAL'};
+}
+
+# -------------------------------------------------------------[ close pipe ]--
+
+close (SHPIPE);
+ 
+# declare an error if we also get a non-zero return code from samhain
+
+if ( $? ) {
+    $retval = $? / 256;
+    if ( $! ) {
+      print "Error closing $SAMHAIN: $!\n" if $verbose;
+    } else {
+      print "$SAMHAIN returned exit status $retval\n" if $verbose;
+    }
+    if ($state == $ERRORS{"CRITICAL"}) { 
+	$state = $ERRORS{"CRITICAL"}; 
+    } else {
+        print "ERROR: $SAMHAIN exit status $retval\n";
+        exit $ERRORS{'UNKNOWN'};
+    }
+}
+
+# -------------------------------------------------------------------[ exit ]--
+
+print "$msg | 'policy violations'=$status;$opt_w;$opt_c\n";
+exit $state;
+
+
+# ------------------------------------------------------------[ Subroutines ]--
+
+sub process_arguments(){
+    GetOptions
+	("V"   => \$opt_V, "version"	=> \$opt_V,
+	 "h"   => \$opt_h, "help"	=> \$opt_h,
+	 "v"   => \$opt_v, "verbose"    => \$opt_v,
+	 "w=i" => \$opt_w, "warning=i"  => \$opt_w,   
+	 "c=i" => \$opt_c, "critical=i" => \$opt_c,	
+	 "t=i" => \$opt_t, "timeout=i"  => \$opt_t 
+	 );
+    
+    if ($opt_V) {
+	print_revision($PROGNAME,'$Revision: 1.0 $ ');
+	exit $ERRORS{'OK'};
+    }
+    
+    if ($opt_h) {
+	print_help();
+	exit $ERRORS{'OK'};
+    }
+    
+    if (defined $opt_v ){
+	$verbose = $opt_v;
+    }
+
+    unless (defined $opt_t) {
+	$opt_t = $utils::TIMEOUT ;	# default timeout
+	# $opt_t = $TIMEOUT ;
+    }
+    
+    unless (defined $opt_w) {
+	$opt_w = 1;
+    }
+    
+    unless (defined $opt_c) {
+	$opt_c = 1;
+    }
+    
+    if ( $opt_w > $opt_c) {
+	print "Warning cannot be greater than Critical!\n";
+	exit $ERRORS{'UNKNOWN'};
+    }
+    
+    return $ERRORS{'OK'};
+}
+
+sub print_usage () {
+    print "Usage: $PROGNAME [-w <warn>] [-c <crit>] [-t <timeout>]\n";
+}
+
+sub print_help () {
+    print_revision($PROGNAME, '$Revision: 1.0 $');
+    print "Copyright (c) 2004 Rainer Wichmann
+
+This plugin checks the number of policy violations reported by the
+samhain file intgrity checker
+
+";
+    print_usage();
+    print "
+-w, --warning=INTEGER
+   Minimum number of policy violations for which a WARNING status will result
+-c, --critical=INTEGER
+   Minimum number of policy violations for which a CRITICAL status will result
+-t, --timeout=SECONDS
+   The number of seconds after which a the plugin will timeout
+-v, --verbose
+   Verbose output
+-h, --help
+   Show this help message
+-V, --version
+   Show the version of the plugin
+
+";
+}
+
+#sub print_revision ($$) {
+#        my $commandName = shift;
+#        my $pluginRevision = shift;
+#        $pluginRevision =~ s/^\$Revision: //;
+#        $pluginRevision =~ s/ \$\s*$//;
+#        print "$commandName (samhain 2.2.3) $pluginRevision\n";
+#}

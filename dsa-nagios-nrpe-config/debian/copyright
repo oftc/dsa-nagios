@@ -48,3 +48,9 @@ apt-status-check:
   Copyright (C) 2004 SILVER SERVER Gmbh
   Copyright (C) 2004, 2005, 2006, 2007, 2008 Peter Palfrader
   License: GPL
+
+########################################################################
+dsa-check-samhain:
+  Copyright: 2004 Rainer Wichmann
+  Copyright: 2008 Martin Zobel-Helas
+  License: GPL

@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (51) unstable; urgency=low
+
+  * Add check for samhain 
+
+ -- Martin Zobel-Helas <zobel@samosa.debian.org>  Sat, 20 Sep 2008 07:29:23 +0000
+
 dsa-nagios-nrpe-config (50) unstable; urgency=low
 
   * dsa-check-hpacucli: Handle 'pd all show' output with failed arrays.

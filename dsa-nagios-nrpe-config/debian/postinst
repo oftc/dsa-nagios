@@ -47,6 +47,15 @@ if [ -e /etc/sudoers ] ; then
 	fi
 fi
 
+if [ -e /etc/sudoers ] ; then
+	if ! grep '^nagios.*/usr/sbin/samhain' /etc/sudoers > /dev/null; then
+		echo 
+		echo 'WARNIG: Add this line to sudoers:'
+		echo 'nagios ALL=(ALL) NOPASSWD: /usr/sbin/samhain -t check --foreground -p err -s none -l none -m none'
+		echo 
+	fi
+fi
+
 if [ -e /usr/sbin/hpacucli ] && [ -e /dev/cciss/c0d0 ] ; then
 	if ! grep '^nagios.*hpacucli' /etc/sudoers > /dev/null; then
 		echo

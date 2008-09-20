@@ -24,6 +24,7 @@ install:
 	install -m 755 dsa-check-dabackup $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-udldap-freshness $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-statusfile $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
+	install -m 755 dsa-check-samhain $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 
 	install -m 755 apt-status-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
 	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
