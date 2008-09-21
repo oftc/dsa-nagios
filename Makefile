@@ -41,8 +41,7 @@ install: generated/nrpe_dsa.cfg
 	#
 	@echo "Also run: "
 	@echo " cp Build-tree/*.deb /org/db.debian.org/ftp-archive/archive/pool/etch/ && "
-	@echo "   cd /org/db.debian.org/ftp-archive && "
-	@echo "   make && cd -"
+	@echo "   make -C /org/db.debian.org/ftp-archive"
 	#
 	@echo
 	#
