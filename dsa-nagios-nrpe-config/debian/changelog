@@ -1,3 +1,12 @@
+dsa-nagios-nrpe-config (52) unstable; urgency=low
+
+  * The nagios _check_ package should probably not be the one that
+    depends on the stuff we want on most or all hosts, thus removing
+    dependency on samhain, which should probably get pulled in via
+    debian.org.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 21 Sep 2008 23:41:01 +0000
+
 dsa-nagios-nrpe-config (51) unstable; urgency=low
 
   * Add check for samhain 
