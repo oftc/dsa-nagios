@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (56) unstable; urgency=low
+
+  * fix dsa-check-samhain.
+    sudo is not in $PATH.
+
+ -- Martin Zobel-Helas <zobel@debian.org>  Mon, 22 Sep 2008 06:45:19 +0000
+
 dsa-nagios-nrpe-config (55) unstable; urgency=low
 
   * And another one, weasel should sleep.

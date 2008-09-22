@@ -50,7 +50,7 @@ $ENV{'ENV'}='';
 # -----------------------------------------------------------------[ Global ]--
 
 $PROGNAME = "dsa-check-samhain";
-$SAMHAIN = "sudo /usr/sbin/samhain"; 
+$SAMHAIN = "/usr/sbin/samhain"; 
 
 # ----------------------------------------------------------------[ options ]--
 
@@ -72,7 +72,7 @@ alarm($opt_t);
 # ----------------------------------------------------------[ start samhain ]--
 
 if ( defined $SAMHAIN && -x $SAMHAIN ) {
-    if (! open (SHPIPE, "$SAMHAIN -t check --foreground -p err -s none -l none -m none 2>&1 | " ) ) {
+    if (! open (SHPIPE, "/usr/bin/sudo $SAMHAIN -t check --foreground -p err -s none -l none -m none 2>&1 | " ) ) {
 	print "ERROR: could not popen $SAMHAIN \n";
 	exit $ERRORS{'UNKNOWN'};
     }
