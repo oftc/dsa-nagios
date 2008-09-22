@@ -73,8 +73,8 @@ cat /root/.ssh/authorized_keys |
 	sort > "$rsync_targets"
 grep -h source /etc/da-backup-manager/* | 
 	sed -e 's/source=//' |
-	sort > ~weasel/backup-d-a-m-sources
-if diff "$rsync_targets" "$backup_manager_sources" > /dev/null; then
+	sort > "backup_manager_sources"
+if ! diff "$rsync_targets" "$backup_manager_sources" > /dev/null; then
 	log warn
 	echo "authorized_keys vs. /etc/da-backup-manage mismatch:"
 	diff "$rsync_targets" "$backup_manager_sources"

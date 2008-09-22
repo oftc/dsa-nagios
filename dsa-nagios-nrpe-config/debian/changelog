@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (54) unstable; urgency=low
+
+  * dsa-check-dabackup-server fixes.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 22 Sep 2008 00:27:41 +0000
+
 dsa-nagios-nrpe-config (53) unstable; urgency=low
 
   * Add dsa-check-dabackup-server.
