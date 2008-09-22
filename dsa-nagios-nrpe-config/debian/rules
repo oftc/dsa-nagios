@@ -22,6 +22,7 @@ install:
 	install -m 755 dsa-check-running-kernel $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-da-in-aliases $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-dabackup $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
+	install -m 755 dsa-check-dabackup-server $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-udldap-freshness $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-statusfile $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-samhain $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins

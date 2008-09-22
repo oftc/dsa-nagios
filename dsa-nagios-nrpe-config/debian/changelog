@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (53) unstable; urgency=low
+
+  * Add dsa-check-dabackup-server.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 22 Sep 2008 00:19:28 +0000
+
 dsa-nagios-nrpe-config (52) unstable; urgency=low
 
   * The nagios _check_ package should probably not be the one that
@@ -9,7 +15,7 @@ dsa-nagios-nrpe-config (52) unstable; urgency=low
 
 dsa-nagios-nrpe-config (51) unstable; urgency=low
 
-  * Add check for samhain 
+  * Add check for samhain.
 
  -- Martin Zobel-Helas <zobel@samosa.debian.org>  Sat, 20 Sep 2008 07:29:23 +0000
 

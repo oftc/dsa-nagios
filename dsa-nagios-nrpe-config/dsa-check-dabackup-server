@@ -1,0 +1,126 @@
+#!/bin/sh
+
+# some tests weasel uses to check if da-backup is properly configured:
+# Copyright 2008 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+set -e
+set -u
+
+err=0
+
+log() {
+	if [ "$1" == "warn" ] && [ "$err" -lt 1 ]; then
+		err=1
+	elif [ "$1" == "critical" ] && [ "$err" -lt 2 ]; then
+		err=2
+	elif [ "$1" == "unknown" ] && [ "$err" == 0 ]; then
+		err=3
+	fi
+}
+
+cd /etc/da-backup-manager
+
+# check that the files have proper names
+for i in *; do
+	s=`cat "$i" | awk -F = '$1=="source" {print $2}'`
+	if [ "$s" = "master.debian.org/debian" ] && [ "$i" = "listarchive" ]; then
+		# historical exception
+		continue
+	fi
+	if [ "`echo $s | tr / -`" != "$i" ]; then
+		log warn
+		echo "Mismatch: Filename $i but backup source $s"
+	fi
+done
+
+# and that source == destination everywhere
+for i in *; do
+	s=`cat $i | awk -F = '$1=="source"{print $2}'`
+	d=`cat $i | awk -F = '$1=="destination"{print $2}'`
+	if [ "$d" != "$s" ]; then
+		log warn
+		echo "source != dest in $i. ($s != $d)"
+	fi
+done
+
+# check that everything that has an entry in authorized_keys has one in /etc/da-backup-manager
+rsync_targets=`tempfile`
+backup_manager_sources=`tempfile`
+trap "rm -f '$rsync_targets' '$backup_manager_sources'" 0 1 2 5 15
+cat /root/.ssh/authorized_keys |
+	grep '^command=' |
+	sed -e 's/",no-por.*//' -e 's/.*--ignore-errors . //' -e 's#/org/backup.debian.org/staging/##' |
+	sort > "$rsync_targets"
+grep -h source /etc/da-backup-manager/* | 
+	sed -e 's/source=//' |
+	sort > ~weasel/backup-d-a-m-sources
+if diff "$rsync_targets" "$backup_manager_sources" > /dev/null; then
+	log warn
+	echo "authorized_keys vs. /etc/da-backup-manage mismatch:"
+	diff "$rsync_targets" "$backup_manager_sources"
+fi
+
+# check that everything listed as either source or destination by da-backup-manager does exist  -  if stuff is new it might still be missing tho
+for i in `awk -F = '$1=="source"     {print $2}' /etc/da-backup-manager/* `; do
+	if ! [ -d "/org/backup.debian.org/staging/$i" ]; then
+		log warn
+		echo "Warning: source $i does not exist"
+	fi
+done
+for i in ` awk -F = '$1=="destination"{print $2}' /etc/da-backup-manager/* `; do
+	if ! [ -d "/org/backup.debian.org/backups/$i" ]; then
+		log warn
+		echo "Warning: destination $i does not exist (if it is new, it takes a day)"
+	fi
+done
+
+# check that everything that does exist has an entry in da-backup-manager
+cd /org/backup.debian.org/staging
+for i in */*; do
+	if ! [ -d "$i" ]; then
+		log warn
+		echo "WTF: staging/$i is not a dir"
+		continue
+	fi
+	if ! grep "source=$i" /etc/da-backup-manager/* > /dev/null; then
+		log warn
+		echo "staging/$i is not listed anywhere in /etc/da-backup-manager"
+	fi
+done
+cd /org/backup.debian.org/backups
+for i in */*; do
+	if ! [ -d "$i" ]; then
+		log warn
+		echo "WTF: backups/$i is not a dir"
+		continue
+	fi
+	if ! grep "destination=$i" /etc/da-backup-manager/* > /dev/null; then
+		log warn
+		echo "backups/$i is not listed anywhere in /etc/da-backup-manager"
+	fi
+done
+
+if [ "$err" = 0 ]; then
+	echo "da-backup seems to be properly configured"
+fi
+exit $err

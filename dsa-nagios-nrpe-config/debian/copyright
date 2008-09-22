@@ -19,6 +19,11 @@ dsa-check-dabackup:
   License: MIT
 
 ########################################################################
+dsa-check-dabackup-server:
+  Copyright: 2008 Peter Palfrader
+  License: MIT
+
+########################################################################
 dsa-check-raid-3ware:
   Copyright: 2006 Peter Palfrader
   License: MIT
