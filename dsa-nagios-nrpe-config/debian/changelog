@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (57) unstable; urgency=low
+
+  * dsa-check-hpacucli: Do not inspect drives in detail when they are
+    listed as Failed in the overview already.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 24 Sep 2008 16:02:31 +0200
+
 dsa-nagios-nrpe-config (56) unstable; urgency=low
 
   * fix dsa-check-samhain.
