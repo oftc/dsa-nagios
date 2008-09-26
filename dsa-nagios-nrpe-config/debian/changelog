@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (58) unstable; urgency=low
+
+  * Rename dsa-check-da-in-aliases to dsa-check-config.
+  * dsa-check-config: check if ldap.conf is configured correctly.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 26 Sep 2008 15:02:53 +0200
+
 dsa-nagios-nrpe-config (57) unstable; urgency=low
 
   * dsa-check-hpacucli: Do not inspect drives in detail when they are

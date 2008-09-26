@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# Check that debian-admin is in /etc/aliases for root.
+# Peter Palfrader, 2008
+
+#my %ERRORS = ( OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => -1 );
+
+set -e
+err=0
+
+log() {
+	if [ "$0" == "ok" ] && [ "$err" == 0 ]; then
+		err=0
+	elif [ "$1" == "warn" ] && [ "$err" -lt 1 ]; then
+		err=1
+	elif [ "$1" == "critical" ] && [ "$err" -lt 2 ]; then
+		err=2
+	elif [ "$1" == "unknown" ] && [ "$err" == 0 ]; then
+		err=3
+	fi
+	if [ "`eval echo \\$$1`" = "" ]; then
+		eval $1="\"$2\""
+	else
+		eval $1="\"`eval echo \\$$1`; $2\""
+	fi
+}
+
+
+check_aliases() {
+	if ! [ -e /etc/aliases ]; then
+		log unknown "/etc/aliases not found"
+		return
+	fi
+
+	if egrep '^root:.*debian-admin@debian.org' /etc/aliases > /dev/null; then
+		log ok "debian-admin found in aliases"
+		return
+	fi
+
+	log warn "debian-admin not found in root entry in aliases"
+}
+
+check_ldap_conf() {
+	if ! [ -e /etc/ldap/ldap.conf ]; then
+		log unknown "/etc/ldap/ldap.conf not found"
+		return
+	fi
+
+	if egrep '^URI.*ldap://db.debian.org' /etc/ldap/ldap.conf > /dev/null &&
+	   egrep '^BASE.*dc=debian,dc=org' /etc/ldap/ldap.conf > /dev/null &&
+	   egrep '^TLS_CACERT.*/etc/ssl/certs/spi-cacert-2008.pem' /etc/ldap/ldap.conf > /dev/null &&
+	   egrep '^TLS_REQCERT.*hard' /etc/ldap/ldap.conf > /dev/null ; then
+		log ok "ldap.conf configured properly"
+		return
+	fi
+
+	log warn "ldap.conf does not have URI, BASE, TLS_CACERT, TLS_REQCERT all configured correctly"
+}
+
+check_aliases
+check_ldap_conf
+
+[ "$critical" = "" ] || echo -n "Critical: $critical; "
+[ "$warn" = "" ] || echo -n "Warning: $warn; "
+[ "$unknown" = "" ] || echo -n "Unknown: $unknown; "
+[ "$ok" = "" ] || echo -n "OK: $ok"
+echo
+exit $err
