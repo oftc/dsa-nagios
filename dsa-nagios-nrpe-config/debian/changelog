@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (59) unstable; urgency=low
+
+  * apt-status-check: Ignore stderr during apt-get update.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 30 Sep 2008 19:58:36 +0200
+
 dsa-nagios-nrpe-config (58) unstable; urgency=low
 
   * Rename dsa-check-da-in-aliases to dsa-check-config.

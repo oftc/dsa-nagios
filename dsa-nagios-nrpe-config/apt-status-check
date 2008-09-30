@@ -27,6 +27,7 @@ use English;
 use Getopt::Long;
 use IO::Handle;
 use IPC::Open2;
+use IPC::Open3;
 
 $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -45,7 +46,7 @@ sub do_check($$$$$$) {
 		@command = ($APT, 'update');
 		unshift @command, @$pre_command;
 		$fh = new IO::Handle;
-		$pid = open2($fh, \*STDIN, @command) or die ("Cannot run $APT update in $name: $!\n");
+		$pid = open3(\*STDIN, $fh, $fh, @command) or die ("Cannot run $APT update in $name: $!\n");
 		local $SIG{ALRM} = sub { die "Timeout for apt-get update.\n" };
 		alarm $timeout;
 		my @ignore=<$fh>;
