@@ -63,3 +63,4 @@ dsa-check-samhain:
 ########################################################################
 dsa-check-raid-areca:
   Copyright: 2007, 2008 Erinn Looney-Triggs
+  License: GPL
