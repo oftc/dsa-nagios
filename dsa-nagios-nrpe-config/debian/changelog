@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (60) unstable; urgency=low
+
+  * Add dsa-check-raid-areca.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 01 Oct 2008 16:23:33 +0200
+
 dsa-nagios-nrpe-config (59) unstable; urgency=low
 
   * apt-status-check: Ignore stderr during apt-get update.

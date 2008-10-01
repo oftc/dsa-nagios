@@ -59,3 +59,7 @@ dsa-check-samhain:
   Copyright: 2004 Rainer Wichmann
   Copyright: 2008 Martin Zobel-Helas
   License: GPL
+
+########################################################################
+dsa-check-raid-areca:
+  Copyright: 2007, 2008 Erinn Looney-Triggs
