@@ -120,7 +120,7 @@ for my $slot (sort @controllers) {
 	# sometimes stuff breaks and they fall back to 10mb/sec.
 	for my $drive (@drives) {
 		# skip drives that are known to have failed
-		next if (grep {$drive eq $_} @{$status{'Failed'}});
+		next if (exists $status{'Failed'} && grep {$drive eq $_} @{$status{'Failed'}});
 		my $type;
 		if ($drive =~ /^[0-9]+:[0-9]+$/) { # scsi drives
 			$type = 'SCSI';

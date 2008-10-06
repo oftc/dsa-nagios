@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (61) unstable; urgency=low
+
+  * dsa-check-hpacucli: Do not create the 'Failed' array while checking if an
+    entry is in there.  If it doesn't exist that's also good.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 06 Oct 2008 14:08:30 +0200
+
 dsa-nagios-nrpe-config (60) unstable; urgency=low
 
   * Add dsa-check-raid-areca.
