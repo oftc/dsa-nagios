@@ -11,6 +11,8 @@
 #
 # Copyright (c) 2008, Alexander Wirt <formorer@debian.org> for check_weakkeys
 #
+# Copyright (c) 2008 Peter Palfrader <peter@palfrader.org>
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -116,6 +118,7 @@ tie %fpr_hash, 'BerkeleyDB::Btree',
 
 my ($weak_keys,$checked_keys) = 0;
 my $dsa_keys = 0;
+my $weird_keyfiles = 0;
 my $text = '';
 my %key_sizes;
 
@@ -128,7 +131,7 @@ my %key_sizes;
 my $status="OK";
 if ($weak_keys) {
 	$status = "CRITICAL";
-} elsif ($dsa_keys && ! $dsa_nowarn) {
+} elsif ($dsa_keys && ! $dsa_nowarn  ||  $weird_keyfiles) {
 	$status = "WARNING";
 }
 
@@ -195,7 +198,10 @@ sub from_ssh_key_file ($) {
     my $name = shift;
     if (open (my $FH, '<', $name)) {
 	my $key = <$FH>; 
-	if ($key =~ m/ssh-dss/) {
+	if (! defined $key) {
+		$weird_keyfiles++;
+		$text .= "cannot read $name properly - empty?\n";
+	} elsif ($key =~ m/ssh-dss/) {
 		$dsa_keys++;
 		$text .= "$name is a DSA key\n";
 	}
@@ -323,7 +329,8 @@ sub from_debianorg_places () {
     for my $d (qw{/etc/ssh/userkeys /var/lib/misc/userkeys}) {
 	next unless (-d $d);
 	opendir(D, $d) or die "Cannot opendir $d: $!\n";
-	for my $file (grep { $_ ne "." && $_ ne ".."  } readdir(D)) {
+	for my $file (grep { ! -d $d.'/'.$_ } readdir(D)) {
+	    next if ($file eq 'README-DSA-BUILDD');
 	    my $f = $d.'/'.$file;
 	    from_ssh_key_file $f if -r $f;
 	};
