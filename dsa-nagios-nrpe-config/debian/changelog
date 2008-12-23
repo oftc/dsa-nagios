@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (65) unstable; urgency=low
+
+  * Add dsa-check-soas
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 23 Dec 2008 23:11:19 +0000
+
 dsa-nagios-nrpe-config (64) unstable; urgency=low
 
   * dsa-check-mirrorsync: make it work in embedded perl again.

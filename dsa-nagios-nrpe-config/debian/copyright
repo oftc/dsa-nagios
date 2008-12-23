@@ -68,4 +68,10 @@ dsa-check-raid-areca:
 ########################################################################
 dsa-check-mirrorsync:
   Copyright: 2008: Alexander Wirt
+  Copyright: 2008: Peter Palfrader
   License: GPL
+
+########################################################################
+dsa-check-soas:
+  Copyright: 2006 Peter Palfrader
+  License: MIT
