@@ -31,14 +31,14 @@ use File::Basename;
 use English;
 use warnings;
 
-my $VERSION = '0.1';
-my $PROG = basename($PROGRAM_NAME);
 
 sub usage($$) {
 	my ($fh, $exit) = @_;
+	my $basename = basename($PROGRAM_NAME);
+	my $VERSION = '0.1';
 
-	print $fh "$PROG $VERSION\n";
-	print $fh "Usage: $PROG [--help|--version] [--verbose]\n";
+	print $fh "$basename $VERSION\n";
+	print $fh "Usage: $basename [--help|--version] [--verbose]\n";
 	print $fh "\n";
 	print $fh "  --help              Print this short help.\n";
 	print $fh "  --version           Report version number.\n";
