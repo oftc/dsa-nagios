@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (62) unstable; urgency=low
+
+  * Add check_securitymirror by formorer.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 23 Dec 2008 21:59:47 +0000
+
 dsa-nagios-nrpe-config (61) unstable; urgency=low
 
   * dsa-check-hpacucli: Do not create the 'Failed' array while checking if an

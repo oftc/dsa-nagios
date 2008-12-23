@@ -1,0 +1,132 @@
+#!/usr/bin/perl -w
+
+# nagios check for debian security sync checks
+#
+#  Copyright (c) 2008 Alexander Wirt <formorer@debian.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+
+use LWP::UserAgent;
+use Socket;
+use strict;
+use Date::Parse;
+use Getopt::Long;
+use Date::Parse;
+use Date::Format;
+use warnings;
+
+
+$ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+my $VERSION = '0.0';
+my $PROGRAM_NAME = 'check_securitymirror';
+my $params;
+
+$params->{'host'} = 'security.debian.org'; #which host to check
+$params->{'path'} = 'project/trace/security-master.debian.org'; 
+
+my $OK = 0;
+my $WARNING = 1;
+my $CRITICAL = 2;
+my $UNKNOWN = 3;
+
+if (!GetOptions (
+                '--help'                => \$params->{'help'},
+                '--verbose'             => \$params->{'verbose'},
+                '--version'             => \$params->{'version'},
+                '--host=s'              => \$params->{'host'},
+                '--path=s'              => \$params->{'path'},
+                )) {
+                die ("Usage: $PROGRAM_NAME [--help|--version] [--verbose]\n");
+};
+
+if ($params->{'help'}) {
+         print "$PROGRAM_NAME $VERSION\n";
+         print "Usage: $PROGRAM_NAME [--help|--version] [--verbose]\n";
+         print "\n";
+         print "  --help              Print this short help.\n";
+         print "  --version           Report version number.\n";
+         print "  --verbose           Be a little verbose.\n";
+         print "  --host              hostname to check.\n";
+         print "  --path              path to tracefile.\n";
+         print "\n";
+         exit (0);
+};
+
+my $host = $params->{'host'};
+my $path = $params->{'path'};
+my @slaves;
+my $status;
+my @exitstatus;
+my $exitcode = $OK;
+
+@slaves = gethostbyname($params->{'host'})   or die "Can't resolve " . $params->{'host'} .": $!\n";
+@slaves = map { inet_ntoa($_) } @slaves[4 .. $#slaves];
+print "Checking the following hosts:\n" . join("\n", @slaves) . "\n" if $params->{'verbose'};
+
+my @critical;
+
+foreach my $slave (@slaves) {
+	my $ua = LWP::UserAgent->new;
+	$ua->proxy('http', "http://$slave");
+	print "Requesting http://$host/$path from $slave\n" if $params->{'verbose'};
+	my $response = $ua->get("http://$host/$path");
+
+
+	if ($response->is_success) {
+		my $content = $response->content;  # or whatever
+		my ($date, $foo, $bar) = split("\n", $content);
+		my $synctime = str2time($date);;
+		print "$slave last synced $synctime\n" if $params->{'verbose'};
+		$status->{$slave}->{'synced'} = $synctime; 
+	}
+	else {
+		push @exitstatus, "$slave broken: " . $response->status_line; 
+		$status->{$slave}->{'error'} = $response->status_line;
+		$exitcode = $CRITICAL;
+		push @critical, $slave;
+	}
+}
+
+
+my %seen;
+my $o_sync = scalar(grep !$seen{$_}++, map{$status->{$_}->{'synced'}} keys(%{$status}));
+if ($o_sync > 1) {
+	$exitcode = $CRITICAL; 
+	$o_sync -= 1;
+	my @mirrors =  sort { $status->{$a}->{'synced'} <=> $status->{$b}->{'synced'}  } keys %{$status};
+	push @exitstatus, "$o_sync mirror(s) not in sync (from oldest to newest): ". 
+		join(",", splice(@mirrors,0,$o_sync));  
+} else {
+	print "All mirrors unique\n" if $params->{'verbose'};
+}
+
+if ($exitcode == $CRITICAL) {
+	print "CRITICAL: " . join(',',@exitstatus) . "\n";		
+} elsif ($exitcode == $OK) {
+	print "OK: all mirrors up2date\n";
+}
+
+foreach my $mirror (keys(%{$status})) {
+	if ($status->{$mirror}->{'error'}) {
+		print "$mirror broken: " . $status->{$mirror}->{'error'} . "\n";
+	} else {
+		print "$mirror last synced: " . localtime($status->{$mirror}->{'synced'}) ."\n";
+	}
+}
+
+exit $exitcode;
