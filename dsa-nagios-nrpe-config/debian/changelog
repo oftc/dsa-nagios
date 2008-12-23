@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (63) unstable; urgency=low
+
+  * dsa-check-mirrorsync: print help if additional args are given (we don't
+    support any)
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 23 Dec 2008 22:14:44 +0000
+
 dsa-nagios-nrpe-config (62) unstable; urgency=low
 
   * Add check_securitymirror by formorer.

@@ -3,6 +3,7 @@
 # nagios check for debian security sync checks
 #
 #  Copyright (c) 2008 Alexander Wirt <formorer@debian.org>
+#  Copyright (c) 2009 Peter Palfrader <peter@palfrader.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,14 +27,32 @@ use Date::Parse;
 use Getopt::Long;
 use Date::Parse;
 use Date::Format;
+use File::Basename;
+use English;
 use warnings;
+
+my $VERSION = '0.1';
+my $PROG = basename($PROGRAM_NAME);
+
+sub usage($$) {
+	my ($fh, $exit) = @_;
+
+	print $fh "$PROG $VERSION\n";
+	print $fh "Usage: $PROG [--help|--version] [--verbose]\n";
+	print $fh "\n";
+	print $fh "  --help              Print this short help.\n";
+	print $fh "  --version           Report version number.\n";
+	print $fh "  --verbose           Be a little verbose.\n";
+	print $fh "  --host              hostname to check.\n";
+	print $fh "  --path              path to tracefile.\n";
+	print $fh "\n";
+	exit ($exit);
+};
 
 
 $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
-my $VERSION = '0.0';
-my $PROGRAM_NAME = 'check_securitymirror';
 my $params;
 
 $params->{'host'} = 'security.debian.org'; #which host to check
@@ -51,21 +70,10 @@ if (!GetOptions (
                 '--host=s'              => \$params->{'host'},
                 '--path=s'              => \$params->{'path'},
                 )) {
-                die ("Usage: $PROGRAM_NAME [--help|--version] [--verbose]\n");
+                usage(*STDERR,1)
 };
-
-if ($params->{'help'}) {
-         print "$PROGRAM_NAME $VERSION\n";
-         print "Usage: $PROGRAM_NAME [--help|--version] [--verbose]\n";
-         print "\n";
-         print "  --help              Print this short help.\n";
-         print "  --version           Report version number.\n";
-         print "  --verbose           Be a little verbose.\n";
-         print "  --host              hostname to check.\n";
-         print "  --path              path to tracefile.\n";
-         print "\n";
-         exit (0);
-};
+usage(*STDOUT,0) if ($params->{'help'});
+usage(*STDERR,1) if (scalar @ARGV);
 
 my $host = $params->{'host'};
 my $path = $params->{'path'};
