@@ -117,6 +117,15 @@ def print_block(fd, kind, hash, exclude_keys)
 	fd.puts
 end
 
+def merge_contacts(host, service)
+	%w{contacts contact_groups}.each{ |k|
+		contacts = []
+		[host, service].each{ |source|
+			contacts.push source[k] if source.has_key?(k)
+		}
+		service[k] = contacts.join(",") unless contacts.empty?
+	}
+end
 
 # Add the service definition service to hosts
 # f is the file for service definitions, deps the file for dependencies
@@ -141,9 +150,7 @@ def addService(hosts, service, files, servers)
 	hosts.each{ |host|
 		s = service.clone
 		set_complain_if_set s, 'host_name', host, 'Service', s['service_description']
-		%w{contacts contact_groups}.each{ |k|
-			set_if_unset(s, k, servers[host][k]) if servers[host].has_key? k
-		}
+		merge_contacts(servers[host], s)
 
 		print_block files['services'], 'service', s, %w(nrpe runfrom remotecheck
 		                                                depends
