@@ -2,8 +2,9 @@ dsa-nagios-nrpe-config (66) unstable; urgency=low
 
   * Add dsa-check-packages
   * Make apt-status-check use dsa-check-packages.
+  * And install obsolete-packages-ignore into etc/nagios.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 03 Feb 2009 20:34:34 +0100
+ -- Peter Palfrader <weasel@debian.org>  Tue, 03 Feb 2009 20:39:01 +0100
 
 dsa-nagios-nrpe-config (65) unstable; urgency=low
 
