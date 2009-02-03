@@ -141,7 +141,8 @@ sub check_ignore {
 	my ($pkg, $ignores) = @_;
 
 	my $ignore_this = 0;
-	for my $ig (@$ignores) {
+	for my $ignore (@$ignores) {
+		my $ig = $ignore;
 		return 1 if ($ig eq $pkg);
 		if (substr($ig,0,1) eq '/') {
 			substr($ig, 0, 1, '');
