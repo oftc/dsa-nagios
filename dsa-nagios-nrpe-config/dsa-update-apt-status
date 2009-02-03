@@ -54,7 +54,8 @@ fi
 # run the apt check itself
 tmp=`tempfile`
 trap "rm -f '$tmp'" exit
-/usr/share/dsa/apt-status-check --noupdate --timeout=600 > "$tmp"
+#/usr/share/dsa/apt-status-check --noupdate --timeout=600 > "$tmp"
+/usr/lib/nagios/plugins/nagios-check-packages > "$tmp"
 result="$?"
 case "$result" in
   0)
