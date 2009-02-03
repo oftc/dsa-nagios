@@ -1,3 +1,9 @@
+dsa-nagios-nrpe-config (66) unstable; urgency=low
+
+  * Add dsa-check-packages
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 03 Feb 2009 20:31:53 +0100
+
 dsa-nagios-nrpe-config (65) unstable; urgency=low
 
   * Add dsa-check-soas

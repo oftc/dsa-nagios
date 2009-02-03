@@ -72,6 +72,11 @@ dsa-check-mirrorsync:
   License: GPL
 
 ########################################################################
+dsa-check-packages:
+  Copyright: 2008,2009 Peter Palfrader
+  License: MIT
+
+########################################################################
 dsa-check-soas:
   Copyright: 2006 Peter Palfrader
   License: MIT
