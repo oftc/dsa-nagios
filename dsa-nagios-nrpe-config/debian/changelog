@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (67) unstable; urgency=low
+
+  * Minor tweak to dsa-check-packages:  reorder ok and obs(ign), change
+    long text for obs(ign).
+
+ -- Peter Palfrader <weasel@debian.org>  Wed,  4 Feb 2009 09:40:26 +0000
+
 dsa-nagios-nrpe-config (66) unstable; urgency=low
 
   * Add dsa-check-packages
