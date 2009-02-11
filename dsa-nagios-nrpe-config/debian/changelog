@@ -1,3 +1,10 @@
+dsa-nagios-nrpe-config (68) unstable; urgency=low
+
+  * dsa-update-apt-status: Ensure apt-get update is quiet even when stuff
+    goes wrong.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 11 Feb 2009 21:59:55 +0100
+
 dsa-nagios-nrpe-config (67) unstable; urgency=low
 
   * Minor tweak to dsa-check-packages:  reorder ok and obs(ign), change
