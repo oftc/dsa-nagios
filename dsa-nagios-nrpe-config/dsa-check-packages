@@ -77,10 +77,14 @@ sub get_packages {
 	my $installed = $pkgs{'ii'};
 	delete $pkgs{'ii'};
 
+	open my $olderr, ">&STDERR"   or die "Can't dup STDERR: $!";
+	open     STDERR, ">/dev/null" or die "Can't dup STDOUT: $!";
+
 	open (F, "apt-cache policy ".(join(" ", keys(%$installed)))." |") or die ("Cannot run apt-cache policy: $!\n");
 	@lines = <F>;
 	close(F);
 	chomp(@lines);
+	open STDERR, ">&", $olderr  or die "Can't dup OLDERR: $!";
 
 	my $line;
 	my $pkgname = undef;
@@ -105,6 +109,11 @@ sub get_packages {
 	for my $pkgname (keys %$installed) {
 		my $pkg = $installed->{$pkgname};
 
+		unless (defined($pkg->{'candidate'})) {
+                        $obsolete{$pkgname} = $pkg;
+                        next;
+	       }
+			
 		if ($pkg->{'candidate'} ne $pkg->{'installed'}) {
 			$outofdate{$pkgname} = $pkg;
 			next;
