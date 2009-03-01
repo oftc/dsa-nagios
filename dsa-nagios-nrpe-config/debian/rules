@@ -30,6 +30,7 @@ install:
 	install -m 755 dsa-check-mirrorsync $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-soas $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 
+	install -m 755 dsa-check-puppet $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-packages $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 644 obsolete-packages-ignore $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios
 
