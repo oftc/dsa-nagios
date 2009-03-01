@@ -46,7 +46,7 @@ my $msg = '';
 for my $line (@tw)  {
 	chomp $line;
 	next if $line =~ /^$/;
-	my ($device, $num, $status) = $line =~ m#^(vol_id|phys_id)\s+([0-9]+)\s+(.*)$#;
+	my ($device, $num, $status) = $line =~ m#^(log_id|vol_id|phys_id)\s+([0-9]+)\s+(.*)$#;
 	unless (defined($device) && defined($num) && defined($status)) {
 		print "Cannot parse line '$line'\n";
 		exit $UNKNOWN;
