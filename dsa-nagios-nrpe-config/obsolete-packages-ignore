@@ -1,3 +1,4 @@
 /linux-image-.*/
+/kernel-image-.*/
 buildd
 sbuild
