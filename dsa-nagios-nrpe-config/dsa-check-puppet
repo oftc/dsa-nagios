@@ -10,7 +10,7 @@ class CheckPuppet
   # default options
   OPTIONS = {
      :statefile   => "/var/lib/puppet/state/state.yaml",
-     :interval    => 30,
+     :interval    => 60,
   }
 
   o = OptionParser.new do |o|    
