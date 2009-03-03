@@ -1,0 +1,23 @@
+#!/bin/sh
+
+STATUS=/var/cache/dsa/nagios/samhain
+
+tmp=`tempfile`
+trap "rm -f '$tmp'" exit
+/usr/lib/nagios/plugins/dsa-check-samhain -t 1800 > "$tmp"
+result="$?"
+case "$result" in
+  0)
+	st="OK"
+	;;
+  1)
+	st="WARNING"
+	;;
+  2)
+	st="CRITICAL"
+	;;
+  *)
+	st="UNKNOWN"
+	;;
+esac
+(echo "$st"; cat "$tmp") > "$STATUS"
