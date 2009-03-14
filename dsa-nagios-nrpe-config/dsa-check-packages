@@ -109,7 +109,7 @@ sub get_packages {
 	for my $pkgname (keys %$installed) {
 		my $pkg = $installed->{$pkgname};
 
-		unless (defined($pkg->{'candidate'})) {
+		unless (defined($pkg->{'candidate'}) && defined($pkg->{'origin'})) {
                         $obsolete{$pkgname} = $pkg;
                         next;
 	       }
