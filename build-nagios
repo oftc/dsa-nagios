@@ -415,7 +415,10 @@ config['services'].each{ |service|
 			host_ip = config['servers'][host]['address']
 			throw "For some reason I do not have an address for #{host}.  This shouldn't be." unless host_ip
 
-			check = $nrpe.add("#{host}_#{hostservice['service_description']}", hostservice['remotecheck'].gsub(/\$HOSTADDRESS\$/, host_ip))
+			remotecheck = hostservice['remotecheck']
+			remotecheck.gsub!(/\$HOSTADDRESS\$/, host_ip)
+			remotecheck.gsub!(/\$HOSTNAME\$/, host)
+			check = $nrpe.add("#{host}_#{hostservice['service_description']}", remotecheck)
 			hostservice['check_command'] = "#{NRPE_CHECKNAME_HOST}!#{ config['servers'][ relay ]['address'] }!#{ check }"
 
 			# Make sure dependencies are an array.  If there are none, create an empty array
