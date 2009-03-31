@@ -9,6 +9,8 @@ Package: dsa-nagios-checks
 Architecture: all
 Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby
 Suggests: hpacucli
+Conflicts: dsa-nagios-nrpe-config
+Replaces: dsa-nagios-nrpe-config
 Description: debian.org nagios-nrpe-server configuration
  This package provides the debian.org configuration for the
  nagios-nrpe-server, automatically created from the debian.org
