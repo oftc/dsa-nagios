@@ -11,9 +11,9 @@ Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, li
 Suggests: hpacucli
 Conflicts: dsa-nagios-nrpe-config
 Replaces: dsa-nagios-nrpe-config
-Description: debian.org nagios-nrpe-server configuration
- This package provides the debian.org configuration for the
- nagios-nrpe-server, automatically created from the debian.org
- nagios setup.
+Description: DSA nagios checks
+ This package provides provides a few nagios plugins by
+ DSA for use on debian.org hosts.
  .
- It also ships a few nagios checks.
+ It also sets up a few cronjobs for checks that are to
+ be run out of cron.

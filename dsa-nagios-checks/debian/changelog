@@ -2,8 +2,9 @@ dsa-nagios-checks (69) unstable; urgency=low
 
   * Rename to dsa-nagios-checks.
   * Replaces/Conflicts dsa-nagios-nrpe-config.
+  * Update description.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 19:11:56 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 19:13:39 +0200
 
 dsa-nagios-nrpe-config (68) unstable; urgency=low
 
