@@ -1,11 +1,11 @@
-Source: dsa-nagios-nrpe-config
+Source: dsa-nagios-checks
 Section: local
 Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
 
-Package: dsa-nagios-nrpe-config
+Package: dsa-nagios-checks
 Architecture: all
 Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby
 Suggests: hpacucli

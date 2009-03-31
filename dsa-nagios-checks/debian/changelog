@@ -1,3 +1,9 @@
+dsa-nagios-checks (69) unstable; urgency=low
+
+  * Rename to dsa-nagios-checks.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 19:10:51 +0200
+
 dsa-nagios-nrpe-config (68) unstable; urgency=low
 
   * dsa-update-apt-status: Ensure apt-get update is quiet even when stuff
