@@ -4,8 +4,9 @@ dsa-nagios-checks (69) unstable; urgency=low
   * Replaces/Conflicts dsa-nagios-nrpe-config.
   * Update description.
   * No longer install nrpe_dsa.cfg.
+  * Move files into specific directories in source.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 19:15:45 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 19:19:14 +0200
 
 dsa-nagios-nrpe-config (68) unstable; urgency=low
 

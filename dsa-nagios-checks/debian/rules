@@ -13,31 +13,21 @@ install:
 	dh_clean -k
 	dh_installdirs
 
-	install -m 755 dsa-check-hpacucli $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-raid-areca $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-raid-dac960 $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-raid-mpt $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-raid-sw $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-raid-3ware $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-running-kernel $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-config $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-dabackup $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-dabackup-server $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-udldap-freshness $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-statusfile $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-samhain $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-mirrorsync $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-soas $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
+	for f in `ls -1 checks/*`; do \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins; \
+	done
 
-	install -m 755 dsa-check-puppet $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 755 dsa-check-packages $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
-	install -m 644 obsolete-packages-ignore $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios
+	for f in `ls -1 etc/*`; do \
+		install -m 644 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios; \
+	done
 
-	install -m 755 apt-status-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
-	install -m 755 weak-ssh-keys-check $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa
+	for f in `ls -1 share/*`; do \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa; \
+	done
 
-	install -m 755 dsa-update-apt-status $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/sbin
-	install -m 755 dsa-update-samhain-status $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/sbin
+	for f in `ls -1 sbin/*`; do \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/sbin; \
+	done
 
 
 binary-indep: install
