@@ -2,7 +2,7 @@
 
 set -e
 
-/usr/share/dsa/weak-ssh-keys-check -s /var/cache/dsa/nagios/weak-ssh-keys
+[ -e /var/cache/dsa/nagios/weak-ssh-keys ] || /usr/share/dsa/weak-ssh-keys-check -s /var/cache/dsa/nagios/weak-ssh-keys
 
 #DEBHELPER#
 
