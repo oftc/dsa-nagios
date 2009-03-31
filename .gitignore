@@ -1,0 +1,9 @@
+dsa-nagios-checks/debian/dsa-nagios-checks.debhelper.log
+dsa-nagios-checks/debian/dsa-nagios-checks/
+dsa-nagios-checks/debian/files
+dsa-nagios-checks_*.dsc
+dsa-nagios-checks_*.tar.gz
+dsa-nagios-checks_*_all.deb
+dsa-nagios-checks_*.build
+dsa-nagios-checks_*.changes
+
