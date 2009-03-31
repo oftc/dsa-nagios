@@ -1,3 +1,9 @@
+dsa-nagios-checks (70) XXstable; urgency=low
+
+  * No longer check nrpe config in postinst - puppet fixes it for us anyway.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 23:24:44 +0200
+
 dsa-nagios-checks (69) unstable; urgency=low
 
   * Rename to dsa-nagios-checks.
