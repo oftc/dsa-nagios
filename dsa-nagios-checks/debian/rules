@@ -14,19 +14,19 @@ install:
 	dh_installdirs
 
 	for f in `ls -1 checks/*`; do \
-		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins; \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/lib/nagios/plugins; \
 	done
 
 	for f in `ls -1 etc/*`; do \
-		install -m 644 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios; \
+		install -m 644 $$f $(CURDIR)/debian/dsa-nagios-checks/etc/nagios; \
 	done
 
 	for f in `ls -1 share/*`; do \
-		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/share/dsa; \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/share/dsa; \
 	done
 
 	for f in `ls -1 sbin/*`; do \
-		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/sbin; \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/sbin; \
 	done
 
 
