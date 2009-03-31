@@ -13,7 +13,6 @@ install:
 	dh_clean -k
 	dh_installdirs
 
-	install -m 644 nrpe_dsa.cfg $(CURDIR)/debian/dsa-nagios-nrpe-config/etc/nagios
 	install -m 755 dsa-check-hpacucli $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-raid-areca $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
 	install -m 755 dsa-check-raid-dac960 $(CURDIR)/debian/dsa-nagios-nrpe-config/usr/lib/nagios/plugins
