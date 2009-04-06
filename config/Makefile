@@ -8,6 +8,6 @@ clean:
 	rm -rf generated
 
 install: generated/nrpe_dsa.cfg
-	rsync -Pravz --delete generated static handel.debian.org:/etc/puppet/modules/nagios/files/dsa-nagios
+	rsync -Prltvz --delete generated static handel.debian.org:/etc/puppet/modules/nagios/files/dsa-nagios
 
 .PHONY: all deb
