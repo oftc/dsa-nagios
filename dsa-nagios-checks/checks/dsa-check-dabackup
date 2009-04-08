@@ -60,7 +60,7 @@ sub help($$) {
 	my ($exitcode, $fd) = @_;
 	version ($fd, 0);
 	print $fd "Usage: $PROGRAM_NAME --help\n";
-	print $fd "Usage: $PROGRAM_NAME";
+	print $fd "Usage: $PROGRAM_NAME [--fresh <minseconds>] [--maxage <seconds>]";
 	exit $exitcode
 };
 
@@ -69,6 +69,8 @@ my $params = {};
 Getopt::Long::config('bundling');
 if (!GetOptions (
 	'h|help'        =>  \$params->{'help'},
+        'f|fresh=i'	=>  \$TOO_FRESH,
+        'm|maxage=i'    =>  \$MAX_AGE,
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
