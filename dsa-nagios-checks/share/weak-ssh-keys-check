@@ -92,11 +92,13 @@ use IPC::Open3;
 my $fprdb_fname = "/var/lib/dsa/ssh-weak-keys.db" ;
 my ($outfile, $help);
 my $dsa_nowarn = 0;
+my $debian_org = 1;
 
 GetOptions(     'help|h' => \$help, #Help function
 		'statusfile|s=s' => \$outfile, 
 		'fprdb|f=s' => \$fprdb_fname,
-		'n|dsa_nowarn' => \$dsa_nowarn,  
+		'n|dsa_nowarn' => \$dsa_nowarn,
+		'd|debian-org!' => \$debian_org,
 );
 
 pod2usage(1) if $help;
@@ -123,9 +125,11 @@ my $text = '';
 my %key_sizes;
 
 
-
-#&from_user_all;
-&from_debianorg_places;
+if ($debian_org) {
+	&from_debianorg_places;
+} else {
+	&from_user_all;
+}
 &from_ssh_host(qw(localhost));
 
 my $status="OK";
