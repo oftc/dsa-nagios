@@ -68,7 +68,7 @@ my @controllers;
 for (@$ctrlallshow) {
 	chomp;
 	next if /^$/;
-	if (/in Slot ([0-9]+) /) {
+	if (/in Slot ([0-9a-z]+)/) {
 		push @controllers, $1;
 		next;
 	};

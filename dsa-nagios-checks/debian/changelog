@@ -2,8 +2,9 @@ dsa-nagios-checks (70) XXstable; urgency=low
 
   * No longer check nrpe config in postinst - puppet fixes it for us anyway.
   * Only run weak keys check if there is no prior weak key status.
+  * dsa-check-hpacucli: Slots need not be all numeric.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 31 Mar 2009 23:25:31 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 18 Apr 2009 01:26:37 +0200
 
 dsa-nagios-checks (69) unstable; urgency=low
 
