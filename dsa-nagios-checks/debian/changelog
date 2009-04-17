@@ -4,8 +4,9 @@ dsa-nagios-checks (70) XXstable; urgency=low
   * Only run weak keys check if there is no prior weak key status.
   * dsa-check-hpacucli: Slots need not be all numeric.
   * dsa-check-hpacucli: Spares can be active.
+  * dsa-check-hpacucli: And SAS can be E too.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 18 Apr 2009 01:31:05 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 18 Apr 2009 01:41:32 +0200
 
 dsa-nagios-checks (69) unstable; urgency=low
 

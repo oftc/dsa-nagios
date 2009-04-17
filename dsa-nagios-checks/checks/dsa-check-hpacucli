@@ -124,7 +124,7 @@ for my $slot (sort @controllers) {
 		my $type;
 		if ($drive =~ /^[0-9]+:[0-9]+$/) { # scsi drives
 			$type = 'SCSI';
-		} elsif ($drive =~ /^[0-9]+I:[0-9]+:[0-9]+$/) { # SAS
+		} elsif ($drive =~ /^[0-9]+[EI]:[0-9]+:[0-9]+$/) { # SAS
 			$type = 'SAS';
 		} else {
 			# I'm not going to run pass arguments of unknown form to the shell..
