@@ -97,7 +97,7 @@ for my $slot (sort @controllers) {
 			push @{$status{'Failed'}}, $1;
 		} elsif (/^Error: The specified controller does not have any physical drives on it.$/) {
 			$nodrives = 1;
-		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed|Rebuilding)(?:, spare)?\)$/) {
+		} elsif (/^ *physicaldrive (\S+) .* (OK|Predictive Failure|Failed|Rebuilding)(?:, (?:active )?spare)?\)$/) {
 			my $drive = $1;
 			my $status = $2;
 			push @{$status{$status}}, $drive;
