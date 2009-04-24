@@ -69,8 +69,8 @@ my $params = {};
 Getopt::Long::config('bundling');
 if (!GetOptions (
 	'h|help'        =>  \$params->{'help'},
-        'f|fresh=i'	=>  \$TOO_FRESH,
-        'm|maxage=i'    =>  \$MAX_AGE,
+	'f|fresh=i'     =>  \$TOO_FRESH,
+	'm|maxage=i'    =>  \$MAX_AGE,
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
