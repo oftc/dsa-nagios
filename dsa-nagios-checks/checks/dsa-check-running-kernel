@@ -89,6 +89,11 @@ get_avail() {
 		return 2
 	fi
 
+        if [ "$imagename" != "${prefix}-image-${kervers}" ]; then
+	        echo "$imagename" != "${prefix}-image-${kervers}"
+		return 1
+	fi
+
 	local availvrs=$(apt-cache policy ${imagename} 2>/dev/null | grep '^  Candidate' | awk '{print $2}')
 
 	if [ "$availvrs" = "$kernelversion" ]; then
