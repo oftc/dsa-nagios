@@ -50,7 +50,6 @@ get_avail() {
 	local prefix=linux
 
 	local kervers=$(uname -r)
-	local kernelversion=$(apt-cache policy ${prefix}-image-${kervers} 2>/dev/null | grep '^  Installed:' | awk '{print $2}')
 
 	local metavers=''
 
@@ -77,24 +76,24 @@ get_avail() {
 		return 2
 	fi
 
-	local last=0
+	local imagename=0
 	for vers in $(apt-cache --no-all-versions depends ${prefix}-image-${metavers} | grep Depends | awk '{print $2}' | sort -u); do
-		if dpkg --compare-versions $vers gt $last; then
-			last=$vers
+		if dpkg --compare-versions $vers gt $imagename; then
+			imagename=$vers
 		fi
 	done
-	local imagename=$last
 
 	if [ -z "$imagename" ] || [ "$imagename" = 0 ]; then
 		return 2
 	fi
 
-        if [ "$imagename" != "${prefix}-image-${kervers}" ]; then
-	        echo "$imagename" != "${prefix}-image-${kervers}"
+	if [ "$imagename" != "${prefix}-image-${kervers}" ]; then
+		echo "$imagename" != "${prefix}-image-${kervers}"
 		return 1
 	fi
 
 	local availvrs=$(apt-cache policy ${imagename} 2>/dev/null | grep '^  Candidate' | awk '{print $2}')
+	local kernelversion=$(apt-cache policy ${prefix}-image-${kervers} 2>/dev/null | grep '^  Installed:' | awk '{print $2}')
 
 	if [ "$availvrs" = "$kernelversion" ]; then
 		return 0
