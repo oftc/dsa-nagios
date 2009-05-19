@@ -61,6 +61,11 @@ get_avail() {
 		metavers=$(echo $kervers | sed -r -e 's/^2\.(4|6)\.[0-9]+-[A-Za-z0-9\.]+-(.*)/2.\1-\2/')
 	fi
 
+	# Attempt to track back to a metapackage failed.  bail
+	if [ "$metavers" = "$kervers" ]; then
+		return 2
+	fi
+
 	# We're just going to give up if we can't find a matching metapackage
 	# I tried being strict once, and it just caused a lot of headaches.  We'll see how
 	# being lax does for us
@@ -102,7 +107,6 @@ get_avail() {
 	echo "$kernelversion != $availvrs"
 	return 1
 }
-
 
 get_image() {
 	local image GZHDR1 GZHDR2 off
