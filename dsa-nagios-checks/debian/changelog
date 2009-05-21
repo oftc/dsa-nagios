@@ -1,3 +1,9 @@
+dsa-nagios-checks (72) stable; urgency=low
+
+  * Generalize puppet file age check and remove old one
+
+ -- Stephen Gran <sgran@debian.org>  Thu, 21 May 2009 20:52:12 +0100
+
 dsa-nagios-checks (71) stable; urgency=low
 
   * Update the kernel check to not complain when we can't trace back to a meta
