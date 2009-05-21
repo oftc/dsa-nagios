@@ -1,0 +1,49 @@
+#!/bin/sh
+# vim: set fileencoding=utf-8 ai noet sts=8 sw=8 tw=0:
+
+FILE=''
+INTERVAL=60
+EXIT=0
+
+usage(){
+	ret=$1
+
+	cat <<EOF
+$0: usage:
+	$0 <options>
+
+	File age checker for nagios.  Will alert if the named file is
+	older than the interval (interval default is 60 minutes)
+
+	-h	This help message
+	-i	Interval in minutes at which to alert
+	-f	File to check
+EOF
+
+	exit $ret
+}
+
+while getopts f:i:h opt ; do
+	case "$opt" in
+		f) FILE="$OPTARG" ;;
+		i) INTERVAL="$OPTARG" ;;
+		h) usage 0
+	esac
+done
+
+if [ -z "$FILE" ]; then
+	echo "Need file argument!" >&2
+	usage 1
+fi
+
+if [ ! -r "$FILE" ]; then
+	printf "state file %s is missing or unreadable\n" $FILE
+	exit 2
+fi
+
+if [ "$(( $( date +%s ) - $(stat -c %Y $FILE) ))" -gt "$(( $INTERVAL * 60 ))" ]; then
+	printf "state file %s is older than %d minutes\n" $FILE $INTERVAL
+	exit 2
+fi
+
+printf "state file %s OK: updated on %s\n" $FILE "$(stat -c %y $FILE)"
