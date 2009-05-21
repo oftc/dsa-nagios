@@ -57,7 +57,7 @@ if [ -z "$FILE" ]; then
 	usage 3
 fi
 
-if [ ! -r "$FILE" ]; then
+if [ ! -e "$FILE" ]; then
 	printf "state file %s is missing or unreadable\n" $FILE
 	exit 2
 fi
