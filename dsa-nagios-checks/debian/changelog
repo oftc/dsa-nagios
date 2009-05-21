@@ -1,3 +1,9 @@
+dsa-nagios-checks (73) stable; urgency=low
+
+  * Er, new test needs to be executable
+
+ -- Stephen Gran <sgran@debian.org>  Thu, 21 May 2009 21:17:27 +0100
+
 dsa-nagios-checks (72) stable; urgency=low
 
   * Generalize puppet file age check and remove old one
