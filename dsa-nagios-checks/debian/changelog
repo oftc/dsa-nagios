@@ -1,3 +1,29 @@
+dsa-nagios-checks (74) stable; urgency=low
+
+  * -e is sufficient
+
+ -- Stephen Gran <sgran@debian.org>  Thu, 21 May 2009 22:12:34 +0100
+
+dsa-nagios-checks (73) stable; urgency=low
+
+  * Er, new test needs to be executable
+
+ -- Stephen Gran <sgran@debian.org>  Thu, 21 May 2009 21:17:27 +0100
+
+dsa-nagios-checks (72) stable; urgency=low
+
+  * Generalize puppet file age check and remove old one
+
+ -- Stephen Gran <sgran@debian.org>  Thu, 21 May 2009 20:52:12 +0100
+
+dsa-nagios-checks (71) stable; urgency=low
+
+  * Update the kernel check to not complain when we can't trace back to a meta
+    package name - this generally indicates a custom kernel that we're running
+    on purpose.
+
+ -- Stephen Gran <sgran@debian.org>  Tue, 19 May 2009 22:20:44 +0100
+
 dsa-nagios-checks (70) XXstable; urgency=low
 
   * No longer check nrpe config in postinst - puppet fixes it for us anyway.
