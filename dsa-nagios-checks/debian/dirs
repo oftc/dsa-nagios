@@ -1,4 +1,5 @@
 etc/nagios
+etc/nagios/obsolete-packages-ignore.d
 usr/lib/nagios/plugins
 usr/share/dsa
 var/cache/dsa/nagios

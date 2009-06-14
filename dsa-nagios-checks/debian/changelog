@@ -1,3 +1,9 @@
+dsa-nagios-checks (76) stable; urgency=low
+
+  * Ship with an /etc/nagios/obsolete-packages-ignore.d directory.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 14 Jun 2009 12:09:54 +0200
+
 dsa-nagios-checks (75) stable; urgency=low
 
   * dsa-check-packages: Support ignore directories.
