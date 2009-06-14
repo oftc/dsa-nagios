@@ -12,7 +12,7 @@ Suggests: hpacucli
 Conflicts: dsa-nagios-nrpe-config
 Replaces: dsa-nagios-nrpe-config
 Description: DSA nagios checks
- This package provides provides a few nagios plugins by
+ This package provides a few nagios plugins by
  DSA for use on debian.org hosts.
  .
  It also sets up a few cronjobs for checks that are to
