@@ -1,3 +1,9 @@
+dsa-nagios-checks (75) stable; urgency=low
+
+  * dsa-check-packages: Support ignore directories.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 14 Jun 2009 11:59:23 +0200
+
 dsa-nagios-checks (74) stable; urgency=low
 
   * -e is sufficient

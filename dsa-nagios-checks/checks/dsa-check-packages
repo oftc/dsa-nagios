@@ -38,6 +38,7 @@ use warnings;
 use English;
 
 my $IGNORE = "/etc/nagios/obsolete-packages-ignore";
+my $IGNORED = "/etc/nagios/obsolete-packages-ignore.d";
 
 my %CODE = (
 	'OK'            => 0,
@@ -132,16 +133,33 @@ sub get_packages {
 }
 
 sub load_ignores {
-	my ($ignorefile, $require_file) = @_;
+	my ($ignorefiles, $require_file) = @_;
 
 	my @ignores;
-	if (!$require_file and ! -e $ignorefile) {
-		return \@ignores;
-	}
 
-	open (F, "< $ignorefile") or die ("Cannot open $ignorefile: $!\n");
-	@ignores = <F>;
-	close F;
+	for my $ignoreitem (@$ignorefiles) {
+		next if (!$require_file and ! -e $ignoreitem);
+
+		my @filestoopen;
+		if (-d $ignoreitem) {
+			opendir(DIR, $ignoreitem) or die ("Cannot open dir $ignoreitem: $!\n");
+			@filestoopen = readdir(DIR);
+			closedir(DIR);
+
+			@filestoopen = grep { -f ($ignoreitem.'/'.$_) } @filestoopen;
+			@filestoopen = grep { /^([a-z0-9_.-]+)+[a-z0-9]+$/i } @filestoopen;
+			@filestoopen = grep { !/dpkg-(old|dist|new|tmp)$/ } @filestoopen;
+			@filestoopen = map { ($ignoreitem.'/'.$_) } @filestoopen;
+		} else {
+			push @filestoopen, $ignoreitem;
+		}
+
+		for my $f (@filestoopen) {
+			open (F, "< $f") or die ("Cannot open $f: $!\n");
+			push @ignores, <F>;
+			close F;
+		}
+	}
 	chomp(@ignores);
 	return \@ignores;
 }
@@ -182,21 +200,20 @@ sub filter_ignored {
 
 sub usage {
 	my ($fd, $exit) = @_;
-	print $fd "Usage: $PROGRAM_NAME [<ignorefile>]\n";
+	print $fd "Usage: $PROGRAM_NAME [<ignorefile|dir> [<ignorefile|dir> ...]]\n";
 	exit $exit;
 }
 
-my $ignorefile = $IGNORE;
+my $ignorefiles = [$IGNORE, $IGNORED];
 my $ignorefile_userset = 0;
-usage(\*STDERR, 1) if (@ARGV > 1);
-if (@ARGV == 1) {
+if (@ARGV >= 1) {
 	usage(\*STDOUT, 0) if ($ARGV[0] eq "-h");
 	usage(\*STDOUT, 0) if ($ARGV[0] eq "--help");
-	$ignorefile = $ARGV[0];
 	$ignorefile_userset = 1;
+	$ignorefiles = \@ARGV;
 };
 
-my $ignores = load_ignores($ignorefile, $ignorefile_userset);
+my $ignores = load_ignores($ignorefiles, $ignorefile_userset);
 my $packages = get_packages();
 
 filter_ignored($packages, $ignores);
