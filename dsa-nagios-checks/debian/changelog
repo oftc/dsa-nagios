@@ -1,3 +1,9 @@
+dsa-nagios-checks (77) stable; urgency=low
+
+  * Add checks/dsa-check-raid-aacraid.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 28 Jun 2009 16:31:13 +0200
+
 dsa-nagios-checks (76) stable; urgency=low
 
   * Ship with an /etc/nagios/obsolete-packages-ignore.d directory.
