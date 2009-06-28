@@ -1,3 +1,11 @@
+dsa-nagios-checks (78) stable; urgency=low
+
+  * dsa-check-raid-aacraid: tmp directory in /tmp,
+  * dsa-check-raid-aacraid: unlink UcliEvt.log so tmpdir cleanup
+    doesn't fail.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 28 Jun 2009 16:36:39 +0200
+
 dsa-nagios-checks (77) stable; urgency=low
 
   * Add checks/dsa-check-raid-aacraid.

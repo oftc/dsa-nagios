@@ -59,7 +59,7 @@ sub record($) {
 }
 
 # arcconf puts crap into a $PWD/UcliEvt.log file.
-my $dir = tempdir( "check-aacraid-XXXXXXX", CLEANUP => 1 );
+my $dir = tempdir( "/tmp/check-aacraid-XXXXXXX", CLEANUP => 1 );
 chdir ($dir) or die ("Cannot chdir $dir: $!\n");
 
 my $ctrl = 1;
@@ -136,5 +136,8 @@ while ($ctrl <= $numcontrollers) {
 	$ctrl++;
 };
 
+if ( -e 'UcliEvt.log' ) {
+	unlink('UcliEvt.log') or die ("Cannot unlink UcliEvt.log: $!\n");
+}
 print "$EXITCODE: ", join(" --- ", @resultstr), "\n";
 exit $CODE{$EXITCODE};
