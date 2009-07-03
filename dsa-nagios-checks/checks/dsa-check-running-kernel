@@ -88,7 +88,7 @@ get_avail() {
 
 	local imagename=0
 	# --no-all-versions show shows only the candidate
-	for vers in $(apt-cache --no-all-versions show ${prefix}-image-${metavers} | grep Depends | awk '{print $2}' | sort -u); do
+	for vers in $(apt-cache --no-all-versions show ${prefix}-image-${metavers} | egrep '^Depends:' | awk '{print $2}' | sort -u); do
 		if dpkg --compare-versions $vers gt $imagename; then
 			imagename=$vers
 		fi
