@@ -1,3 +1,11 @@
+dsa-nagios-checks (79) stable; urgency=low
+
+  * dsa-check-running-kernel: Correctly check *candidate* version
+    of kernel metapackage for unsatisfied depends, not the latest
+    metapackage (which might come from a non-default source).
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 03 Jul 2009 20:07:13 +0200
+
 dsa-nagios-checks (78) stable; urgency=low
 
   * dsa-check-raid-aacraid: tmp directory in /tmp,
