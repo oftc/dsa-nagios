@@ -29,8 +29,10 @@ run_required() {
 	return $norun
 }
 
-# do stuff only when required
-run_required || exit
+# do stuff only when required, or when asked to
+if [ "${1:-""}" != "-f" ] ; then
+	run_required || exit
+fi
 
 # sleep if called non-interactively
 if [ -z "$TERM" -o "$TERM" = "dumb" ]; then
