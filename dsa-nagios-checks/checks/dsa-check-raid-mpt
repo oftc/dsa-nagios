@@ -14,7 +14,7 @@ use Getopt::Long;
 $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
-my $MPT_STATUS = '/usr/sbin/mpt-status';
+my $MPT_STATUS = 'sudo /usr/sbin/mpt-status';
 
 # nagios exit codes
 my $UNKNOWN = -1;
