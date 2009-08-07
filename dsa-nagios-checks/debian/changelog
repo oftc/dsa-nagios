@@ -1,3 +1,10 @@
+dsa-nagios-checks (81) stable; urgency=low
+
+  * dsa-check-raid-mpt: mpt-status returns non-zero exit code when
+    it found degraded raid arrays.  Handle this correctly.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 07 Aug 2009 12:17:22 +0200
+
 dsa-nagios-checks (80) stable; urgency=low
 
   * dsa-check-packages: In the short overview say "obs/loc" instead of

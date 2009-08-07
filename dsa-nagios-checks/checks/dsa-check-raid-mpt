@@ -32,21 +32,19 @@ unless (-e $MPT_STATUS) {
 	exit $UNKNOWN;
 };
 
-my $command = "sudo $MPT_STATUS -s";
+my $command = "$MPT_STATUS -s";
 open (MPT, "$command|") or die ("Cannot run $command: $!\n");
 my @tw=<MPT>;
 close MPT;
-if ($CHILD_ERROR) { # program failed
-	die("$command returned with non-zero exit code: ".($CHILD_ERROR / 256)."\n");
-};
 
+my $command_exitcode = $CHILD_ERROR;
 
 my $exit = $UNKNOWN;
 my $msg = '';
 for my $line (@tw)  {
 	chomp $line;
 	next if $line =~ /^$/;
-	my ($device, $num, $status) = $line =~ m#^(log_id|vol_id|phys_id)\s+([0-9]+)\s+(.*)$#;
+	my ($device, $num, $status) = $line =~ m/^(log_id|vol_id|phys_id)\s+([0-9]+)\s+(.*)$/;
 	unless (defined($device) && defined($num) && defined($status)) {
 		print "Cannot parse line '$line'\n";
 		exit $UNKNOWN;
@@ -64,6 +62,11 @@ for my $line (@tw)  {
 if ($msg eq '') {
 	$msg = "No devices found";
 	die ("exit is not UNKNOWN but $exit") if ($exit != $UNKNOWN);
+}
+
+if ($command_exitcode && ($exit == $OK || $exit == $UNKNOWN)) {
+	$exit = $UNKNOWN;
+	$msg .= ($msg eq '' ? '' : '; '). "$command returned with non-zero exit code: ".($command_exitcode / 256);
 }
 
 print $msg,"\n";
