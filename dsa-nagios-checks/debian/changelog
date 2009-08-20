@@ -1,3 +1,9 @@
+dsa-nagios-checks (82) stable; urgency=low
+
+  * dsa-check-raid-3ware: Learn about REBUILDING state for 3ware raid units.
+
+ -- Peter Palfrader <weasel@debian.org>  Thu, 20 Aug 2009 13:48:43 +0200
+
 dsa-nagios-checks (81) stable; urgency=low
 
   * dsa-check-raid-mpt: mpt-status returns non-zero exit code when
