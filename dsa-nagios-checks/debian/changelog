@@ -1,3 +1,10 @@
+dsa-nagios-checks (83) stable; urgency=low
+
+  * Add dsa-check-cert-expire: Checks if a given cert on disk will expire
+    soon.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 02 Oct 2009 20:22:42 +0200
+
 dsa-nagios-checks (82) stable; urgency=low
 
   * dsa-check-raid-3ware: Learn about REBUILDING state for 3ware raid units.

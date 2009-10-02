@@ -85,3 +85,8 @@ dsa-check-soas:
 dsa-check-raid-aacraid:
   Copyright: 2008,2009 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-cert-expire
+  Copyright: 2009 Peter Palfrader
+  License: MIT
