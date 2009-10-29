@@ -99,6 +99,11 @@ foreach my $slave (@slaves) {
 		my $content = $response->content;  # or whatever
 		my ($date, $foo, $bar) = split("\n", $content);
 		my $synctime = str2time($date);;
+		if (! defined $synctime) {
+			$synctime = 0;
+			$exitcode = $UNKNOWN;
+			push @exitstatus, "Cannot parse tracefile on $slave";
+		};
 		print "$slave last synced $synctime\n" if $params->{'verbose'};
 		$status->{$slave}->{'synced'} = $synctime; 
 	}
@@ -124,9 +129,11 @@ if ($o_sync > 1) {
 }
 
 if ($exitcode == $CRITICAL) {
-	print "CRITICAL: " . join(',',@exitstatus) . "\n";		
+	print "CRITICAL: " . join(',',@exitstatus) . "\n";
 } elsif ($exitcode == $OK) {
 	print "OK: all mirrors up2date\n";
+} else {
+	print join(',',@exitstatus) . "\n";
 }
 
 foreach my $mirror (keys(%{$status})) {
