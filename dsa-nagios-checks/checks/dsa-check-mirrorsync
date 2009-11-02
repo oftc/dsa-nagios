@@ -99,8 +99,13 @@ foreach my $slave (@slaves) {
 		my $content = $response->content;  # or whatever
 		my ($date, $foo, $bar) = split("\n", $content);
 		my $synctime = str2time($date);;
+		if (! defined $synctime) {
+			$synctime = 0;
+			$exitcode = $UNKNOWN;
+			push @exitstatus, "Cannot parse tracefile on $slave";
+		};
 		print "$slave last synced $synctime\n" if $params->{'verbose'};
-		$status->{$slave}->{'synced'} = $synctime; 
+		$status->{$slave}->{'synced'} = $synctime;
 	}
 	else {
 		push @exitstatus, "$slave broken: " . $response->status_line; 
@@ -115,18 +120,21 @@ my %seen;
 my $o_sync = scalar(grep !$seen{$_}++, map{$status->{$_}->{'synced'}} keys(%{$status}));
 if ($o_sync > 1) {
 	$exitcode = $CRITICAL; 
-	$o_sync -= 1;
 	my @mirrors =  sort { $status->{$a}->{'synced'} <=> $status->{$b}->{'synced'}  } keys %{$status};
-	push @exitstatus, "$o_sync mirror(s) not in sync (from oldest to newest): ". 
-		join(",", splice(@mirrors,0,$o_sync));  
+	my @not_most_recent = grep { $status->{$_}->{'synced'} <=> $status->{$mirrors[-1]}->{'synced'} } @mirrors;
+	$o_sync = scalar @not_most_recent;
+	push @exitstatus, "$o_sync mirror(s) not in sync (from oldest to newest): ".
+		join(", ", @not_most_recent);
 } else {
 	print "All mirrors unique\n" if $params->{'verbose'};
 }
 
 if ($exitcode == $CRITICAL) {
-	print "CRITICAL: " . join(',',@exitstatus) . "\n";		
+	print "CRITICAL: " . join(',',@exitstatus) . "\n";
 } elsif ($exitcode == $OK) {
 	print "OK: all mirrors up2date\n";
+} else {
+	print join(',',@exitstatus) . "\n";
 }
 
 foreach my $mirror (keys(%{$status})) {
