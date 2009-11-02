@@ -2,8 +2,9 @@ dsa-nagios-checks (8X) Xtable; urgency=low
 
   * dsa-check-mirrorsync: Handle case where we cannot parse a tracefile
     better (do not reference undefined values, properly exit with UNKNOWN).
+  * dsa-check-mirrorsync: Fix counting of out-of-date mirrors.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 29 Oct 2009 19:09:36 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 02 Nov 2009 15:49:28 +0100
 
 dsa-nagios-checks (83) stable; urgency=low
 
