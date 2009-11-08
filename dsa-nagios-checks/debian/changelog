@@ -3,8 +3,13 @@ dsa-nagios-checks (8X) Xtable; urgency=low
   * dsa-check-mirrorsync: Handle case where we cannot parse a tracefile
     better (do not reference undefined values, properly exit with UNKNOWN).
   * dsa-check-mirrorsync: Fix counting of out-of-date mirrors.
+  * dsa-check-dabackup-server: Handle wildcard entries (via the new ssh
+    wrapper) in the authorized_keys files.  Such entries accept all
+    backup-manager entries for their host, but they do not require one.
+    As such we can just put all the hosts in the authkeys file regardless of
+    whether we actually have backups configured for them.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 02 Nov 2009 15:49:28 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sun, 08 Nov 2009 12:41:29 +0100
 
 dsa-nagios-checks (83) stable; urgency=low
 

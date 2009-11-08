@@ -70,9 +70,13 @@ trap "rm -f '$rsync_targets' '$backup_manager_sources'" 0 1 2 5 15
 cat /root/.ssh/authorized_keys |
 	grep '^command=' |
 	sed -e 's/",no-por.*//' -e 's/.*--ignore-errors . //' -e 's#/org/backup.debian.org/staging/##' |
+	grep -v 'command="/usr/lib/da-backup/da-backup-ssh-wrap ' |
 	sort > "$rsync_targets"
-grep -h source /etc/da-backup-manager/* | 
+
+wildcard_hosts=`cat /root/.ssh/authorized_keys | grep 'command="/usr/lib/da-backup/da-backup-ssh-wrap ' | sed -e 's/.*da-backup-ssh-wrap \([a-z0-9.]*\)".*/\1/' | tr '\n' '|' | sed 's/|$//'`
+grep -h source /etc/da-backup-manager/* |
 	sed -e 's/source=//' |
+	egrep -v "^($wildcard_hosts)/" |
 	sort > "$backup_manager_sources"
 if ! diff "$rsync_targets" "$backup_manager_sources" > /dev/null; then
 	log warn
