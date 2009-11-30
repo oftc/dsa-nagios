@@ -1,5 +1,6 @@
 dsa-nagios-checks (8X) Xtable; urgency=low
 
+  [ Peter Palfrader ]
   * dsa-check-mirrorsync: Handle case where we cannot parse a tracefile
     better (do not reference undefined values, properly exit with UNKNOWN).
   * dsa-check-mirrorsync: Fix counting of out-of-date mirrors.
@@ -9,7 +10,10 @@ dsa-nagios-checks (8X) Xtable; urgency=low
     As such we can just put all the hosts in the authkeys file regardless of
     whether we actually have backups configured for them.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 08 Nov 2009 12:41:29 +0100
+  [ Stephen Gran ]
+  * New check: dsa-check-hpasm
+
+ -- Stephen Gran <sgran@debian.org>  Mon, 30 Nov 2009 22:10:46 +0000
 
 dsa-nagios-checks (83) stable; urgency=low
 
