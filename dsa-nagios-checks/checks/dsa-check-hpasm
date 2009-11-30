@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# check status of various hardware devices (fans, temp, dimms, powersupply)
+# requires hpasmcli
+
+# Copyright (c) 2009 Stephen Gran <steve@lobefin.net>
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+my $command = <<EOF;
+SHOW DIMM
+SHOW FANS
+SHOW POWERSUPPLY
+SHOW TEMP
+QUIT
+EOF
+
+$ENV{'LD_LIBRARY_PATH'} = '/home/sgran/lib';
+
+my %callbacks = (
+  'SHOW DIMM'        => \&do_dimm,
+  'SHOW FANS'        => \&do_fans,
+  'SHOW POWERSUPPLY' => \&do_powersupply,
+  'SHOW TEMP'        => \&do_temp,
+);
+
+my $prompt = "hpasmcli>";
+my $exit_status = 0;
+my $ret = '';
+
+sub do_dimm {
+  my @output = @_;
+  my $dimm_num = my $status = my $return = my $message = '';
+  my $in_block = my $header_seen = my $num_dimms = 0;
+
+  for my $line (@output) {
+    chomp $line;
+    unless ($header_seen) {
+      next until ($line eq "$prompt SHOW DIMM");
+      $header_seen++;
+      next;
+    }
+
+    if ($line =~ /(^\s*$|-----)/) {
+      if ($in_block) {
+        if ($status ne 'Ok') {
+          $message = sprintf("DIMM%d: %s ", $dimm_num, $status);
+          $exit_status |= 2;
+        }
+        $return .= $message if ($message);
+        $message = $status = '';
+      } else {
+        $in_block++;
+      }
+    }
+
+    if ($line =~ /^Module #:\s+(\d)/) {
+      $dimm_num = $1;
+      $num_dimms++;
+    } elsif ($line =~ /Status:\s+(\S+(\s*(.*)?))/) {
+      $status = $1;
+    } elsif ($line =~ /$prompt/) {
+      last;
+    }
+  }
+
+  if ($return eq '') {
+    return "All DIMMS OK ($num_dimms)";
+  } else {
+    return $return;
+  }
+}
+
+sub do_fans {
+  my @output = @_;
+  my $fan_num = my $status = my $present = my $return = my $message = '';
+  my $header_seen = my $num_fans = 0;
+
+  for my $line (@output) {
+    chomp $line;
+    unless ($header_seen) {
+      next until ($line eq "$prompt SHOW FANS");
+      $header_seen++;
+      next;
+    }
+
+    if ($line =~ /^#(\d+)/) {
+      if ($num_fans) {
+        $return .= $message if ($message);
+        $message = '';
+      }
+
+      $fan_num = $1;
+      $num_fans++;
+      my @line = split /\s+/, $line;
+
+      if ($line[2] ne 'Yes') {
+        $message = sprintf("FAN%d: status=%s ", $fan_num, $line[2]);
+        $exit_status |= 2;
+      } elsif ($line[3] ne 'NORMAL') {
+        $message = sprintf("FAN%d: speed=%s ", $fan_num, $line[3]);
+        $exit_status |= 1;
+      } elsif ($line[5] ne 'Yes') {
+        $message = sprintf("FAN%d: redundant=%s ",$fan_num, $line[5]);
+        $exit_status |= 1;
+      }
+    } elsif ($line =~ /($prompt|^\s*$)/) {
+      last;
+    }
+  }
+  $return .= $message if ($message);
+
+  if ($return eq '') {
+    return "FANS OK ($num_fans) ";
+  } else {
+    return $return;
+  }
+}
+
+sub do_powersupply {
+  my @output = @_;
+  my $ps_num = my $return = my $message = '';
+  my $header_seen = my $num_ps = 0;
+
+  for my $line (@output) {
+    chomp $line;
+    unless ($header_seen) {
+      next until ($line eq "$prompt SHOW POWERSUPPLY");
+      $header_seen++;
+      next;
+    }
+
+    if ($line =~ /^Power supply #(\d+)/) {
+      if ($num_ps) {
+        $return .= $message if ($message);
+        $message = '';
+      }
+      $ps_num = $1;
+      $num_ps++;
+    } elsif ($line =~ /\s+Present\s*:\s+(.*)/) {
+      my $present = $1;
+      if ($present ne 'Yes') {
+        $message = sprintf("PS%d missing ", $ps_num);
+        $exit_status |= 1;
+      }
+    } elsif ($line =~ /\s+Condition\s*:\s+(.*)/) {
+      my $status = $1;
+      if ($status ne 'Ok') {
+        $message = sprintf("PS%d: %s  ", $ps_num, $status);
+        $exit_status |= 2;
+      }
+    } elsif ($line =~ /\s+Redundant\s*:\s+(.*)/) {
+      my $redundant = $1;
+      if ($redundant ne 'Yes') {
+        $message = sprintf("PS%d not redundant ", $ps_num);
+        $exit_status |= 1;
+      }
+    } elsif ($line =~ /($prompt|^\s*$)/) {
+      last;
+    }
+  }
+  $return .= $message if ($message);
+
+  if ($return eq '') {
+    return "POWER OK ($num_ps) ";
+  } else {
+    return $return;
+  }
+}
+
+sub do_temp {
+  my @output = @_;
+  my $temp_num = my $return = my $message = '';
+  my $header_seen = my $num_temp = 0;
+
+  for my $line (@output) {
+    chomp $line;
+    unless ($header_seen) {
+      next until ($line eq "$prompt SHOW TEMP");
+      $header_seen++;
+      next;
+    }
+
+    if ($line =~ /^#(\d+)/) {
+      if ($num_temp) {
+        $return .= $message if ($message);
+        $message = '';
+      }
+
+      $temp_num = $1;
+      $num_temp++;
+      my @line = split /\s+/, $line;
+
+      my $zone = $line[1];
+      my $current_temp = $line[2];
+      my $threshold = $line[3];
+
+      $current_temp =~ s/(.*)C.*/$1/;
+      $threshold =~ s/(.*)C.*/$1/;
+
+      my $off = $threshold - $current_temp;
+      if ($off <= 0) {
+        $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
+        $exit_status |= 2;
+      } elsif ($off < ($threshold/10)) {
+        $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
+        $exit_status |= 1;
+      }
+    } elsif ($line =~ /($prompt|^\s*$)/) {
+      last;
+    }
+  }
+  $return .= $message if ($message);
+  if ($return eq '') {
+    return "TEMP OK ($num_temp) ";
+  } else {
+    return $return;
+  }
+}
+
+my @output = `echo "$command"|hpasmcli 2>&1`;
+if (($? >> 8) != 0) {
+  print "UNKNOWN: Can't exec hpasmcli: @output\n";
+  exit 3;
+}
+
+for my $line (@output) {
+  chomp $line;
+  for my $check (sort keys %callbacks) {
+    if ($line eq "$prompt $check") {
+      $ret .= &{$callbacks{$check}}(@output);
+    }
+  }
+}
+
+if ($exit_status & 2) {
+  print "CRTICAL: $ret\n";
+  exit 2;
+} elsif ($exit_status & 1) {
+  print "WARNING: $ret\n";
+  exit 1;
+} else {
+  print "OK: $ret\n";
+  exit 0;
+}
