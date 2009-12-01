@@ -35,8 +35,6 @@ SHOW TEMP
 QUIT
 EOF
 
-$ENV{'LD_LIBRARY_PATH'} = '/home/sgran/lib';
-
 my %callbacks = (
   'SHOW DIMM'        => \&do_dimm,
   'SHOW FANS'        => \&do_fans,
@@ -85,7 +83,7 @@ sub do_dimm {
   }
 
   if ($return eq '') {
-    return "All DIMMS OK ($num_dimms)";
+    return "All DIMMS OK ($num_dimms) ";
   } else {
     return $return;
   }
