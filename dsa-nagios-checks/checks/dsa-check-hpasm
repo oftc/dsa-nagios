@@ -112,6 +112,11 @@ sub do_fans {
       $num_fans++;
       my @line = split /\s+/, $line;
 
+      if ($line[1] eq 'VIRTUAL') { # blade, etc
+        $message = 'FAN1: (virtual) OK ';
+        last;
+      }
+
       if ($line[2] ne 'Yes') {
         $message = sprintf("FAN%d: status=%s ", $fan_num, $line[2]);
         $exit_status |= 2;
