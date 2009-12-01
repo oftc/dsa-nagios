@@ -206,7 +206,6 @@ sub do_temp {
       }
 
       $temp_num = $1;
-      $num_temp++;
       my @line = split /\s+/, $line;
 
       my $zone = $line[1];
@@ -215,6 +214,8 @@ sub do_temp {
 
       $current_temp =~ s/(.*)C.*/$1/;
       $threshold =~ s/(.*)C.*/$1/;
+      next if ($threshold eq '-');
+      $num_temp++;
 
       my $off = $threshold - $current_temp;
       if ($off <= 0) {
