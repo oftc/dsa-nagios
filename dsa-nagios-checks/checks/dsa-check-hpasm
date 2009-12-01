@@ -83,7 +83,7 @@ sub do_dimm {
   }
 
   if ($return eq '') {
-    return "All DIMMS OK ($num_dimms) ";
+    return "DIMMS OK ($num_dimms) ";
   } else {
     return $return;
   }
@@ -236,7 +236,7 @@ sub do_temp {
   }
 }
 
-my @output = `echo "$command"|hpasmcli 2>&1`;
+my @output = `echo "$command"|sudo hpasmcli 2>&1`;
 if (($? >> 8) != 0) {
   print "UNKNOWN: Can't exec hpasmcli: @output\n";
   exit 3;
