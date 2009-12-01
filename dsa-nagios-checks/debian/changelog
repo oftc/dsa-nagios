@@ -1,4 +1,4 @@
-dsa-nagios-checks (8X) Xtable; urgency=low
+dsa-nagios-checks (84) unstable; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-mirrorsync: Handle case where we cannot parse a tracefile
@@ -12,6 +12,7 @@ dsa-nagios-checks (8X) Xtable; urgency=low
 
   [ Stephen Gran ]
   * New check: dsa-check-hpasm
+  * Release for new check
 
  -- Stephen Gran <sgran@debian.org>  Mon, 30 Nov 2009 22:10:46 +0000
 
