@@ -1,3 +1,11 @@
+dsa-nagios-checks (85) unstable; urgency=low
+
+  * dsa-check-hpasm: Not all things where a temperature can be measured
+    might be installed (e.g. a second CPU).  Don't do numeric computations
+    on a "-" instead of numbers then.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 09 Dec 2009 17:05:42 +0100
+
 dsa-nagios-checks (84) unstable; urgency=low
 
   [ Peter Palfrader ]

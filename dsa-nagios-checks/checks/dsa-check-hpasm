@@ -223,12 +223,14 @@ sub do_temp {
       $num_temp++;
 
       my $off = $threshold - $current_temp;
-      if ($off <= 0) {
-        $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
-        $exit_status |= 2;
-      } elsif ($off < ($threshold/10)) {
-        $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
-        $exit_status |= 1;
+      if ($current_temp ne '-') {
+        if ($off <= 0) {
+          $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
+          $exit_status |= 2;
+        } elsif ($off < ($threshold/10)) {
+          $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
+          $exit_status |= 1;
+        }
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {
       last;
