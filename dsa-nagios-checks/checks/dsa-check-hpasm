@@ -222,8 +222,8 @@ sub do_temp {
       next if ($threshold eq '-');
       $num_temp++;
 
-      my $off = $threshold - $current_temp;
       if ($current_temp ne '-') {
+        my $off = $threshold - $current_temp;
         if ($off <= 0) {
           $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
           $exit_status |= 2;
