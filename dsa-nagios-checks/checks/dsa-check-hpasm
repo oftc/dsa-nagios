@@ -51,11 +51,12 @@ Getopt::Long::config('bundling');
 if (!GetOptions (
         '--help'                => \$params->{'help'},
         '--ps-no-redundant'     => \$params->{'ps-no-redundant'},
+        '--fan-no-redundant'    => \$params->{'fan-no-redundant'},
         )) {
-        die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant]\n");
+        die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant]\n");
 };
 if ($params->{'help'}) {
-        print "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant]\n";
+        print "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant]\n";
         print "Checks hp hardware health.\n";
         exit (0);
 };
@@ -144,7 +145,7 @@ sub do_fans {
         $exit_status |= 1;
       } elsif ($line[5] ne 'Yes') {
         $message = sprintf("FAN%d: redundant=%s ",$fan_num, $line[5]);
-        $exit_status |= 1;
+        $exit_status |= 1 unless ($params->{'fan-no-redundant'});
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {
       last;

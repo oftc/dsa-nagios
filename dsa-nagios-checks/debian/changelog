@@ -5,8 +5,10 @@ dsa-nagios-checks (8x) unstable; urgency=low
     on a "-" instead of numbers then.
   * dsa-check-hpasm: Support a --ps-no-redundant option.  If supplied
     then non-redundant power supply will not be a warning state.
+  * dsa-check-hpasm: Support a --fan-no-redundant option.  If supplied
+    then non-redundant fans will not be a warning state.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 10 Dec 2009 15:13:33 +0100
+ -- Peter Palfrader <weasel@debian.org>  Thu, 10 Dec 2009 15:20:41 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
