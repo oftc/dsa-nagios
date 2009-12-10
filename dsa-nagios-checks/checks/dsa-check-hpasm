@@ -2,6 +2,8 @@
 
 use strict;
 use warnings;
+use English;
+use Getopt::Long;
 
 # check status of various hardware devices (fans, temp, dimms, powersupply)
 # requires hpasmcli
@@ -41,6 +43,23 @@ my %callbacks = (
   'SHOW POWERSUPPLY' => \&do_powersupply,
   'SHOW TEMP'        => \&do_temp,
 );
+
+
+my $params = {};
+
+Getopt::Long::config('bundling');
+if (!GetOptions (
+        '--help'                => \$params->{'help'},
+        '--ps-no-redundant'     => \$params->{'ps-no-redundant'},
+        )) {
+        die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant]\n");
+};
+if ($params->{'help'}) {
+        print "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant]\n";
+        print "Checks hp hardware health.\n";
+        exit (0);
+};
+
 
 my $prompt = "hpasmcli>";
 my $exit_status = 0;
@@ -176,7 +195,7 @@ sub do_powersupply {
       my $redundant = $1;
       if ($redundant ne 'Yes') {
         $message = sprintf("PS%d not redundant ", $ps_num);
-        $exit_status |= 1;
+        $exit_status |= 1 unless ($params->{'ps-no-redundant'});
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {
       last;
