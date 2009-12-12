@@ -110,6 +110,7 @@ foreach my $slave (@slaves) {
 	else {
 		push @exitstatus, "$slave broken: " . $response->status_line; 
 		$status->{$slave}->{'error'} = $response->status_line;
+		$status->{$slave}->{'synced'} = 0;
 		$exitcode = $CRITICAL;
 		push @critical, $slave;
 	}
