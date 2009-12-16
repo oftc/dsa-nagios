@@ -119,16 +119,18 @@ for my $key (keys %$r) {
 
 my $exit = 0;
 my $res = '';
-my %num = ('warn' => 0, 'error' => 0, 'info' => 0);
+my %num = ('warn' => 0, 'error' => 0, 'info' => 0, 'error-ignored' => 0, 'warn-ignored' => 0);
 
 for my $idx (sort {$a <=> $b} keys %{$data{'severity'}}) {
 	my $sev = $snmp_severity{$data{'severity'}->{$idx}};
 	die("Unexpected severity $data{'severity'}->{$idx}\n") unless $sev;
 	my $sevint = $severity_int{$sev};
-	$num{$sev}++;
 	if ($sevint > 0) {
 		my $msg = $data{'message'}->{$idx};
-		next if grep {$_ eq $msg} @ignores;
+		if (grep {$_ eq $msg} @ignores) {
+			$num{$sev.'-ignored'}++;
+			next;
+		};
 
 		$exit = $sevint > $exit ? $sevint : $exit;
 
@@ -137,10 +139,19 @@ for my $idx (sort {$a <=> $b} keys %{$data{'severity'}}) {
 			$idx,
 			$data{'timestamp'}->{$idx},
 			$msg;
+
+		$num{$sev}++;
+	} else {
+		$num{$sev}++;
 	};
 };
 
-printf "Event Log: %d info, %d warnings, %d errors\n", $num{'info'}, $num{'warn'}, $num{'error'};
+printf "Event Log: %d info, %d warnings%s, %d errors%s\n",
+	$num{'info'},
+	$num{'warn'},
+	($num{'warn-ignored'} ? " (+$num{'warn-ignored'} ignored)" : ""),
+	$num{'error'},
+	($num{'error-ignored'} ? " (+$num{'error-ignored'} ignored)" : "");
 print $res;
 exit $exit;
 
