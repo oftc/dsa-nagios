@@ -7,6 +7,7 @@ dsa-nagios-checks (8x) unstable; urgency=low
     then non-redundant power supply will not be a warning state.
   * dsa-check-hpasm: Support a --fan-no-redundant option.  If supplied
     then non-redundant fans will not be a warning state.
+  * Add dsa-check-msa-eventlog.
 
  -- Peter Palfrader <weasel@debian.org>  Thu, 10 Dec 2009 15:20:41 +0100
 

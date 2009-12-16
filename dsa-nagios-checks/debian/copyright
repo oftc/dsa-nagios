@@ -87,6 +87,11 @@ dsa-check-raid-aacraid:
   License: MIT
 
 ########################################################################
-dsa-check-cert-expire
+dsa-check-cert-expire:
+  Copyright: 2009 Peter Palfrader
+  License: MIT
+
+########################################################################
+dsa-check-msa-eventlog:
   Copyright: 2009 Peter Palfrader
   License: MIT

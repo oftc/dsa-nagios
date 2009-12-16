@@ -1,0 +1,149 @@
+#!/usr/bin/perl
+
+# queries the event log of an MSA2000 storage array using NSMP and reports
+# warning and error states.
+#
+# once an issue has been acknowledged/fixed, change the --startindex option
+
+
+# Copyright (C) 2009 Peter Palfrader <peter@palfrader.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+use strict;
+use warnings;
+use English;
+use Net::SNMP;
+use Getopt::Long;
+
+
+my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--timeout=<timeout>] [--startindex=<idx>] <host> <community>\n";
+my $params;
+Getopt::Long::config('bundling');
+if (!GetOptions (
+	'--help'         => \$params->{'help'},
+	'--timeout=i'    => \$params->{'timeout'},
+	'--startindex=i' => \$params->{'startindex'},
+	)) {
+	die ($usage);
+};
+if ($params->{'help'}) {
+	print $usage;
+	exit (0);
+};
+die ($usage) unless (scalar @ARGV == 2);
+
+my $host = shift;
+my $community = shift;
+
+my $timeout = $params->{'timeout'} || 15;
+my $maxrep = 10;
+my $startindex = $params->{'startindex'} || undef;
+
+
+
+
+my @ignores = (
+	'Killed partner controller; reason=5 (Other not present)',
+);
+
+my %snmp_severity = (
+	5 => 'warn',
+	6 => 'error',
+	8 => 'info',
+);
+my %severity_int = (
+	'info' => 0,
+	'warn' => 1,
+	'error' => 2,
+);
+
+my $session;
+sub snmp_error() {
+	die "SNMP error: ", $session->error(), "\n";
+};
+
+my %OID = (
+	'1.3.6.1.3.94.1.11.1.4.32.112.0.192.255.213.236.218.0.0.0.0.0.0.0.0' => 'timestamp',
+	'1.3.6.1.3.94.1.11.1.6.32.112.0.192.255.213.236.218.0.0.0.0.0.0.0.0' => 'severity',
+	'1.3.6.1.3.94.1.11.1.9.32.112.0.192.255.213.236.218.0.0.0.0.0.0.0.0' => 'message',
+);
+
+
+my $error;
+($session, $error) = Net::SNMP->session(
+	-hostname  => $host,
+	-community => $community,
+	-version   => 'snmpv2c',
+	-timeout   => $timeout
+);
+die "SNMP error: $error\n" unless defined ($session);
+
+my $octs = $session->max_msg_size(65535);
+snmp_error() unless defined $octs;
+
+#my $debug = $session->debug(2|4|8|16|32);
+#snmp_error() unless defined $debug;
+
+my $r = $session->get_entries(
+	-columns => [ keys %OID ],
+	-maxrepetitions => $maxrep,
+	-startindex => $startindex,
+);
+snmp_error() unless defined $r;
+
+my %data;
+for my $key (keys %$r) {
+	my ($col, $idx) = $key =~ /(.*)\.([0-9]+)/;
+	my $type = $OID{$col};
+	die ("Unexpected oid $key\n") unless defined $type;
+	$data{$type}{$idx} = $r->{$key};
+};
+
+my $exit = 0;
+my $res = '';
+my %num = ('warn' => 0, 'error' => 0);
+
+for my $idx (sort {$a <=> $b} keys %{$data{'severity'}}) {
+	my $sev = $snmp_severity{$data{'severity'}->{$idx}};
+	die("Unexpected severity $data{'severity'}->{$idx}\n") unless $sev;
+	my $sevint = $severity_int{$sev};
+	if ($sevint > 0) {
+		my $msg = $data{'message'}->{$idx};
+		next if grep {$_ eq $msg} @ignores;
+
+		$exit = $sevint > $exit ? $sevint : $exit;
+
+		$res .= sprintf "%s: [%s]%s %s\n",
+			$sev,
+			$idx,
+			$data{'timestamp'}->{$idx},
+			$msg;
+
+		$num{$sev}++;
+	};
+};
+
+printf "Event Log: %d warnings, %d errors\n", $num{'warn'}, $num{'error'};
+print $res;
+exit $exit;
+
+# vim:ts=4
+# vim:sw=4
