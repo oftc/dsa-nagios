@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 UPDATE_RUNS=3
 STATUS=/var/cache/dsa/nagios/apt
