@@ -1,5 +1,6 @@
 dsa-nagios-checks (8x) unstable; urgency=low
 
+  [ Peter Palfrader ]
   * dsa-check-hpasm: Not all things where a temperature can be measured
     might be installed (e.g. a second CPU).  Don't do numeric computations
     on a "-" instead of numbers then.
@@ -9,7 +10,10 @@ dsa-nagios-checks (8x) unstable; urgency=low
     then non-redundant fans will not be a warning state.
   * Add dsa-check-msa-eventlog.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 10 Dec 2009 15:20:41 +0100
+  [ Stephen Gran ]
+  * dsa-update-apt-status: Fix bashism by making it a bash script
+
+ -- Stephen Gran <sgran@debian.org>  Tue, 02 Feb 2010 00:40:06 +0000
 
 dsa-nagios-checks (84) unstable; urgency=low
 
