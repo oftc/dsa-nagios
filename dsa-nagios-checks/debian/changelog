@@ -13,7 +13,11 @@ dsa-nagios-checks (8x) unstable; urgency=low
   [ Stephen Gran ]
   * dsa-update-apt-status: Fix bashism by making it a bash script
 
- -- Stephen Gran <sgran@debian.org>  Tue, 02 Feb 2010 00:40:06 +0000
+  [ Peter Palfrader ]
+  * add dsa-check-zone-rrsig-expiration (therefore recommend
+    libnet-dns-sec-perl).
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Feb 2010 17:08:54 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
