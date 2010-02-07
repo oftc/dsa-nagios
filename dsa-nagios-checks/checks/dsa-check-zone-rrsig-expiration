@@ -115,7 +115,7 @@ sub do_recursion {
 		foreach my $ns (shuffle @refs) {
 			print STDERR "sending query for $zone RRSIG to $ns\n" if $opts{d};
 			$res->nameserver($ns);
-			$res->udp_timeout($opt{t});
+			$res->udp_timeout($opts{t});
 			$res->udppacketsize(4096);
 			$pkt = $res->send($zone, 'RRSIG');
 			last if $pkt;
