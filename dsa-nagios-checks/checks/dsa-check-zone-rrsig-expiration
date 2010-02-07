@@ -269,7 +269,7 @@ sub output {
 }
 
 sub usage {
-	print STDERR "usage: $0 [-d] [-t=<timeout>] <zone>\n";
+	print STDERR "usage: $0 [-d] [-w=<warn>] [-c=<crit>] [-t=<timeout>] <zone>\n";
 	exit 3;
 }
 
