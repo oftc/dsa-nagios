@@ -72,7 +72,7 @@ use Time::Local;
 use List::Util qw ( shuffle );
 
 my %opts = (t=>30);
-getopts('Z:dt:', \%opts);
+getopts('hZ:dt:', \%opts);
 usage() unless $opts{Z};
 usage() if $opts{h};
 my $zone = $opts{Z};
