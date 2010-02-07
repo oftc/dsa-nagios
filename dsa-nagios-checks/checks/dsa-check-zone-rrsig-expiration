@@ -38,6 +38,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Copyright (c) 2010 Peter Palfrader <peter@palfrader.org>
+
+
 # usage
 #
 # define command {
@@ -249,7 +252,7 @@ sub output {
 }
 
 sub usage {
-	print STDERR "usage: $0 -Z zone\n";
+	print STDERR "usage: $0 [-d] [-t=<timeout>] -Z zone\n";
 	exit 3;
 }
 
