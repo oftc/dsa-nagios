@@ -39,6 +39,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Copyright (c) 2010 Peter Palfrader <peter@palfrader.org>
+# - various fixes and cleanups
+# - do more than one zone
 
 
 # usage
@@ -75,11 +77,10 @@ use Time::Local;
 use List::Util qw ( shuffle );
 
 my %opts = (t=>30);
-getopts('hZ:dt:', \%opts);
-usage() unless $opts{Z};
+getopts('hdt:', \%opts);
+usage() unless scalar @ARGV == 1;
 usage() if $opts{h};
-my $zone = $opts{Z};
-$zone =~ s/^zone\.//;
+my $zone = $ARGV[0];
 
 my $data;
 my $start;
@@ -252,7 +253,7 @@ sub output {
 }
 
 sub usage {
-	print STDERR "usage: $0 [-d] [-t=<timeout>] -Z zone\n";
+	print STDERR "usage: $0 [-d] [-t=<timeout>] <zone>\n";
 	exit 3;
 }
 
