@@ -76,8 +76,21 @@ use Time::HiRes qw ( gettimeofday tv_interval);
 use Time::Local;
 use List::Util qw ( shuffle );
 
+sub convert_time {
+	my $in = shift;
+	my ($ticks, $unit) = ($in =~ /^(\d+)([smhdw]?)$/);
+
+	if ($unit eq 's' || $unit eq '') { }
+	elsif ($unit eq 'm') { $ticks *= 60; }
+	elsif ($unit eq 'h') { $ticks *= 60*60; }
+	elsif ($unit eq 'd') { $ticks *= 60*60*24; }
+	elsif ($unit eq 'w') { $ticks *= 60*60*24*7; }
+	else { die "Invalid unit '$unit' in '$in'\n" }
+	return $ticks;
+}
+
 my %opts = (t=>30);
-getopts('hdt:', \%opts);
+getopts('hdt:c:w:', \%opts);
 usage() unless scalar @ARGV == 1;
 usage() if $opts{h};
 my $zone = $ARGV[0];
@@ -85,8 +98,11 @@ my $zone = $ARGV[0];
 my $data;
 my $start;
 my $stop;
-my $CRIT_DAYS = 3;
-my $WARN_DAYS = 7;
+my $CRIT = 3 * 3600*24;
+my $WARN = 7 * 3600*24;
+
+$CRIT = convert_time($opts{c}) if defined $opts{c};
+$WARN = convert_time($opts{w}) if defined $opts{w};
 
 my @refs = qw (
 a.root-servers.net
@@ -195,15 +211,15 @@ sub do_analyze {
 		}
 	}
 	critical("$min_ns has expired RRSIGs") if ($min_exp < $NOW);
-	if ($min_exp - $NOW < ($CRIT_DAYS*86400)) {
+	if ($min_exp - $NOW < ($CRIT)) {
 		my $ND = sprintf "%3.1f days", ($min_exp-$NOW)/86400;
 		critical("$min_type RRSIG expires in $ND at $min_ns")
 	}
-	if ($min_exp - $NOW < ($WARN_DAYS*86400)) {
+	if ($min_exp - $NOW < ($WARN)) {
 		my $ND = sprintf "%3.1f days", ($min_exp-$NOW)/86400;
 		warning("$min_type RRSIG expires in $ND at $min_ns")
 	}
-	success("No RRSIGs expiring in the next $WARN_DAYS days");
+	success(sprintf("No RRSIGs expiring in the next %3.1f days", $WARN/86400));
 }
 
 sub sigrr_exp_epoch {
