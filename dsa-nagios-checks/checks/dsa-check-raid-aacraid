@@ -121,7 +121,7 @@ while ($ctrl <= $numcontrollers) {
 			my $status = $1;
 			if ($status eq 'Not Installed') {
 				next;
-			} elsif ($status ne 'Optimal') {
+			} elsif ($status ne 'Optimal' && $status ne 'ZMM Optimal') {
 				record('WARNING');
 			};
 			push @{$status{$status}}, 'Battery';

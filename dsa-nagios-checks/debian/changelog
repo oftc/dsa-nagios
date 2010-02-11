@@ -16,8 +16,10 @@ dsa-nagios-checks (8x) unstable; urgency=low
   [ Peter Palfrader ]
   * add dsa-check-zone-rrsig-expiration (therefore recommend
     libnet-dns-sec-perl).
+  * dsa-check-raid-aacraid: properly support beethoven's Adaptec AAC-RAID
+    controller with a battery: "ZMM Optimal" is the way it says "optimal".
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 07 Feb 2010 17:08:54 +0100
+ -- Peter Palfrader <weasel@debian.org>  Thu, 11 Feb 2010 19:23:15 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
