@@ -2,7 +2,7 @@
 
 # build nagios and nrpe config from a single master config file
 
-# Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Peter Palfrader <peter@palfrader.org>
+# Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010 Peter Palfrader <peter@palfrader.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -413,10 +413,12 @@ config['services'].each{ |service|
 			# how to recursively copy this thing?
 			hostservice = YAML::load( service.to_yaml )
 			host_ip = config['servers'][host]['address']
-			throw "For some reason I do not have an address for #{host}.  This shouldn't be." unless host_ip
 
 			remotecheck = hostservice['remotecheck']
-			remotecheck.gsub!(/\$HOSTADDRESS\$/, host_ip)
+			if remotecheck.include?('$HOSTADDRESS$') and not host_ip
+				throw "For some reason I do not have an address for #{host} yet I need it for the remote check.  This shouldn't be."
+			end
+			remotecheck.gsub!(/\$HOSTADDRESS\$/, host_ip) if host_ip
 			remotecheck.gsub!(/\$HOSTNAME\$/, host)
 			check = $nrpe.add("#{host}_#{hostservice['service_description']}", remotecheck)
 			hostservice['check_command'] = "#{NRPE_CHECKNAME_HOST}!#{ config['servers'][ relay ]['address'] }!#{ check }"
