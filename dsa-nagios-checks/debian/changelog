@@ -16,13 +16,12 @@ dsa-nagios-checks (8x) unstable; urgency=low
   [ Peter Palfrader ]
   * add dsa-check-zone-rrsig-expiration (therefore recommend
     libnet-dns-sec-perl).
-  * add dsa-check-zone-rrsig-expiration-many.
   * dsa-check-raid-aacraid: properly support beethoven's Adaptec AAC-RAID
     controller with a battery: "ZMM Optimal" is the way it says "optimal".
   * dsa-check-dabackup-server: check /etc/ssh/userkeys/root instead of
     /root/.ssh/authorized_keys.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 14 Feb 2010 23:29:44 +0100
+ -- Peter Palfrader <weasel@debian.org>  Fri, 12 Feb 2010 13:05:12 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
