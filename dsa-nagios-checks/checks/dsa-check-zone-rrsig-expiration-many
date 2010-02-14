@@ -111,8 +111,10 @@ for my $zone (sort {$a cmp $b} @zones) {
 
 
 	open(P, '-|', ($CHECK, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
-	push @details, <P>;
+	my @p = <P>;
 	close P;
+	$p[0] = $zone.': '. $p[0] if (scalar @p > 0);
+	push @details, @p;
 
 	my $res = $CHILD_ERROR >> 8;
 	if ($res == 0) { push @{$count->{'ok'}}, $zone; }
