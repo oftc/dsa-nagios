@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+
+# Copyright (c) 2010 Peter Palfrader <peter@palfrader.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+use strict;
+use warnings;
+use English;
+use Getopt::Long;
+use FindBin qw($Bin);
+
+my $CHECK = $Bin.'/dsa-check-zone-rrsig-expiration';
+
+$SIG{__DIE__} = sub {
+	print @_;
+	exit 3;
+};
+
+sub convert_time {
+	my $ticks = shift;
+	my $unit = shift;
+
+	unless (defined $unit) {
+		my $newticks;
+		($newticks, $unit) = $ticks =~ m/^(\d*)([smhdw]?)$/;
+		if (!defined $newticks) {
+			print STDERR "Warning: invalid timestring to convert '$ticks'\n";
+			return $ticks;
+		}
+		$ticks = $newticks;
+	}
+
+	if ($unit eq 's' || $unit eq '') { }
+	elsif ($unit eq 'm') { $ticks *= 60; }
+	elsif ($unit eq 'h') { $ticks *= 60*60; }
+	elsif ($unit eq 'd') { $ticks *= 60*60*24; }
+	elsif ($unit eq 'w') { $ticks *= 60*60*24*7; }
+	else { print STDERR "Warning: invalid unit '$unit'\n" }
+	return $ticks;
+}
+
+my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--warn=<nn>] [--critical=<nn>] <indir>\n";
+my $params = { 'warn' => '14d', 'critical' => '7d' };
+Getopt::Long::config('bundling');
+GetOptions (
+	'--help' => \$params->{'help'},
+	'--warn=s' => \$params->{'warn'},
+	'--critical=s' => \$params->{'critical'},
+) or die ($USAGE);
+if ($params->{'help'}) {
+        print $USAGE;
+        exit(0);
+};
+die ($USAGE) unless (scalar @ARGV == 1);
+my $INDIR = shift;
+
+
+my @zones;
+chdir $INDIR or die "chdir $INDIR failed? $!\n";
+opendir INDIR, $INDIR or die ("Cannot opendir $INDIR\n");
+for my $file (readdir INDIR) {
+	next if ( -l "$file" );
+	next unless ( -f "$file" );
+	next if $file =~ /^(dsset|keyset)-/;
+
+	push @zones, $file;
+}
+closedir(INDIR);
+
+
+my $count =
+	{ 'ok' => [],
+	  'warn' => [],
+	  'critical' => [],
+	  'unknown' => [],
+	  'unsigned' => [],
+	};
+
+my @details;
+
+for my $zone (sort {$a cmp $b} @zones) {
+	my $do_dnssec = 0;
+	open(F, '<', $zone) or die ("Cannot open $zone: $!\n");
+	for (<F>) {
+		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; }
+	};
+	close F;
+
+	unless ($do_dnssec) {
+		push @{$count->{'unsigned'}}, $zone;
+		next;
+	};
+
+
+	open(P, '-|', ($CHECK, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
+	push @details, <P>;
+	close P;
+
+	my $res = $CHILD_ERROR >> 8;
+	if ($res == 0) { push @{$count->{'ok'}}, $zone; }
+	elsif ($res == 1) { push @{$count->{'warn'}}, $zone; }
+	elsif ($res == 2) { push @{$count->{'critical'}}, $zone; }
+	else { push @{$count->{'unknown'}}, $zone; };
+};
+
+my $exit;
+my %state_mapping = (
+	'unknown' => 255,
+	'critical' => 2,
+	'warn' => 1,
+	'ok' => 0 );
+
+for my $state (sort {$state_mapping{$b} <=> $state_mapping{$a}} keys %state_mapping) {
+	if (scalar @{$count->{$state}}) {
+		printf "%s: %d", uc($state), scalar @{$count->{$state}};
+		if ($state_mapping{$state} > 0) {
+			print ": ", join(', ', @{$count->{$state}});
+		};
+		print "; ";
+		$exit = $state_mapping{$state} unless defined $exit;
+	};
+};
+printf "unsigned: %d", scalar @{$count->{'unsigned'}};
+print "\n";
+print $_ for (@details);
+exit $exit;
