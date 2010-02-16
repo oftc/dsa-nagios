@@ -358,6 +358,7 @@ config['servers'].each_pair{ |name, server|
 ##############
 config['hostgroups'].each_pair{ |name, hg|
 	next if hg['private']
+	throw "Empty hostgroup #{name}" if hg['_memberlist'].length == 0
 
 	set_complain_if_set hg, 'hostgroup_name', name                       , 'Hostgroup', name
 	set_complain_if_set hg, 'members'       , hg['_memberlist'].join(","), 'Hostgroup', name
