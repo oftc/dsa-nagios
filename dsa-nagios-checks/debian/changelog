@@ -21,8 +21,9 @@ dsa-nagios-checks (8x) unstable; urgency=low
     controller with a battery: "ZMM Optimal" is the way it says "optimal".
   * dsa-check-dabackup-server: check /etc/ssh/userkeys/root instead of
     /root/.ssh/authorized_keys.
+  * add dsa-check-dnssec-delegation.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 14 Feb 2010 23:34:43 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 17 Feb 2010 14:59:25 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
