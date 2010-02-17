@@ -73,7 +73,7 @@ sub usage {
 	my $exit = shift;
 
 	print $fd "Usage: $PROGRAM_NAME overview|check-dlv|check-ds zone [zone...]\n";
-	print $fd "       $PROGRAM_NAME --dir <dir> overview|check-dlv|check-ds zone [zone...]\n";
+	print $fd "       $PROGRAM_NAME --dir <dir> overview|check-dlv|check-ds\n";
 	print $fd "       $PROGRAM_NAME --help\n";
 	exit $exit;
 }
