@@ -42,7 +42,7 @@ sub get_tag_generic {
 	return () unless $pkt->answer;
 	for my $rr ($pkt->answer) {
 		next unless ($rr->type eq $type);
-		next unless ($rr->name eq $zone);
+		next unless (lc($rr->name) eq lc($zone));
 
 		# only handle KSKs, i.e. keys with the SEP flag set
 		next if ($type eq 'DNSKEY' && !($rr->is_sep));
