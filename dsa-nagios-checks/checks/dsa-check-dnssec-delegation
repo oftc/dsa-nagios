@@ -121,7 +121,7 @@ for my $zone (@zones) {
 
 if ($mode eq 'overview') {
 	my $format = "%60s %-10s %-10s %-10s\n";
-	printf $format, "zone", "DNSKEY", "DS in parent", "DLV";
+	printf $format, "zone", "DNSKEY", "DS\@parent", "DLV";
 	printf $format, "-"x 60,  "-"x 10,  "-"x 10,  "-"x 10;
 	for my $zone (sort {$a cmp $b} keys %data) {
 		printf $format, $zone,
