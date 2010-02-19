@@ -72,10 +72,30 @@ sub usage {
 	my $fd = shift;
 	my $exit = shift;
 
-	print $fd "Usage: $PROGRAM_NAME overview|check-dlv|check-ds zone [zone...]\n";
-	print $fd "       $PROGRAM_NAME --dir <dir> overview|check-dlv|check-ds\n";
+	print $fd "Usage: $PROGRAM_NAME [--dir <dir>] overview|check-dlv|check-ds|check-header zone [zone...]\n";
+	print $fd "       $PROGRAM_NAME --dir <dir> overview|check-dlv|check-ds|check-header\n";
 	print $fd "       $PROGRAM_NAME --help\n";
 	exit $exit;
+}
+
+sub what_to_check {
+	my $zone = shift;
+	my $indir = shift;
+
+	my $do_dlv = 0;
+	my $do_ds = 0;
+
+	open(F, "<", $indir."/".$zone) or die ("Cannot open zonefile for $zone: $!\n");
+	while (<F>) {
+		if (/^;\s*dlv-submit\s*=\s*yes\s*$/) { $do_dlv = 1; }
+		if (/^;\s*ds-in-parent\s*=\s*yes\s*$/) { $do_ds = 1; }
+	}
+	close(F);
+
+	my @keys = ();
+	push @keys, 'dlv' if $do_dlv;
+	push @keys, 'ds' if $do_ds;
+	return @keys;
 }
 
 my $params;
@@ -88,10 +108,14 @@ GetOptions (
 usage(\*STDOUT, 0) if ($params->{'help'});
 
 my $mode = shift @ARGV;
+usage(\*STDOUT, 0) unless (defined $mode && $mode =~ /^(overview|check-dlv|check-ds|check-header)$/);
+die ("check-header needs --dir") if ($mode eq 'check-header' && !defined $params->{'dir'});
 
 my @zones;
 if (scalar @ARGV) {
-	warn "--dir option ignored" if defined $params->{'dir'};
+	if (defined $params->{'dir'} && $mode ne 'check-header') {
+		warn "--dir option ignored"
+	}
 	@zones = @ARGV;
 } else {
 	my $dir = $params->{'dir'};
@@ -109,7 +133,6 @@ if (scalar @ARGV) {
 	closedir(DIR);
 };
 
-usage(\*STDOUT, 0) unless (defined $mode && $mode =~ /^(overview|check-dlv|check-ds)$/);
 $DLV = $params->{'dlv'} if $params->{'dlv'};
 
 my %data;
@@ -130,23 +153,28 @@ if ($mode eq 'overview') {
 			$data{$zone}->{'dlv'};
 	}
 	exit(0);
-} elsif ($mode eq 'check-dlv' || $mode eq 'check-ds') {
+} elsif ($mode eq 'check-dlv' || $mode eq 'check-ds' || $mode eq 'check-header') {
 	my $key;
 	$key = 'dlv' if $mode eq 'check-dlv';
 	$key = 'ds' if $mode eq 'check-ds';
+	$key = 'per-zone' if $mode eq 'check-header';
 	die ("key undefined") unless $key;
 
 	my @warn;
 	my @ok;
 	for my $zone (sort {$a cmp $b} keys %data) {
-		my $dnskey = $data{$zone}->{'dnskey'} || '-';
-		my $target = $data{$zone}->{$key} || '-';
+		my @thiskeys = $key eq 'per-zone' ? what_to_check($zone, $params->{'dir'}) : ($key);
 
-		if ($dnskey ne $target) {
-			push @warn, "$zone ($dnskey != $target)";
-		} else  {
-			push @ok, "$zone ($dnskey)";
-		};
+		for my $thiskey (@thiskeys) {
+			my $dnskey = $data{$zone}->{'dnskey'} || '-';
+			my $target = $data{$zone}->{$thiskey} || '-';
+
+			if ($dnskey ne $target) {
+				push @warn, "$zone ($dnskey != $target)";
+			} else  {
+				push @ok, "$zone ($dnskey)";
+			};
+		}
 	}
 	print "WARNING: ", join(", ", @warn), "\n" if (scalar @warn);
 	print "OK: ", join(", ", @ok), "\n" if (scalar @ok);
