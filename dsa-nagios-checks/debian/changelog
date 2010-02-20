@@ -22,8 +22,10 @@ dsa-nagios-checks (8x) unstable; urgency=low
   * dsa-check-dabackup-server: check /etc/ssh/userkeys/root instead of
     /root/.ssh/authorized_keys.
   * add dsa-check-dnssec-delegation.
+  * dsa-check-hpasm: Add --fan-high to not tread high fan speeds as a
+    warning condition.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 17 Feb 2010 14:59:25 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sat, 20 Feb 2010 09:44:13 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
