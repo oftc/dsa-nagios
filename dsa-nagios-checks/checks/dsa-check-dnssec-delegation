@@ -67,6 +67,37 @@ sub get_dlvtags {
 	$zone .= ".".$DLV;
 	return get_tag_generic($zone, 'DLV');
 };
+sub has_dnskey_parent {
+	my $zone = shift;
+
+	my $potential_parent = $zone;
+	$potential_parent =~ s/^[^.]*\.//;
+
+	my $pkt = $RES->send($potential_parent, 'DNSKEY');
+	return undef unless $pkt;
+	return undef unless $pkt->header;
+
+	# try to find the zone start
+	unless ($pkt->answer) {
+		#print "Looking for zone apex\n";
+		return undef unless $pkt->authority;
+		for my $rr ($pkt->authority) {
+			next unless ($rr->type eq 'SOA');
+
+			$potential_parent = $rr->name;
+			#print "Found it at $potential_parent\n";
+			$pkt = $RES->send($potential_parent, 'DNSKEY');
+			return undef unless $pkt;
+			last;
+		};
+	};
+
+	return 0 unless $pkt->answer;
+	for my $rr ($pkt->answer) {
+		next unless ($rr->type eq 'DNSKEY');
+		return 1;
+	};
+}
 
 sub usage {
 	my $fd = shift;
@@ -139,18 +170,20 @@ my %data;
 for my $zone (@zones) {
 	$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
 	                 'ds'     => join(', ', get_dstags($zone)),
-	                 'dlv'    => join(', ', get_dlvtags($zone)) };
+	                 'dlv'    => join(', ', get_dlvtags($zone)),
+	                 'parent_dnssec' => has_dnskey_parent($zone) };
 }
 
 if ($mode eq 'overview') {
-	my $format = "%60s %-10s %-10s %-10s\n";
-	printf $format, "zone", "DNSKEY", "DS\@parent", "DLV";
-	printf $format, "-"x 60,  "-"x 10,  "-"x 10,  "-"x 10;
+	my $format = "%60s %-10s %-10s %-10s %-10s\n";
+	printf $format, "zone", "DNSKEY", "DS\@parent", "DLV", "dnssec\@parent";
+	printf $format, "-"x 60,  "-"x 10,  "-"x 10,  "-"x 10, "-"x 10;
 	for my $zone (sort {$a cmp $b} keys %data) {
 		printf $format, $zone,
 			$data{$zone}->{'dnskey'},
 			$data{$zone}->{'ds'},
-			$data{$zone}->{'dlv'};
+			$data{$zone}->{'dlv'},
+			$data{$zone}->{'parent_dnssec'} ? 'yes' : '-';
 	}
 	exit(0);
 } elsif ($mode eq 'check-dlv' || $mode eq 'check-ds' || $mode eq 'check-header') {
