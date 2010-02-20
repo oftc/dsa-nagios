@@ -70,8 +70,13 @@ sub get_dlvtags {
 sub has_dnskey_parent {
 	my $zone = shift;
 
-	my $potential_parent = $zone;
-	$potential_parent =~ s/^[^.]*\.//;
+	my $potential_parent;
+	if ($zone =~ m/\./) {
+		$potential_parent = $zone;
+		$potential_parent =~ s/^[^.]+\.//;
+	} else {
+		$potential_parent = '.';
+	}
 
 	my $pkt = $RES->send($potential_parent, 'DNSKEY');
 	return undef unless $pkt;
@@ -92,12 +97,26 @@ sub has_dnskey_parent {
 		};
 	};
 
-	return 0 unless $pkt->answer;
+	return (0, $potential_parent) unless $pkt->answer;
 	for my $rr ($pkt->answer) {
 		next unless ($rr->type eq 'DNSKEY');
-		return 1;
+		return (1, $potential_parent);
 	};
 }
+sub get_parent_dnssec_status {
+	my $zone = shift;
+	my @result;
+
+	while (1) {
+		my ($status, $parent) = has_dnskey_parent($zone);
+		last unless defined $status;
+		push @result, ($status ? "yes" : "no") . ("($parent)");
+		$zone = $parent;
+		last if $zone eq "";
+	};
+
+	return join(', ', @result);
+};
 
 sub usage {
 	my $fd = shift;
@@ -171,7 +190,7 @@ for my $zone (@zones) {
 	$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
 	                 'ds'     => join(', ', get_dstags($zone)),
 	                 'dlv'    => join(', ', get_dlvtags($zone)),
-	                 'parent_dnssec' => has_dnskey_parent($zone) };
+	                 'parent_dnssec' => get_parent_dnssec_status($zone) };
 }
 
 if ($mode eq 'overview') {
@@ -183,7 +202,7 @@ if ($mode eq 'overview') {
 			$data{$zone}->{'dnskey'},
 			$data{$zone}->{'ds'},
 			$data{$zone}->{'dlv'},
-			$data{$zone}->{'parent_dnssec'} ? 'yes' : '-';
+			$data{$zone}->{'parent_dnssec'};
 	}
 	exit(0);
 } elsif ($mode eq 'check-dlv' || $mode eq 'check-ds' || $mode eq 'check-header') {
