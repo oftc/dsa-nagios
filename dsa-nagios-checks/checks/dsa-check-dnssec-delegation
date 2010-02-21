@@ -186,15 +186,16 @@ if (scalar @ARGV) {
 
 $DLV = $params->{'dlv'} if $params->{'dlv'};
 
-my %data;
-for my $zone (@zones) {
-	$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
-	                 'ds'     => join(', ', get_dstags($zone)),
-	                 'dlv'    => join(', ', get_dlvtags($zone)),
-	                 'parent_dnssec' => get_parent_dnssec_status($zone) };
-}
 
 if ($mode eq 'overview') {
+	my %data;
+	for my $zone (@zones) {
+		$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
+				 'ds'     => join(', ', get_dstags($zone)),
+				 'dlv'    => join(', ', get_dlvtags($zone)),
+				 'parent_dnssec' => get_parent_dnssec_status($zone) };
+	}
+
 	my $format = "%60s %-10s %-10s %-10s %-10s\n";
 	printf $format, "zone", "DNSKEY", "DS\@parent", "DLV", "dnssec\@parent";
 	printf $format, "-"x 60,  "-"x 10,  "-"x 10,  "-"x 10, "-"x 10;
@@ -215,12 +216,12 @@ if ($mode eq 'overview') {
 
 	my @warn;
 	my @ok;
-	for my $zone (sort {$a cmp $b} keys %data) {
+	for my $zone (sort {$a cmp $b} @zones) {
 		my @thiskeys = $key eq 'per-zone' ? what_to_check($zone, $params->{'dir'}) : ($key);
 
+		my $dnskey = join(', ', get_dnskeytags($zone)) || '-';
 		for my $thiskey (@thiskeys) {
-			my $dnskey = $data{$zone}->{'dnskey'} || '-';
-			my $target = $data{$zone}->{$thiskey} || '-';
+			my $target = join(', ', $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone)) || '-';
 
 			if ($dnskey ne $target) {
 				push @warn, "$zone ($dnskey != $target)";
