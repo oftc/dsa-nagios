@@ -31,12 +31,14 @@ $SIG{'__DIE__'} = sub { print @_; exit 4; };
 
 my $RES = Net::DNS::Resolver->new;
 my $DLV = 'dlv.isc.org';
+my $params;
 
 sub get_tag_generic {
 	my $zone = shift;
 	my $type = shift;
 
 	my @result;
+	print "Querying $type $zone\n" if $params->{'verbose'};
 	my $pkt = $RES->send($zone, $type);
 	return () unless $pkt;
 	return () unless $pkt->answer;
@@ -78,19 +80,18 @@ sub has_dnskey_parent {
 		$potential_parent = '.';
 	}
 
+	print "Querying DNSKEY $potential_parent\n" if $params->{'verbose'};
 	my $pkt = $RES->send($potential_parent, 'DNSKEY');
 	return undef unless $pkt;
 	return undef unless $pkt->header;
 
-	# try to find the zone start
 	unless ($pkt->answer) {
-		#print "Looking for zone apex\n";
 		return undef unless $pkt->authority;
 		for my $rr ($pkt->authority) {
 			next unless ($rr->type eq 'SOA');
 
 			$potential_parent = $rr->name;
-			#print "Found it at $potential_parent\n";
+			print "Querying DNSKEY $potential_parent\n" if $params->{'verbose'};
 			$pkt = $RES->send($potential_parent, 'DNSKEY');
 			return undef unless $pkt;
 			last;
@@ -112,7 +113,7 @@ sub get_parent_dnssec_status {
 		last unless defined $status;
 		push @result, ($status ? "yes" : "no") . ("($parent)");
 		$zone = $parent;
-		last if $zone eq "";
+		last if $zone eq "" || $zone eq '.';
 	};
 
 	return join(', ', @result);
@@ -148,12 +149,12 @@ sub what_to_check {
 	return @keys;
 }
 
-my $params;
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
 	'--dir=s' => \$params->{'dir'},
 	'--dlv=s' => \$params->{'dlv'},
+	'--verbose' => \$params->{'verbose'},
 ) or usage(\*STDERR, 1);
 usage(\*STDOUT, 0) if ($params->{'help'});
 
