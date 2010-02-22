@@ -24,8 +24,11 @@ dsa-nagios-checks (8x) unstable; urgency=low
   * add dsa-check-dnssec-delegation.
   * dsa-check-hpasm: Add --fan-high to not tread high fan speeds as a
     warning condition.
+  * weak-ssh-keys-check: Check all keys in files in /etc/ssh/userkeys
+    and /var/lib/misc/userkeys, not just the first.  (Also doesn't
+    blow up if a file is empty.)
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 20 Feb 2010 09:44:13 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 22 Feb 2010 10:31:24 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 

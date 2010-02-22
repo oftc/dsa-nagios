@@ -202,6 +202,7 @@ sub from_ssh_key_file ($) {
     my $name = shift;
     if (open (my $FH, '<', $name)) {
 	my $key = <$FH>; 
+	close($FH);
 	if (! defined $key) {
 		$weird_keyfiles++;
 		$text .= "cannot read $name properly - empty?\n";
@@ -336,7 +337,7 @@ sub from_debianorg_places () {
 	for my $file (grep { ! -d $d.'/'.$_ } readdir(D)) {
 	    next if ($file eq 'README-DSA-BUILDD');
 	    my $f = $d.'/'.$file;
-	    from_ssh_key_file $f if -r $f;
+	    from_ssh_auth_file $f if -r $f;
 	};
     };
 }
