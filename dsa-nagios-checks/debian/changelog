@@ -1,5 +1,7 @@
-dsa-nagios-checks (8x) unstable; urgency=low
+dsa-nagios-checks (85) unstable; urgency=low
 
+  [ Stephen Gran ]
+  * dsa-update-apt-status: Fix bashism by making it a bash script
   [ Peter Palfrader ]
   * dsa-check-hpasm: Not all things where a temperature can be measured
     might be installed (e.g. a second CPU).  Don't do numeric computations
@@ -9,11 +11,6 @@ dsa-nagios-checks (8x) unstable; urgency=low
   * dsa-check-hpasm: Support a --fan-no-redundant option.  If supplied
     then non-redundant fans will not be a warning state.
   * Add dsa-check-msa-eventlog.
-
-  [ Stephen Gran ]
-  * dsa-update-apt-status: Fix bashism by making it a bash script
-
-  [ Peter Palfrader ]
   * add dsa-check-zone-rrsig-expiration (therefore recommend
     libnet-dns-sec-perl).
   * add dsa-check-zone-rrsig-expiration-many.
@@ -28,7 +25,7 @@ dsa-nagios-checks (8x) unstable; urgency=low
     and /var/lib/misc/userkeys, not just the first.  (Also doesn't
     blow up if a file is empty.)
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 22 Feb 2010 10:31:24 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 22 Feb 2010 10:32:51 +0100
 
 dsa-nagios-checks (84) unstable; urgency=low
 
