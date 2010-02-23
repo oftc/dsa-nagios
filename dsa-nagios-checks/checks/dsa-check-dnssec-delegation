@@ -224,7 +224,7 @@ if ($mode eq 'overview') {
 			my $target = join(', ', $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone)) || '-';
 
 			if ($dnskey ne $target) {
-				push @warn, "$zone ($dnskey != $target)";
+				push @warn, "$zone ([$dnskey] != [$target])";
 			} else  {
 				push @ok, "$zone ($dnskey)";
 			};
