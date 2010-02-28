@@ -15,7 +15,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# 
+#
+# downloaded 20100228 by weasel from
+# http://www.monitoringexchange.org/inventory/Check-Plugins/Hardware/Devices/RAID-Controller/LSI-Mega-RAID-plugin-for-32-bit-and-64-bit-systems
 
 """Nagios plugin to test the status of all arrays on all Lsi MegaRaid
 controllers on the local machine. Uses the megarc.bin program written by Lsi to
