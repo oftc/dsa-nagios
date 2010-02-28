@@ -97,9 +97,6 @@ def make_megadev(devicenode):
         end(UNKNOWN, "Error making '%s' device node - %s" % (devicenode, error))
 
 
-if os.geteuid() != 0:
-    end(UNKNOWN, "You must be root to run this plugin")
-
 if not os.path.exists(BIN):
     end(UNKNOWN, "Lsi MegaRaid utility '%s' was not found" % BIN)
 
@@ -118,7 +115,7 @@ def run(args):
         print "UNKNOWN: internal python error",
         print "- no cmd supplied for Lsi MegaRaid utility"
         sys.exit(UNKNOWN)
-    cmd = "%s %s -nolog" % (BIN, args)
+    cmd = "sudo %s %s -nolog" % (BIN, args)
     result, output = commands.getstatusoutput(cmd)
     lines = output.split("\n")
     if result != 0:
