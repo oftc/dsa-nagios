@@ -38,7 +38,7 @@ CRITICAL = 2
 UNKNOWN  = 3
 
 SRCDIR   = os.path.dirname(sys.argv[0])
-BIN      = SRCDIR + "/megarc.bin"
+BIN      = "/usr/local/bin/megarc"
 MEGADEV  = "/dev/megadev0"
 
 
