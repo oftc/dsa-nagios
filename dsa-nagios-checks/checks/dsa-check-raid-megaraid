@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 #   Copyright Hari Sekhon 2007
 #
@@ -45,7 +45,7 @@ MEGADEV  = "/dev/megadev0"
 def end(status, message):
     """exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-        
+
     if status == OK:
         print "RAID OK: %s" % message
         sys.exit(OK)
@@ -87,7 +87,7 @@ def make_megadev(devicenode):
     cmd = "mknod /dev/megadev0 c %s 2" % major_number
     print >> sys.stderr, "running in shell: %s" % cmd
     try:
-        result, output = commands.getstatusoutput(cmd) 
+        result, output = commands.getstatusoutput(cmd)
         if result != 0:
             end(UNKNOWN, "Error making device node '%s' - %s" \
                                                         % (devicenode, output))
@@ -108,7 +108,7 @@ if not os.access(BIN, os.X_OK):
 
 if not os.path.exists(MEGADEV):
     print >> sys.stderr, "Megaraid device node not found (possible first " \
-                       + "run?), creating it now..." 
+                       + "run?), creating it now..."
     make_megadev(MEGADEV)
 
 
@@ -134,7 +134,7 @@ def run(args):
         else:
             end(UNKNOWN, "Error using MegaRaid utility - %s" \
                                                     % output.replace("\n", "|"))
-    
+
     return lines
 
 
@@ -160,7 +160,7 @@ def get_controllers(verbosity):
 
     if verbosity >= 2:
         print "Found %s controller(s)" % len(controllers)
-   
+
     return controllers
 
 
@@ -168,7 +168,7 @@ def test_raid(verbosity, no_summary=False):
     """tests all raid arrays on all Lsi controllers found on local machine
     and returns status code"""
 
-    status = OK 
+    status = OK
     message = ""
     number_arrays = 0
     non_optimal_arrays = 0
@@ -185,11 +185,11 @@ def test_raid(verbosity, no_summary=False):
             if "Status:" in line:
                 state = line.split(":")[-1][1:-1]
                 logical_drive = line.split()[3][:-1]
-                array_details[logical_drive] = [state]  
+                array_details[logical_drive] = [state]
             if "RaidLevel:" in line:
                 raid_level = line.split()[3]
                 array_details[logical_drive].append(raid_level)
-       
+
         if len(array_details) == 0:
             message += "No arrays found on controller %s. " % controller
             if status == OK:
@@ -206,9 +206,9 @@ def test_raid(verbosity, no_summary=False):
                 non_optimal_arrays += 1
                 raid_level = array_details[drive][1]
                 # The Array number here is incremented by one because of the
-                # inconsistent way that the LSI tools count arrays. 
-                # This brings it back in line with the view in the bios 
-                # and from megamgr.bin where the array counting starts at 
+                # inconsistent way that the LSI tools count arrays.
+                # This brings it back in line with the view in the bios
+                # and from megamgr.bin where the array counting starts at
                 # 1 instead of 0
                 message += 'Array %s status is "%s"' % (int(drive)+1, state)
                 message += '(Raid-%s on adapter %s), ' \
@@ -242,7 +242,7 @@ def add_status_summary(status, message, non_optimal_arrays):
         else:
             message = "%s arrays not OK - " % non_optimal_arrays \
                     + message
-       
+
     return message
 
 
@@ -258,9 +258,9 @@ def add_checked_summary(message, number_arrays, number_controllers):
         message += "]"
     else:
         message += "s]"
-    
+
     return message
-    
+
 
 def main():
     """parses args and calls func to test raid arrays"""
