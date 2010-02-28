@@ -1,3 +1,9 @@
+dsa-nagios-checks (8X) Xnstable; urgency=low
+
+  * Add dsa-check-raid-megaraid.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 28 Feb 2010 16:52:31 +0100
+
 dsa-nagios-checks (85) unstable; urgency=low
 
   [ Stephen Gran ]

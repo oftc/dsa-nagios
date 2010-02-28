@@ -95,3 +95,8 @@ dsa-check-cert-expire:
 dsa-check-msa-eventlog:
   Copyright: 2009 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-raid-megaraid:
+  Copyright: 2007 Hari Sekhon
+  License: GPL
