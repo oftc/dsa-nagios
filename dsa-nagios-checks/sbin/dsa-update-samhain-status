@@ -4,7 +4,7 @@ STATUS=/var/cache/dsa/nagios/samhain
 
 tmp=`tempfile`
 trap "rm -f '$tmp'" exit
-/usr/lib/nagios/plugins/dsa-check-samhain -t 1800 > "$tmp"
+/usr/lib/nagios/plugins/dsa-check-samhain -c 999999 -w 1 -t 1800 > "$tmp"
 result="$?"
 case "$result" in
   0)
