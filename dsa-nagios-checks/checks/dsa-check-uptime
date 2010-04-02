@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# Need to cover this also:
+#  4:13pm  up 29 day(s), 3 min(s),  3 users,  load average: 1.59, 2.54, 2.58
+#
+uptimeOutput=`/usr/bin/uptime`;
+PATH="/bin:/usr/bin:/usr/local/bin";
+export PATH;
+
+days=`echo $uptimeOutput | /bin/sed 's/^.* up.* \([0-9][0-9]*\) *day[\(s\)]*.*$/\1/'`;
+if [ x"`echo $days | /bin/grep -w up`" != x ]
+then
+	days=0;
+fi
+hours_mins=`echo $uptimeOutput | /bin/sed 's/^.* up [^0-9]*\([0-9][0-9]*:[0-9][0-9]*\).*/\1/'`;
+if [ x"`echo $hours_mins | /bin/grep up`" = x ]
+then
+	hours=`echo $hours_mins | cut -f1 -d:`;
+	minutes=`echo $hours_mins | cut -f2 -d:`;
+else
+	hours=`echo $uptimeOutput | /bin/sed 's/^.* up.* \([0-9][0-9]*\) *hr[\(s\)]*.*$/\1/'`;
+	if [ x"`echo $hours | grep up`" != x ]
+	then
+		hours="0";
+	fi
+	minutes=`echo $uptimeOutput | /bin/sed 's/^.* up.* \([0-9][0-9]*\) *min[\(s\)]*.*$/\1/'`;
+	if [ x"`echo $minutes | grep up`" != x ]
+	then
+		minutes="0";
+	fi
+fi
+
+if [ x"`echo \"$days $hours $minutes\" | /bin/grep up`" != x ]
+then
+	echo "Uptime UNKNOWN: Unable to parse uptime output: \"$uptimeOutput\"";
+	exit 3;
+fi
+
+# 1440 minutes in a day
+dayMinutes=`expr $days \* 1440`;
+hourMinutes=`expr $hours \* 60`;
+
+totalMinutes=`expr $dayMinutes \+ $hourMinutes`;
+totalMinutes=`expr $totalMinutes \+ $minutes`;
+
+# Has it been rebooted in the last hour?
+if [ "$totalMinutes" -lt 60 ]
+then
+	# exit with a warning
+	echo "Uptime WARNING: Uptime less than one hour (currently $totalMinutes minutes)|mins=$totalMinutes";
+	exit 1;
+else
+	# everything's okay!
+	echo "Uptime OK: Currently $days days, $hours hours and $minutes minutes|mins=$totalMinutes";
+	exit 0;
+fi
