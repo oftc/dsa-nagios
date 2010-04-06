@@ -1,4 +1,4 @@
-dsa-nagios-checks (8X) Xnstable; urgency=low
+dsa-nagios-checks (86) unstable; urgency=low
 
   [ Peter Palfrader ]
   * Add dsa-check-raid-megaraid.
