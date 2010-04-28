@@ -8,9 +8,12 @@ dsa-nagios-checks (8X) Xnstable; urgency=low
   * Add dsa-check-uptime
 
   [ Uli Martens ]
-  * Teach dsa-check-running-kernel about LZMA compressed kernel images.
+  * dsa-check-running-kernel:
+    - Teach dsa-check-running-kernel about LZMA compressed kernel images.
+    - Handle cases where a meta package depends on a disjunction of kernel
+      image packages.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 28 Apr 2010 10:04:37 +0200
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Apr 2010 13:30:51 +0200
 
 dsa-nagios-checks (85) unstable; urgency=low
 
