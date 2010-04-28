@@ -7,7 +7,10 @@ dsa-nagios-checks (8X) Xnstable; urgency=low
   [ Stephen Gran ]
   * Add dsa-check-uptime
 
- -- Stephen Gran <sgran@debian.org>  Fri, 02 Apr 2010 16:55:51 +0100
+  [ Uli Martens ]
+  * Teach dsa-check-running-kernel about LZMA compressed kernel images.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Apr 2010 10:04:37 +0200
 
 dsa-nagios-checks (85) unstable; urgency=low
 

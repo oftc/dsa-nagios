@@ -5,6 +5,7 @@
 
 # Copyright 2008,2009 Peter Palfrader
 # Copyright 2009 Stephen Gran
+# Copyright 2010 Uli Martens
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -118,12 +119,13 @@ get_avail() {
 }
 
 get_image() {
-	local image GZHDR1 GZHDR2 off
+	local image GZHDR1 GZHDR2 LZHDR off
 
 	image="$1"
 
 	GZHDR1="\x1f\x8b\x08\x00"
 	GZHDR2="\x1f\x8b\x08\x08"
+	LZHDR="\x00\x00\x00\x02\xff"
 
 	off=`get_offset "$image" $GZHDR1`
 	[ "$?" != "0" ] && off="-1"
@@ -136,6 +138,13 @@ get_image() {
 		return
 	elif [ "$off" -ne "-1" ]; then
 		(dd ibs="$off" skip=1 count=0 && dd bs=512k) < "$image"  2>/dev/null | zcat 2>/dev/null
+		return
+	fi
+
+	off=`get_offset "$image" $LZHDR`
+	[ "$?" != "0" ] && off="-1"
+	if [ "$off" -ne "-1" ]; then
+		(dd ibs="$[off-1]" skip=1 count=0 && dd bs=512k) < "$image" 2>/dev/null | lzcat 2>/dev/null
 		return
 	fi
 
