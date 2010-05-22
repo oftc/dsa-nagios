@@ -31,7 +31,7 @@ run_required() {
 
 # do stuff only when required, or when asked to
 if [ "${1:-""}" != "-f" ] ; then
-	run_required || exit
+	run_required || exit 0
 fi
 
 # sleep if called non-interactively
