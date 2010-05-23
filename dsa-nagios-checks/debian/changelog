@@ -1,4 +1,20 @@
-dsa-nagios-checks (8X) Xnstable; urgency=low
+dsa-nagios-checks (8X) unstable; urgency=low
+
+  [ Uli Martens ]
+  * dsa-check-running-kernel:
+    - Teach dsa-check-running-kernel about LZMA compressed kernel images.
+    - Handle cases where a meta package depends on a list of packages
+      (such as image and module package).
+
+  [ Stephen Gran ]
+  * dsa-check-apt-status: it's not an error to exit when we don't need to run
+
+  [ Peter Palfrader ]
+  * Add checks/dsa-check-backuppg.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 23 May 2010 14:51:12 +0200
+
+dsa-nagios-checks (86) unstable; urgency=low
 
   [ Peter Palfrader ]
   * Add dsa-check-raid-megaraid.
@@ -7,13 +23,7 @@ dsa-nagios-checks (8X) Xnstable; urgency=low
   [ Stephen Gran ]
   * Add dsa-check-uptime
 
-  [ Uli Martens ]
-  * dsa-check-running-kernel:
-    - Teach dsa-check-running-kernel about LZMA compressed kernel images.
-    - Handle cases where a meta package depends on a list of packages
-      (such as image and module package).
-
- -- Peter Palfrader <weasel@debian.org>  Wed, 28 Apr 2010 13:30:51 +0200
+ -- Stephen Gran <sgran@debian.org>  Fri, 02 Apr 2010 16:55:51 +0100
 
 dsa-nagios-checks (85) unstable; urgency=low
 
