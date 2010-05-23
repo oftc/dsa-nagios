@@ -1,0 +1,319 @@
+#!/usr/bin/python
+
+# Copyright 2010 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Checks if the WAL backups for several postgres clusters from
+# different hosts are current.  Might not catch all error instances.
+#
+# If called with -e will expire WALs and BASE backups no longer required.
+#
+# Needs files layed out like so:
+# beethoven:/srv/pgbackup/pg# ls -l ries/ | head
+# total 6794956
+# -rw------- 1 debbackup debbackup 378099591 May  1 02:26 dak.BASE.20100501-ries-dak-8.4-backup-F_37000020.tar.gz
+# -rw------- 1 debbackup debbackup 382267407 May  8 02:25 dak.BASE.20100508-ries-dak-8.4-backup-F_A2000020.tar.gz
+# -rw------- 1 debbackup debbackup 384054069 May 15 02:24 dak.BASE.20100515-ries-dak-8.4-backup-F_FB000020.tar.gz
+# -rw------- 1 debbackup debbackup 386407500 May 22 02:27 dak.BASE.20100522-ries-dak-8.4-backup-10_58000020.tar.gz
+# -rw------- 1 debbackup debbackup  16777216 May  1 02:26 dak.WAL.000000010000000F00000037
+# -rw------- 1 debbackup debbackup       264 May  1 02:27 dak.WAL.000000010000000F00000037.00000020.backup
+# -rw------- 1 debbackup debbackup  16777216 May  1 03:25 dak.WAL.000000010000000F00000038
+# -rw------- 1 debbackup debbackup  16777216 May  1 09:11 dak.WAL.000000010000000F00000039
+# -rw------- 1 debbackup debbackup  16777216 May  1 09:45 dak.WAL.000000010000000F0000003A
+# ...
+#
+# needs write privileges to at least the .backup files
+
+
+import copy
+import time
+import re
+import os
+import sys
+import yaml
+import optparse
+
+def load_conf(cf):
+    if cf is not None:
+        configfile = cf
+    elif 'DSA_CHECK_BACKUPPG_CONF' in os.environ:
+        configfile = os.environ['DSA_CHECK_BACKUPPG_CONF']
+    else:
+        configfile = '/etc/nagios/dsa-check-backuppg.conf'
+
+    f = open(configfile)
+    config = yaml.load(f.read())
+    f.close()
+    return config
+
+
+problems_seq = []
+problems_per_db = {}
+global_expires = []
+#def note_warning(key, host, db, value):
+#    global problems_seq
+#    problems_seq.append("[%s, %s]: %s: %s"%(host, db, key, value))
+#
+#    global problems_per_db
+#    if not host in problems_per_db: problems_per_db[host] = {}
+#    problems_per_db[host][db] = True
+
+def note_warning(key, value, pre=None):
+    global problems_seq
+    if pre is None:
+        problems_seq.append("%s: %s"%(key, value))
+    else:
+        problems_seq.append("[%s] %s: %s"%(pre, key, value))
+def note_warning_db(host, db, key, value):
+    note_warning(key, value, "%s, %s"%(host, db))
+    global problems_per_db
+    if not host in problems_per_db: problems_per_db[host] = {}
+    problems_per_db[host][db] = True
+
+
+def wal_pre(w):
+    (w1,w2) = w
+    if w2 == 0:
+        w1 -= 1
+        w2 = 0xFE
+    else:
+        w2 -= 1
+
+    return (w1,w2)
+
+def parse_pg_backup_info(fn):
+    i = {}
+    f = open(fn)
+    for l in f:
+        (k,v) = l.strip().split(': ', 2)
+        i[k.lower()] = v
+    f.close()
+    return i
+
+
+parser = optparse.OptionParser()
+parser.set_usage("%prog [-c=<CONFFILE>]               (nagios mode)\n" +
+          "Usage: %prog [-c=<CONFFILE>] -e [-d] [-v]  (expire mode)")
+parser.add_option("-c", "--config", dest="conffile", metavar="CONFFILE",
+  help="Config file location.")
+parser.add_option("-e", "--expire", dest="expire", action="store_true",
+  help="Expire old files.")
+parser.add_option("-d", "--dry-run", dest="dry_run", action="store_true",
+  help="Do not really remove files.")
+parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
+  help="List files we are expiring.")
+(options, args) = parser.parse_args()
+
+if len(args) > 0:
+    parser.print_help()
+    sys.exit(1)
+
+
+config = load_conf(options.conffile)
+
+os.chdir(config['rootdir'])
+for dir in os.listdir('.'):
+    if not os.path.isdir(dir):
+        note_warning('NOT-A-DIR', dir)
+        continue
+
+    if not dir in config['backups']:
+        note_warning('NOT-CONFIGURED', dir)
+        continue
+
+    files = os.listdir(dir)
+    if len(files) == 0:
+        note_warning('EMPTY-DIR', dir)
+        continue
+
+    files.sort()
+
+    unhandled_backups = copy.copy(config['backups'][dir])
+    ignored_dbs = {}
+    backup_state = {}
+
+    # Go over all the files in a directory and check for various things
+    # - for a given cluster's backups we want the latest WAL file to be no
+    #   older than a certain age,
+    # - we want all consecutive WAL files, i.e. no holes
+    # - we want a full backup at one point, and it shouldn't be too old
+    # - If our retention period is say 2 weeks, then we look for the
+    #   tar file that's older than that, and everything before that can
+    #   be expired
+    while len(files) > 0:
+        fn = files.pop()
+        ffn = os.path.join(dir, fn)
+
+        r = re.match('([a-z0-9-]+)\.(WAL|BASE)\..*', fn)
+        if not r:
+            note_warning('CANNOT-PARSE', ffn)
+            continue
+
+        (db, type) = r.groups(1)
+        if not isinstance(config['backups'][dir], list) or not db in config['backups'][dir]:
+            if not db in ignored_dbs:
+                note_warning_db(dir, db, 'NOT-CONFIGURED', '%s/%s'%(dir, db))
+            ignored_dbs[db] = True
+        if db in ignored_dbs:
+            continue
+        if not db in backup_state:
+            backup_state[db] = {}
+            # can_expire_for_base_hit: We hit a BASE backup that is old enough
+            #   so that once we hit all the required WAL files for this base
+            #   backup to work we can start expiring everything older than that
+            #   oldest WAL file
+            backup_state[db]['can_expire_for_base_hit'] = False
+            # can_expire_next: Can expire all files that we handle from now on
+            backup_state[db]['can_expire_next'] = False
+            backup_state[db]['expires'] = []
+
+        # Apparently we already have seen a base backup and all its wal files
+        # which we want to keep, so everything what we see now is older than
+        # that and we can get rid of it
+        if backup_state[db]['can_expire_next']:
+            backup_state[db]['expires'].append(ffn)
+
+        if type == 'BASE':
+            # should have been taken care of before
+            # while handling a WAL.backup file
+            note_warning_db(dir, db, 'STRAY-BASE', ffn)
+            continue
+        elif type == 'WAL':
+            # handle .backup files  -  they live near the WAL "file namespace" and reference
+            # the corresponding full backup
+            r = re.match('[a-z0-9-]+\.WAL\.([0-9A-F]{8})([0-9A-F]{8})([0-9A-F]{8})\.[0-9A-F]{8}\.backup', fn)
+            if r:
+                info = parse_pg_backup_info(ffn)
+                basefn = '%s.BASE.%s-%s.tar.gz'%(db, info['label'], info['start wal location'].split(' ',2)[0].replace('/', '_'))
+                baseffn = os.path.join(dir, basefn)
+                if not basefn in files:
+                    note_warning_db(dir, db, 'MISSING-BASE', basefn)
+                    continue
+                files.remove(basefn)
+                if backup_state[db]['can_expire_next']:
+                    backup_state[db]['expires'].append(baseffn)
+
+                if not 'newest-base' in backup_state[db]:
+                    backup_state[db]['newest-base'] = baseffn
+                backup_state[db]['oldest-base'] = baseffn
+
+                startre = re.search('\(file ([0-9A-F]{24})\)', info['start wal location'])
+                if not startre:
+                    note_warning_db(dir, db, 'CANNOT-PARSE-START_WAL_LOCATION', ffn)
+                    continue
+                start_file = startre.group(1)
+                walbase = '%s.WAL.%s'%(db, start_file)
+                backup_state[db]['base_needs_wal_until'] = walbase
+
+                start = time.mktime(time.strptime(info['start time'], '%Y-%m-%d %H:%M:%S %Z'))
+                if start + config['retention'] < time.time():
+                    backup_state[db]['can_expire_for_base_hit'] = True
+                continue
+
+            # handle WAL files
+            r = re.match('[a-z0-9-]+\.WAL\.([0-9A-F]{8})([0-9A-F]{8})([0-9A-F]{8})', fn)
+            if r:
+                if 'base_needs_wal_until' in backup_state[db]:
+                    if backup_state[db]['base_needs_wal_until'] == fn:
+                        del backup_state[db]['base_needs_wal_until']
+                        if backup_state[db]['can_expire_for_base_hit']:
+                            backup_state[db]['can_expire_next'] = True
+
+                (timeline, wal1, wal2) = map(lambda x: int(x,16), r.groups())
+                if not timeline == 1:
+                    note_warning_db(dir, db, 'CANNOT-HANDLE-TIMELINES_NOT_1', ffn)
+                    continue
+
+                thissegment = (wal1, wal2)
+                if not 'newest-wal' in backup_state[db]:
+                    backup_state[db]['newest-wal'] = thissegment
+                    backup_state[db]['newest-wal-file'] = ffn
+                else:
+                    if not wal_pre(backup_state[db]['oldest-wal']) == thissegment:
+                        note_warning_db(dir, db, 'WAL-MISSING-AFTER', ffn)
+                        ignored_dbs[db] = True
+                        continue
+                backup_state[db]['oldest-wal'] = thissegment
+
+                continue
+
+            note_warning_db(dir, db, 'CANNOT-PARSE-WAL', ffn)
+        else:
+            note_warning_db(dir, db, 'INVALID-TYPE', ffn)
+
+
+    for db in backup_state:
+        if 'base_needs_wal_until' in backup_state[db]:
+            note_warning_db(dir, db, 'MISSING_WAL_FOR_BASE', backup_state[db]['base_needs_wal_until'])
+
+    for db in backup_state:
+        if not 'newest-base' in backup_state[db]:
+            note_warning(dir, db, 'NO-BASE', 'no base backup found?')
+        else:
+            age = time.time() - os.stat(backup_state[db]['newest-base']).st_mtime
+            if age > config['warn-age']['base']:
+                note_warning(dir, db, 'BASE-IS-OLD', 'latest base backup is too old')
+
+        if not 'newest-wal-file' in backup_state[db]:
+            note_warning(dir, db, 'NO-BASE', 'no WAL files found?')
+        else:
+            age = time.time() - os.stat(backup_state[db]['newest-wal-file']).st_mtime
+            if age > config['warn-age']['wal']:
+                note_warning(dir, db, 'WAL-IS-OLD', 'latest wal file is too old')
+
+    for db in backup_state:
+        if len(backup_state[db]['expires']) > 0:
+            if dir in problems_per_db and db in problems_per_db[dir] and problems_per_db[dir][db]:
+                note_warning_db(dir, db, 'NOT-EXPIRING-DUE-TO-WARNINGS', 'have seen warnings, will not expire anything')
+            else:
+                backup_state[db]['expires'].reverse()
+                for f in backup_state[db]['expires']:
+                    global_expires.append(f)
+
+    #if not db in backup_state:
+    #    note_warning('BASE-WITHOUT-WAL', ffn)
+    #    ignored_dbs[db] = True
+    #    continue
+
+    #age = time.time() - os.stat(ffn).st_mtime
+    #if age > config['warn-age']['wal']:
+    #    note_warning('OLD-WAL', backup_state[db]['newest-wal-file'])
+    #    ignored_dbs[db] = True
+    #    continue
+
+
+for p in problems_seq:
+    print p
+
+if options.expire:
+    for f in global_expires:
+        if options.verbose: print "Expiring %s"%(f)
+        if not options.dry_run: os.unlink(f)
+
+if len(problems_seq) > 0:
+    sys.exit(1)
+
+print "OK: no problems detected"
+sys.exit(0)
+
+# vim:set et:
+# vim:set ts=4:
+# vim:set shiftwidth=4:

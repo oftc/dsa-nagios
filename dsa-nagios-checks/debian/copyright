@@ -100,3 +100,8 @@ dsa-check-msa-eventlog:
 dsa-check-raid-megaraid:
   Copyright: 2007 Hari Sekhon
   License: GPL
+
+########################################################################
+dsa-check-backuppg:
+  Copyright: 2010 Peter Palfrader
+  License: MIT

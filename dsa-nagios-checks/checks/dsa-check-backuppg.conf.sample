@@ -1,0 +1,15 @@
+---
+rootdir: /srv/pgbackup/pg
+warn-age:
+  wal: 43200
+  base: 691200
+retention: 1814400
+backups:
+  stabile:
+    - snapshot
+  ries:
+    - dak
+  grieg:
+    - wanna-build
+  sibelius:
+    - 2ndsnapshot

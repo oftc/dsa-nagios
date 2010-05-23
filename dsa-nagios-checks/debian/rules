@@ -13,7 +13,7 @@ install:
 	dh_clean -k
 	dh_installdirs
 
-	for f in `ls -1 checks/*`; do \
+	for f in `ls -1 checks/* | grep -v 'sample$$'`; do \
 		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/lib/nagios/plugins; \
 	done
 
