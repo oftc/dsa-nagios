@@ -11,8 +11,9 @@ dsa-nagios-checks (8X) unstable; urgency=low
 
   [ Peter Palfrader ]
   * Add checks/dsa-check-backuppg.
+  * dsa-check-mirrorsync: optionally allow some skew over mirror timestamps.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 23 May 2010 14:51:12 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 23 May 2010 15:24:59 +0200
 
 dsa-nagios-checks (86) unstable; urgency=low
 

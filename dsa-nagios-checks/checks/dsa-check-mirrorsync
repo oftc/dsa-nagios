@@ -3,7 +3,7 @@
 # nagios check for debian security sync checks
 #
 #  Copyright (c) 2008 Alexander Wirt <formorer@debian.org>
-#  Copyright (c) 2009 Peter Palfrader <peter@palfrader.org>
+#  Copyright (c) 2009, 2010 Peter Palfrader <peter@palfrader.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,6 +45,9 @@ sub usage($$) {
 	print $fh "  --verbose           Be a little verbose.\n";
 	print $fh "  --host              hostname to check.\n";
 	print $fh "  --path              path to tracefile.\n";
+	print $fh "  --allow-skew=<foo>:<bar> if the newest timestamp is newer than <foo>secs\n";
+	print $fh "                      then the mirror sync is still ok, assuming the oldest\n";
+	print $fh "                      trace file is no older than <bar>\n";
 	print $fh "\n";
 	exit ($exit);
 };
@@ -69,11 +72,21 @@ if (!GetOptions (
                 '--version'             => \$params->{'version'},
                 '--host=s'              => \$params->{'host'},
                 '--path=s'              => \$params->{'path'},
+                '--allow-skew=s'        => \$params->{'skew'},
                 )) {
                 usage(*STDERR,1)
 };
 usage(*STDOUT,0) if ($params->{'help'});
 usage(*STDERR,1) if (scalar @ARGV);
+
+if (defined $params->{'skew'}) {
+	if (not $params->{'skew'} =~ /^([0-9]+):([0-9]+)$/) {
+		print STDERR "Invalid allow-skew format\n";
+		usage(*STDERR,1);
+	};
+	$params->{'skew-new'} = $1;
+	$params->{'skew-old'} = $2;
+};
 
 my $host = $params->{'host'};
 my $path = $params->{'path'};
@@ -120,12 +133,26 @@ foreach my $slave (@slaves) {
 my %seen;
 my $o_sync = scalar(grep !$seen{$_}++, map{$status->{$_}->{'synced'}} keys(%{$status}));
 if ($o_sync > 1) {
-	$exitcode = $CRITICAL; 
 	my @mirrors =  sort { $status->{$a}->{'synced'} <=> $status->{$b}->{'synced'}  } keys %{$status};
 	my @not_most_recent = grep { $status->{$_}->{'synced'} <=> $status->{$mirrors[-1]}->{'synced'} } @mirrors;
 	$o_sync = scalar @not_most_recent;
-	push @exitstatus, "$o_sync mirror(s) not in sync (from oldest to newest): ".
-		join(", ", @not_most_recent);
+
+	my $newest = time - $status->{$mirrors[-1]}->{'synced'};
+	my $oldest = time - $status->{$mirrors[0]}->{'synced'};
+	my $skew_ok = ( defined $params->{'skew-new'} &&
+	                defined $params->{'skew-old'} &&
+	                $newest <= $params->{'skew-new'} &&
+	                $oldest <= $params->{'skew-old'});
+
+	my $msg;
+	if ($skew_ok) {
+		$exitcode = $OK;
+		$msg = "$o_sync mirror(s) not in sync (from oldest to newest), but still within acceptable skew: ";
+	} else {
+		$exitcode = $CRITICAL;
+		$msg = "$o_sync mirror(s) not in sync (from oldest to newest): ";
+	};
+	push @exitstatus, $msg . join(", ", @not_most_recent);
 } else {
 	print "All mirrors unique\n" if $params->{'verbose'};
 }
@@ -133,7 +160,11 @@ if ($o_sync > 1) {
 if ($exitcode == $CRITICAL) {
 	print "CRITICAL: " . join(',',@exitstatus) . "\n";
 } elsif ($exitcode == $OK) {
-	print "OK: all mirrors up2date\n";
+	if (scalar @exitstatus > 0) {
+		print "OK: " . join(',',@exitstatus) . "\n";
+	} else {
+		print "OK: all mirrors up2date\n";
+	}
 } else {
 	print join(',',@exitstatus) . "\n";
 }
