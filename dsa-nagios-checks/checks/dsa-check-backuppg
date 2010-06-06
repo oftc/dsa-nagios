@@ -311,7 +311,8 @@ if options.expire:
 if len(problems_seq) > 0:
     sys.exit(1)
 
-print "OK: no problems detected"
+if not options.expire or options.verbose:
+    print "OK: no problems detected"
 sys.exit(0)
 
 # vim:set et:
