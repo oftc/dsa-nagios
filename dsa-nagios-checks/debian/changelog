@@ -13,8 +13,9 @@ dsa-nagios-checks (8X) unstable; urgency=low
   * Add checks/dsa-check-backuppg.
   * dsa-check-mirrorsync: optionally allow some skew over mirror timestamps.
   * Add dsa-check-log-age-loghost.
+  * dsa-check-zone-rrsig-expiration-many: also allow checking of geozones.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 21 Jun 2010 13:37:03 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 26 Jun 2010 11:59:05 +0200
 
 dsa-nagios-checks (86) unstable; urgency=low
 
