@@ -26,6 +26,7 @@ use warnings;
 use English;
 use Net::DNS::Resolver;
 use Getopt::Long;
+use File::Basename;
 
 $SIG{'__DIE__'} = sub { print @_; exit 4; };
 
@@ -131,15 +132,15 @@ sub usage {
 
 sub what_to_check {
 	my $zone = shift;
-	my $indir = shift;
+	my $zonefile = shift;
 
 	my $do_dlv = 0;
 	my $do_ds = 0;
 
-	open(F, "<", $indir."/".$zone) or die ("Cannot open zonefile for $zone: $!\n");
+	open(F, "<", $zonefile) or die ("Cannot open zonefile $zonefile for $zone: $!\n");
 	while (<F>) {
-		if (/^;\s*dlv-submit\s*=\s*yes\s*$/) { $do_dlv = 1; }
-		if (/^;\s*ds-in-parent\s*=\s*yes\s*$/) { $do_ds = 1; }
+		if (/^[#;]\s*dlv-submit\s*=\s*yes\s*$/) { $do_dlv = 1; }
+		if (/^[#;]\s*ds-in-parent\s*=\s*yes\s*$/) { $do_ds = 1; }
 	}
 	close(F);
 
@@ -152,7 +153,7 @@ sub what_to_check {
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
-	'--dir=s' => \$params->{'dir'},
+	'--dir=s@' => \$params->{'dir'},
 	'--dlv=s' => \$params->{'dlv'},
 	'--verbose' => \$params->{'verbose'},
 ) or usage(\*STDERR, 1);
@@ -162,26 +163,32 @@ my $mode = shift @ARGV;
 usage(\*STDOUT, 0) unless (defined $mode && $mode =~ /^(overview|check-dlv|check-ds|check-header)$/);
 die ("check-header needs --dir") if ($mode eq 'check-header' && !defined $params->{'dir'});
 
-my @zones;
+my %zones;
 if (scalar @ARGV) {
 	if (defined $params->{'dir'} && $mode ne 'check-header') {
 		warn "--dir option ignored"
 	}
-	@zones = @ARGV;
+	%zones = map { $_ => $_} @ARGV;
 } else {
-	my $dir = $params->{'dir'};
-	usage(\*STDOUT, 0) unless (defined $dir);
+	my $dirs = $params->{'dir'};
+	usage(\*STDOUT, 0) unless (defined $dirs);
 
-	chdir $dir or die "chdir $dir failed? $!\n";
-	opendir DIR, '.' or die ("Cannot opendir $dir\n");
-	for my $file (readdir DIR) {
-		next if ( -l "$file" );
-		next unless ( -f "$file" );
-		next if $file =~ /^(dsset|keyset)-/;
+	for my $dir (@$dirs) {
+		chdir $dir or die "chdir $dir failed? $!\n";
+		opendir DIR, '.' or die ("Cannot opendir $dir\n");
+		for my $file (readdir DIR) {
+			next if ( -l "$file" );
+			next unless ( -f "$file" );
+			next if $file =~ /^(dsset|keyset)-/;
 
-		push @zones, $file;
-	}
-	closedir(DIR);
+			my $zone = $file;
+			if ($file =~ /\.zone$/) { # it's one of our yaml things
+				$zone = basename($file, '.zone');
+			};
+			$zones{$zone} = "$dir/$file";
+		}
+		closedir(DIR);
+	};
 };
 
 $DLV = $params->{'dlv'} if $params->{'dlv'};
@@ -189,7 +196,7 @@ $DLV = $params->{'dlv'} if $params->{'dlv'};
 
 if ($mode eq 'overview') {
 	my %data;
-	for my $zone (@zones) {
+	for my $zone (keys %zones) {
 		$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
 				 'ds'     => join(', ', get_dstags($zone)),
 				 'dlv'    => join(', ', get_dlvtags($zone)),
@@ -216,8 +223,8 @@ if ($mode eq 'overview') {
 
 	my @warn;
 	my @ok;
-	for my $zone (sort {$a cmp $b} @zones) {
-		my @thiskeys = $key eq 'per-zone' ? what_to_check($zone, $params->{'dir'}) : ($key);
+	for my $zone (sort {$a cmp $b} keys %zones) {
+		my @thiskeys = $key eq 'per-zone' ? what_to_check($zone, $zones{$zone}) : ($key);
 
 		my $dnskey = join(', ', get_dnskeytags($zone)) || '-';
 		for my $thiskey (@thiskeys) {
