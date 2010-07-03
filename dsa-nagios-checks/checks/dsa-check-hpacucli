@@ -126,6 +126,8 @@ for my $slot (sort @controllers) {
 			$type = 'SCSI';
 		} elsif ($drive =~ /^[0-9]+[EI]:[0-9]+:[0-9]+$/) { # SAS
 			$type = 'SAS';
+		} elsif ($drive =~ /^[0-9]+[C]:[0-9]+:[0-9]+$/) { # New 6GBPS SAS
+			$type = 'SAS+';
 		} else {
 			# I'm not going to run pass arguments of unknown form to the shell..
 			warn ("Unknown diskdrive ID $drive\n");
@@ -164,9 +166,20 @@ for my $slot (sort @controllers) {
 		} elsif ($type eq 'SAS') {
 			$key = 'PHY Transfer Rate';
 			if ($value{'PHY Count'} eq '2') {
-				$expected = '3.0GBPS, Unknown';
+				if (defined($value{'Redundant Path(s)'})) {
+					$expected = '3.0GBPS, 3.0GBPS';
+				} else {
+					$expected = '3.0GBPS, Unknown';
+				}
 			} else {
 				$expected = '3.0GBPS';
+			}
+		} elsif ($type eq 'SAS+') {
+			$key = 'PHY Transfer Rate';
+			if ($value{'PHY Count'} eq '2') {
+				$expected = '6.0GBPS, Unknown';
+			} else {
+				$expected = '6.0GBPS';
 			}
 		} else {
 			warn "Should not be here.  Do not know what to do with type '$type'\n";
