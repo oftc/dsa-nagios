@@ -25,6 +25,7 @@
 
 FILE=''
 EXIT=0
+LEVEL=''
 
 usage(){
 	ret=$1
