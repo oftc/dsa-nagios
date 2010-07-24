@@ -14,7 +14,10 @@ dsa-nagios-checks (8X) unstable; urgency=low
   * dsa-check-mirrorsync: optionally allow some skew over mirror timestamps.
   * Add dsa-check-log-age-loghost.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 21 Jun 2010 13:37:03 +0200
+  [ Martin Zobel-Helas ]
+  * Add checks/dsa-checks-file.
+
+ -- Martin Zobel-Helas <zobel@debian.org>  Fri, 23 Jul 2010 19:26:00 +0200
 
 dsa-nagios-checks (86) unstable; urgency=low
 
