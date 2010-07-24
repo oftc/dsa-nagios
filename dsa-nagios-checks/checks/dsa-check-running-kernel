@@ -45,7 +45,7 @@ get_offset() {
 		print $i,"\n"' < "$file"
 }
 
-get_avail() {
+get_avail_linux() {
 	# This is wrong, but leaves room for when we have to care for machines running
 	# myfirstunix-image-0.1-dsa-arm
 	local prefix=linux
@@ -118,7 +118,7 @@ get_avail() {
 	return 1
 }
 
-get_image() {
+get_image_linux() {
 	local image GZHDR1 GZHDR2 LZHDR off
 
 	image="$1"
@@ -155,16 +155,21 @@ get_image() {
 searched=""
 for on_disk in \
 	"/boot/vmlinuz-`uname -r`"\
-	"/boot/vmlinux-`uname -r`"; do
+	"/boot/vmlinux-`uname -r`"\
+	"/boot/kfreebsd-`uname -r`.gz"; do
 
 	if [ -e "$on_disk" ]; then
-		on_disk_version="`get_image "$on_disk" | strings | grep 'Linux version' | head -n1`"
-		[ -z "$on_disk_version" ] || break
-		on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
-		[ -z "$on_disk_version" ] || break
+		if [ "${on_disk/vmlinu}" != "$on_disk" ]; then
+			on_disk_version="`get_image_linux "$on_disk" | strings | grep 'Linux version' | head -n1`"
+			[ -z "$on_disk_version" ] || break
+			on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
+			[ -z "$on_disk_version" ] || break
 
-		echo "UNKNOWN: Failed to get a version string from image $on_disk"
-		exit $UNKNOWN
+			echo "UNKNOWN: Failed to get a version string from image $on_disk"
+			exit $UNKNOWN
+		else
+			on_disk_version="$(zcat $on_disk | strings | grep Debian | head -n 1 | sed -e 's/Debian [[:alnum:]]\+ (\(.*\))/\1/')"
+		fi
 	fi
 	searched="$searched $on_disk"
 done
@@ -174,22 +179,26 @@ if ! [ -e "$on_disk" ]; then
 	exit $WARNING
 fi
 
+if [ "$(uname -s)" = "Linux" ]; then
+	running_version="`cat /proc/version`"
+	if [ -z "$running_version" ] ; then
+		echo "UNKNOWN: Failed to get a version string from running system"
+		exit $UNKNOWN
+	fi
 
-running_version="`cat /proc/version`"
-if [ -z "$running_version" ] ; then
-	echo "UNKNOWN: Failed to get a version string from running system"
-	exit $UNKNOWN
-fi
+	if [ "$running_version" != "$on_disk_version" ]; then
+		echo "WARNING: Running kernel does not match on-disk kernel image: [$running_version != $on_disk_version]"
+		exit $WARNING
+	fi
 
-if [ "$running_version" != "$on_disk_version" ]; then
-	echo "WARNING: Running kernel does not match on-disk kernel image: [$running_version != $on_disk_version]"
-	exit $WARNING
-fi
-
-ret="$(get_avail)"
-if [ $? = 1 ]; then
-	echo "WARNING: Kernel needs upgrade [$ret]"
-	exit $WARNING
+	ret="$(get_avail_linux)"
+	if [ $? = 1 ]; then
+		echo "WARNING: Kernel needs upgrade [$ret]"
+		exit $WARNING
+	fi
+else
+	echo "No support for FreeBSD yet"
+	exit $OK
 fi
 
 echo "OK: Running kernel matches on disk image: [$running_version]"

@@ -266,18 +266,18 @@ for dir in os.listdir('.'):
 
     for db in backup_state:
         if not 'newest-base' in backup_state[db]:
-            note_warning(dir, db, 'NO-BASE', 'no base backup found?')
+            note_warning_db(dir, db, 'NO-BASE', 'no base backup found?')
         else:
             age = time.time() - os.stat(backup_state[db]['newest-base']).st_mtime
             if age > config['warn-age']['base']:
-                note_warning(dir, db, 'BASE-IS-OLD', 'latest base backup is too old')
+                note_warning_db(dir, db, 'BASE-IS-OLD', 'latest base backup is too old')
 
         if not 'newest-wal-file' in backup_state[db]:
-            note_warning(dir, db, 'NO-BASE', 'no WAL files found?')
+            note_warning_db(dir, db, 'NO-BASE', 'no WAL files found?')
         else:
             age = time.time() - os.stat(backup_state[db]['newest-wal-file']).st_mtime
             if age > config['warn-age']['wal']:
-                note_warning(dir, db, 'WAL-IS-OLD', 'latest wal file is too old')
+                note_warning_db(dir, db, 'WAL-IS-OLD', 'latest wal file is too old')
 
     for db in backup_state:
         if len(backup_state[db]['expires']) > 0:

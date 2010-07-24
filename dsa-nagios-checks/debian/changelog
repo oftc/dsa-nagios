@@ -8,11 +8,14 @@ dsa-nagios-checks (8X) unstable; urgency=low
 
   [ Stephen Gran ]
   * dsa-check-apt-status: it's not an error to exit when we don't need to run
+  * Update check-hpacucli to deal with dual domain and 6GBPS SAS
 
   [ Peter Palfrader ]
   * Add checks/dsa-check-backuppg.
   * dsa-check-mirrorsync: optionally allow some skew over mirror timestamps.
   * Add dsa-check-log-age-loghost.
+  * dsa-check-zone-rrsig-expiration-many: also allow checking of geozones.
+  * dsa-check-dnssec-delegation: allow multiple dirs to be checked.
 
   [ Martin Zobel-Helas ]
   * Add checks/dsa-checks-file.

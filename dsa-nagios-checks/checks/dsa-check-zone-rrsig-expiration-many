@@ -26,6 +26,8 @@ use warnings;
 use English;
 use Getopt::Long;
 use FindBin qw($Bin);
+use YAML;
+use File::Basename;
 
 my $CHECK = $Bin.'/dsa-check-zone-rrsig-expiration';
 
@@ -57,13 +59,14 @@ sub convert_time {
 	return $ticks;
 }
 
-my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--warn=<nn>] [--critical=<nn>] <indir>\n";
+my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
 my $params = { 'warn' => '14d', 'critical' => '7d' };
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
 	'--warn=s' => \$params->{'warn'},
 	'--critical=s' => \$params->{'critical'},
+	'--geozonedir=s' => \$params->{'geozonedir'},
 ) or die ($USAGE);
 if ($params->{'help'}) {
         print $USAGE;
@@ -71,19 +74,6 @@ if ($params->{'help'}) {
 };
 die ($USAGE) unless (scalar @ARGV == 1);
 my $INDIR = shift;
-
-
-my @zones;
-chdir $INDIR or die "chdir $INDIR failed? $!\n";
-opendir INDIR, $INDIR or die ("Cannot opendir $INDIR\n");
-for my $file (readdir INDIR) {
-	next if ( -l "$file" );
-	next unless ( -f "$file" );
-	next if $file =~ /^(dsset|keyset)-/;
-
-	push @zones, $file;
-}
-closedir(INDIR);
 
 
 my $count =
@@ -94,21 +84,57 @@ my $count =
 	  'unsigned' => [],
 	};
 
-my @details;
 
-for my $zone (sort {$a cmp $b} @zones) {
+my @dnsseczones;
+# load list of classic zones that will do DNSSEC
+chdir $INDIR or die "chdir $INDIR failed? $!\n";
+opendir INDIR, '.' or die ("Cannot opendir $INDIR\n");
+for my $file (sort {$a cmp $b} (readdir INDIR)) {
+	next if ( -l "$file" );
+	next unless ( -f "$file" );
+	next if $file =~ /^(dsset|keyset)-/;
+
 	my $do_dnssec = 0;
-	open(F, '<', $zone) or die ("Cannot open $zone: $!\n");
+	open(F, '<', $file) or die ("Cannot open $file: $!\n");
 	for (<F>) {
-		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; }
+		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; last; }
 	};
 	close F;
 
-	unless ($do_dnssec) {
-		push @{$count->{'unsigned'}}, $zone;
-		next;
+	if ($do_dnssec) {
+		push @dnsseczones, $file;
+	} else {
+		push @{$count->{'unsigned'}}, $file;
 	};
+}
+closedir(INDIR);
 
+# load list of geodns zones that will do DNSSEC
+if (defined $params->{'geozonedir'}) {
+	chdir $params->{'geozonedir'} or die "chdir $params->{'geozonedir'} failed? $!\n";
+	opendir INDIR, '.' or die ("Cannot opendir $params->{'geozonedir'}\n");
+	for my $file (sort {$a cmp $b} (readdir INDIR)) {
+		next unless $file =~ /\.zone$/;
+
+		open (F, '<', $file) or die "Cannot open $file: $!\n";
+		my ($zc, undef, undef) = Load(join "", (<F>));
+		close F;
+
+		my $zone = basename($file, '.zone');
+
+		if ($zc->{'dnssec'}) {
+			push @dnsseczones, $zone;
+		} else {
+			push @{$count->{'unsigned'}}, $zone;
+		};
+	}
+	closedir(INDIR);
+}
+
+
+my @details;
+
+for my $zone (sort {$a cmp $b} @dnsseczones) {
 
 	open(P, '-|', ($CHECK, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
 	my @p = <P>;
