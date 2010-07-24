@@ -1,4 +1,4 @@
-dsa-nagios-checks (8X) unstable; urgency=low
+dsa-nagios-checks (87) unstable; urgency=low
 
   [ Uli Martens ]
   * dsa-check-running-kernel:
