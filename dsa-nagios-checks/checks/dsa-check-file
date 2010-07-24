@@ -36,18 +36,27 @@ $0: usage:
 	File checker for nagios.  Will alert if the named file does not exist
 
 	-h	This help message
+	-w	If the file does not exist, this is only warning
 	-f	File to check
 EOF
 
 	exit $ret
 }
 
-while getopts f:i:h opt ; do
+while getopts f:hw opt ; do
 	case "$opt" in
 		f) FILE="$OPTARG" ;;
+		w) LEVEL="WARNING";;
 		h) usage 0
 	esac
 done
+
+if [ "$LEVEL" = "WARNING" ]; then
+	EXIT=1
+else
+	EXIT=2
+	LEVEL="CRITICAL"
+fi
 
 if [ -z "$FILE" ]; then
 	echo "Need file argument!" >&2
@@ -55,9 +64,8 @@ if [ -z "$FILE" ]; then
 fi
 
 if [ ! -f "$FILE" ]; then
-	printf "CRITICAL: file %s is missing\n" $FILE
-	exit 2
+	printf "%s: file %s is missing\n" $LEVEL $FILE
+	exit $EXIT
 fi
-
 
 printf "OK: file %s does exist %s\n" $FILE
