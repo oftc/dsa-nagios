@@ -65,8 +65,8 @@ if [ -z "$FILE" ]; then
 fi
 
 if [ ! -f "$FILE" ]; then
-	printf "%s: file %s is missing\n" $LEVEL $FILE
+	printf "file %s is missing\n" $FILE
 	exit $EXIT
 fi
 
-printf "OK: file %s does exist %s\n" $FILE
+printf "file %s does exist %s\n" $FILE
