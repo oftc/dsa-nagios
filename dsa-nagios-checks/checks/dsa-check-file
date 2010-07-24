@@ -55,9 +55,9 @@ if [ -z "$FILE" ]; then
 fi
 
 if [ ! -f "$FILE" ]; then
-	printf "file %s is missing\n" $FILE
+	printf "CRITICAL: file %s is missing\n" $FILE
 	exit 2
 fi
 
 
-printf "file %s OK: %s\n" $FILE
+printf "OK: file %s does exist %s\n" $FILE
