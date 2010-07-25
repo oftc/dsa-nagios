@@ -1,4 +1,4 @@
-dsa-nagios-checks (8X) unstable; urgency=low
+dsa-nagios-checks (87) unstable; urgency=low
 
   [ Uli Martens ]
   * dsa-check-running-kernel:
@@ -8,6 +8,7 @@ dsa-nagios-checks (8X) unstable; urgency=low
 
   [ Stephen Gran ]
   * dsa-check-apt-status: it's not an error to exit when we don't need to run
+  * Update check-hpacucli to deal with dual domain and 6GBPS SAS
 
   [ Peter Palfrader ]
   * Add checks/dsa-check-backuppg.
@@ -16,10 +17,10 @@ dsa-nagios-checks (8X) unstable; urgency=low
   * dsa-check-zone-rrsig-expiration-many: also allow checking of geozones.
   * dsa-check-dnssec-delegation: allow multiple dirs to be checked.
 
-  [ Stephen Gran ]
-  * Update check-hpacucli to deal with dual domain and 6GBPS SAS
+  [ Martin Zobel-Helas ]
+  * Add checks/dsa-checks-file.
 
- -- Stephen Gran <sgran@debian.org>  Sat, 03 Jul 2010 16:23:58 +0100
+ -- Martin Zobel-Helas <zobel@debian.org>  Fri, 23 Jul 2010 19:26:00 +0200
 
 dsa-nagios-checks (86) unstable; urgency=low
 
