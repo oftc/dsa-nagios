@@ -169,7 +169,7 @@ for my $slot (sort @controllers) {
 				if (defined($value{'Redundant Path(s)'})) {
 					$expected = '3.0GBPS, 3.0GBPS';
 				} else {
-					$expected = '3.0GBPS, Unknown';
+					$expected = [ '3.0GBPS, Unknown', 'Unknown, 3.0GBPS' ];
 				}
 			} else {
 				$expected = '3.0GBPS';
@@ -189,6 +189,11 @@ for my $slot (sort @controllers) {
 		if (!defined $value{$key}) {
 			record('WARNING');
 			push @{$status{'unknown transfer speed'}}, $drive;
+		} elsif (ref($expected) eq 'ARRAY') {
+			if (scalar(grep { $value{$key} eq $_ } @$expected) == 0) {
+				record('WARNING');
+				push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
+			};
 		} elsif ($value{$key} ne $expected) {
 			record('WARNING');
 			push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
