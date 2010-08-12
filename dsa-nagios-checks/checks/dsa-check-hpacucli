@@ -27,6 +27,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use strict;
+use English;
+use Getopt::Long;
 
 # nagios exit codes
 my %CODE = (
@@ -62,6 +64,20 @@ sub record($) {
 	};
 }
 
+my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--ignore-transfer-speed=<pd> [--ignore-transfer-speed=<pd> ...]]\n";
+my $params;
+Getopt::Long::Configure('bundling');
+if (!GetOptions (
+	'--help'                      => \$params->{'help'},
+	'--ignore-transfer-speed=s@'  => \$params->{'ignore-transfer-speed'},
+	)) {
+	die ($usage);
+};
+if ($params->{'help'}) {
+	print $usage;
+	exit (0);
+};
+die ($usage) unless (scalar @ARGV == 0);
 
 my $ctrlallshow = runcmd("controller all show");
 my @controllers;
@@ -169,7 +185,7 @@ for my $slot (sort @controllers) {
 				if (defined($value{'Redundant Path(s)'})) {
 					$expected = '3.0GBPS, 3.0GBPS';
 				} else {
-					$expected = '3.0GBPS, Unknown';
+					$expected = [ '3.0GBPS, Unknown', 'Unknown, 3.0GBPS' ];
 				}
 			} else {
 				$expected = '3.0GBPS';
@@ -186,9 +202,20 @@ for my $slot (sort @controllers) {
 			next;
 		}
 
+		if (exists $params->{'ignore-transfer-speed'}) {
+			if (grep { $drive eq $_ } @{$params->{'ignore-transfer-speed'}}) {
+				push @{$status{'ignored transfer speed'}}, $drive."(".$value{$key}.")";
+			};
+			next;
+		};
 		if (!defined $value{$key}) {
 			record('WARNING');
 			push @{$status{'unknown transfer speed'}}, $drive;
+		} elsif (ref($expected) eq 'ARRAY') {
+			if (scalar(grep { $value{$key} eq $_ } @$expected) == 0) {
+				record('WARNING');
+				push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
+			};
 		} elsif ($value{$key} ne $expected) {
 			record('WARNING');
 			push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
