@@ -1,10 +1,10 @@
-dsa-nagios-checks (88) unstable; urgency=low
+dsa-nagios-checks (8x) xnstable; urgency=low
 
   * dsa-check-hpacucli: Also accept 'Unknown, 3.0GBPS' as a valid
     transfer speed in addition to '3.0GBPS, Unknown'.
   * dsa-check-hpacucli add --ignore-transfer-speed option.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 12 Aug 2010 13:46:22 +0200
+ -- Peter Palfrader <weasel@debian.org>  Thu, 12 Aug 2010 13:46:44 +0200
 
 dsa-nagios-checks (87) unstable; urgency=low
 
