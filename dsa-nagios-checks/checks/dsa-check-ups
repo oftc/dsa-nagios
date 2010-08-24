@@ -1,0 +1,10 @@
+#!/bin/bash
+
+st=$(upsc ups1@localhost | awk -F: '$1 == "ups.status" {print $2}' | sed -e 's/^ *//')
+if [ "$st" = "OL CHRG" ]; then
+	echo "OK: Status is $st"
+	exit 0
+else
+	echo "Warning: Status is $st"
+	exit 1
+fi
