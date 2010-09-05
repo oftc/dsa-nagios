@@ -159,6 +159,10 @@ for on_disk in \
 	"/boot/kfreebsd-`uname -r`.gz"; do
 
 	if [ -e "$on_disk" ]; then
+		if [ ! -x "$(which strings)" ]; then
+			echo "UNKNOWN: 'strings' command missing, perhaps install binutils?"
+			exit $UNKNOWN
+		fi
 		if [ "${on_disk/vmlinu}" != "$on_disk" ]; then
 			on_disk_version="`get_image_linux "$on_disk" | strings | grep 'Linux version' | head -n1`"
 			[ -z "$on_disk_version" ] || break

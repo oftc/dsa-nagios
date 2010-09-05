@@ -5,8 +5,10 @@ dsa-nagios-checks (8x) xnstable; urgency=low
   * dsa-check-hpacucli add --ignore-transfer-speed option.
   * Add dsa-check-ups.
   * Add dsa-check-hpacucli-enclosure.
+  * dsa-check-running-kernel: check if 'strings' is installed and
+    complain nicely if it isn't instead of falling over. [Uli Martens]
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 24 Aug 2010 13:02:38 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 05 Sep 2010 11:33:10 +0200
 
 dsa-nagios-checks (87) unstable; urgency=low
 
