@@ -8,8 +8,9 @@ dsa-nagios-checks (8x) xnstable; urgency=low
   * dsa-check-running-kernel: check if 'strings' is installed and
     complain nicely if it isn't instead of falling over. [Uli Martens]
   * dsa-check-afs-*: add checks from Russ Allbery for monitoring our AFS
+  * Add dsa-check-port-closed.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 05 Sep 2010 11:33:10 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 03 Oct 2010 13:12:31 +0200
 
 dsa-nagios-checks (87) unstable; urgency=low
 
