@@ -9,8 +9,10 @@ dsa-nagios-checks (8x) xnstable; urgency=low
     complain nicely if it isn't instead of falling over. [Uli Martens]
   * dsa-check-afs-*: add checks from Russ Allbery for monitoring our AFS
   * Add dsa-check-port-closed.
+  * dsa-check-hpacucli: ignore the line for unassigned disks (patch by
+    Emmanuel Lacour).
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 03 Oct 2010 13:12:31 +0200
+ -- Peter Palfrader <weasel@debian.org>  Thu, 14 Oct 2010 17:07:29 +0200
 
 dsa-nagios-checks (87) unstable; urgency=low
 
