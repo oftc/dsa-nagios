@@ -11,8 +11,9 @@ dsa-nagios-checks (8x) xnstable; urgency=low
   * Add dsa-check-port-closed.
   * dsa-check-hpacucli: ignore the line for unassigned disks (patch by
     Emmanuel Lacour).
+  * dsa-check-hpacucli: accept 6.0Gbps for SAS disks.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 14 Oct 2010 17:07:29 +0200
+ -- Peter Palfrader <weasel@debian.org>  Fri, 15 Oct 2010 13:59:38 +0200
 
 dsa-nagios-checks (87) unstable; urgency=low
 
