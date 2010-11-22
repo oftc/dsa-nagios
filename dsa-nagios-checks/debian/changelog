@@ -12,8 +12,10 @@ dsa-nagios-checks (8x) xnstable; urgency=low
   * dsa-check-hpacucli: ignore the line for unassigned disks (patch by
     Emmanuel Lacour).
   * dsa-check-hpacucli: accept 6.0Gbps for SAS disks.
+  * dsa-check-hpasm: Incorporate patch from Jan Wagner to ignore "N/A" DIMM
+    status.
 
- -- Peter Palfrader <weasel@debian.org>  Fri, 15 Oct 2010 13:59:38 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 22 Nov 2010 13:56:04 +0100
 
 dsa-nagios-checks (87) unstable; urgency=low
 

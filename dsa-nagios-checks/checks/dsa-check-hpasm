@@ -47,13 +47,14 @@ my %callbacks = (
 
 my $params = {};
 
-my $USAGE = "PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant] [--fan-high]\n";
+my $USAGE = "PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant] [--fan-high] [--dimm-na]\n";
 Getopt::Long::config('bundling');
 if (!GetOptions (
         '--help'                => \$params->{'help'},
         '--ps-no-redundant'     => \$params->{'ps-no-redundant'},
         '--fan-no-redundant'    => \$params->{'fan-no-redundant'},
         '--fan-high'            => \$params->{'fan-high'},
+        '--dimm-na'             => \$params->{'dimm-na'},
         )) {
         die ("$USAGE");
 };
@@ -83,7 +84,8 @@ sub do_dimm {
 
     if ($line =~ /(^\s*$|-----)/) {
       if ($in_block) {
-        if ($status ne 'Ok') {
+        unless (($status eq 'Ok') ||
+                ($params->{'dimm-na'} && $status eq 'N/A')) {
           $message = sprintf("DIMM%d: %s ", $dimm_num, $status);
           $exit_status |= 2;
         }
