@@ -197,7 +197,7 @@ for my $slot (sort @controllers) {
 			next;
 		}
 
-		if (exists $params->{'ignore-transfer-speed'}) {
+		if ($params->{'ignore-transfer-speed'}) {
 			if (grep { $drive eq $_ } @{$params->{'ignore-transfer-speed'}}) {
 				push @{$status{'ignored transfer speed'}}, $drive."(".$value{$key}.")";
 			};
