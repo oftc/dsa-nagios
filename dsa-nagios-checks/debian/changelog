@@ -14,10 +14,12 @@ dsa-nagios-checks (8x) xnstable; urgency=low
   * dsa-check-hpacucli: accept 6.0Gbps for SAS disks.
   * dsa-check-hpasm: Incorporate patch from Jan Wagner to ignore "N/A" DIMM
     status.
+  * dsa-check-hpasm: Incorporate patch from Jan Wagner to ignore fan lines
+    that do not say 'Yes' in the present-line.
   * dsa-check-udldap-freshness: Also check age of /var/lib/misc/passwd.db
     in addition to /var/lib/misc/thishost/passwd.tdb.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 06 Dec 2010 14:41:38 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 08 Dec 2010 15:39:33 +0100
 
 dsa-nagios-checks (87) unstable; urgency=low
 
