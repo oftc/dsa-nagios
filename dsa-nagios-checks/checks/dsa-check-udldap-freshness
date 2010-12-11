@@ -16,35 +16,39 @@ $SIG{__DIE__ } = sub() {
 	exit $CODE{'UNKNOWN'};
 };
 
-if ( -e "/var/lib/misc/thishost/passwd.tdb" ) {
-	$f = "/var/lib/misc/thishost/passwd.tdb";
-} else {
-	my $hostname = `hostname -f`;
-	chomp $hostname;
-	$hostname =~ m/^([a-z]+(?:\.[a-z]+)+)$/;
-	die "Weird hostname '$hostname'\n" unless defined $1;
-	$hostname = $1;
-	if ( -e "/var/lib/misc/$hostname/passwd.tdb" ) {
-		$f = "/var/lib/misc/$hostname/passwd.tdb";
+sub check_age {
+	my ($f) = @_;
+	my @stat = stat($f) or die ("Cannot stat $f: $!\n");
+	my $age = time - $stat[10];
+	my $hage;
+	if ($age > 48 * 3600) {
+		$hage = sprintf("%.1f days", $age / 24 / 3600);
+	} elsif ($age > 3600) {
+		$hage = sprintf("%.1f hours", $age / 3600);
+	} else {
+		$hage = sprintf("%d minutes", $age / 60);
 	};
+
+	if ($age > 60*60) {
+		return [$CODE{'WARNING'}, "WARNING: ud-ldap info is $hage old"];
+	};
+	return [$CODE{'OK'}, "ud-ldap info is $hage old"];
 };
 
-die "Could not find passwd.tdb" unless defined $f;
+my @msg;
+for $f (qw{/var/lib/misc/thishost/passwd.tdb /var/lib/misc/passwd.db}) {
+	unless (-e $f) {
+		print "WARNING: $f does not exist.\n";
+		exit $CODE{'WARNING'};
+	};
 
-my @stat = stat($f) or die ("Cannot stat $f: $!\n");
-my $age = time - $stat[10];
-my $hage;
-if ($age > 48 * 3600) {
-	$hage = sprintf("%.1f days", $age / 24 / 3600);
-} elsif ($age > 3600) {
-	$hage = sprintf("%.1f hours", $age / 3600);
-} else {
-	$hage = sprintf("%d minutes", $age / 60);
+	my $a = check_age($f);
+	if ($a->[0] != 0) {
+		print $a->[1], "\n";
+		exit $a->[0];
+	};
+	push @msg, $a->[1];
 };
 
-if ($age > 60*60) {
-	print "WARNING: ud-ldap info is $hage old\n";
-	exit $CODE{'WARNING'};
-};
-print "OK: ud-ldap info is $hage old\n";
-exit $CODE{'OK'};
+print "OK: ", join(', ', @msg), "\n";
+exit 0;
