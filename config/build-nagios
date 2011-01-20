@@ -241,7 +241,7 @@ def find_hosts(service, servers, hostgroups)
 
 	excludehosts.uniq.each{ |host|
 		if hosts.delete(host) == nil
-			throw "Cannot remove host #{host} from service #{service['service_description']}: it's not included anyway."
+			puts "info: [service #{service['service_description']}] not excluding host #{host} - it's not included anyway."
 		end
 	}
 
