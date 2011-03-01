@@ -105,3 +105,8 @@ dsa-check-raid-megaraid:
 dsa-check-backuppg:
   Copyright: 2010 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-resolver:
+  Copyright: 2011 Peter Palfrader
+  License: MIT

@@ -21,8 +21,9 @@ dsa-nagios-checks (8x) xnstable; urgency=low
     that do not say 'Yes' in the present-line.
   * dsa-check-udldap-freshness: Also check age of /var/lib/misc/passwd.db
     in addition to /var/lib/misc/thishost/passwd.tdb.
+  * Add dsa-check-resolver.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 24 Jan 2011 16:26:44 +0100
+ -- Peter Palfrader <weasel@debian.org>  Tue, 01 Mar 2011 18:09:57 +0100
 
 dsa-nagios-checks (87) unstable; urgency=low
 
