@@ -1,4 +1,4 @@
-dsa-nagios-checks (8x) xnstable; urgency=low
+dsa-nagios-checks (88) unstable; urgency=low
 
   * dsa-check-hpacucli
     - Also accept 'Unknown, 3.0GBPS' as a valid transfer speed in addition
@@ -23,7 +23,7 @@ dsa-nagios-checks (8x) xnstable; urgency=low
     in addition to /var/lib/misc/thishost/passwd.tdb.
   * Add dsa-check-resolver.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 01 Mar 2011 18:09:57 +0100
+ -- Peter Palfrader <weasel@debian.org>  Tue, 01 Mar 2011 18:10:25 +0100
 
 dsa-nagios-checks (87) unstable; urgency=low
 
