@@ -1,3 +1,9 @@
+dsa-nagios-checks (8x) xnstable; urgency=low
+
+  * 
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 01 Mar 2011 18:11:55 +0100
+
 dsa-nagios-checks (88) unstable; urgency=low
 
   * dsa-check-hpacucli
