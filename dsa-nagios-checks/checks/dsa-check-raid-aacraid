@@ -139,5 +139,9 @@ while ($ctrl <= $numcontrollers) {
 if ( -e 'UcliEvt.log' ) {
 	unlink('UcliEvt.log') or die ("Cannot unlink UcliEvt.log: $!\n");
 }
+
+# Need to chdir out of tempdir in order to rm it in new perl
+chdir ('/') or die ("Cannot chdir /: $!\n");
+
 print "$EXITCODE: ", join(" --- ", @resultstr), "\n";
 exit $CODE{$EXITCODE};
