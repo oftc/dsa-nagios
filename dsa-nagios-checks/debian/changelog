@@ -1,8 +1,8 @@
 dsa-nagios-checks (8x) xnstable; urgency=low
 
-  * 
+  * dsa-check-running-kernel: kFreeBSD support.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 01 Mar 2011 18:11:55 +0100
+ -- Peter Palfrader <weasel@debian.org>  Thu, 24 Mar 2011 16:41:17 +0100
 
 dsa-nagios-checks (88) unstable; urgency=low
 
