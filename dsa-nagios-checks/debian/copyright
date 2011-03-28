@@ -110,3 +110,8 @@ dsa-check-backuppg:
 dsa-check-resolver:
   Copyright: 2011 Peter Palfrader
   License: MIT
+
+########################################################################
+dsa-check-entropy:
+  Copyright: 2011 Peter Palfrader
+  License: MIT
