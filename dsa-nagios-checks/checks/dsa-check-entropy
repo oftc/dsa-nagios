@@ -37,7 +37,7 @@ parser.add_option("-s", "--sleep", dest="sleep", metavar="MSECS",
   help="Amount of time to wait between reads [250msec].")
 parser.add_option("-w", "--watermark", dest="watermark", metavar="BYTES",
   type="int", default=800,
-  help="Minimum number of expected bytes in the entropy pool.")
+  help="Minimum number of expected bytes in the entropy pool [800].")
 (options, args) = parser.parse_args()
 
 if len(args) != 0:
