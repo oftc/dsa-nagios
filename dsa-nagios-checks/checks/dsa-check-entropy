@@ -73,7 +73,7 @@ while tries <= options.retries:
     time.sleep(1.0 * options.sleep / 1000)
     tries += 1
 
-print "WARNING: Too little entropy in the pool (min: %d, max: %d in %d reads)"%(min(values), max(values), tries)
+print "WARNING: Too little entropy in the pool (min: %d, max: %d in %d reads)"%(min(values), max(values), tries-1)
 sys.exit(1)
 
 # vim:set et:

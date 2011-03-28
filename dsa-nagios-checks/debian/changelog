@@ -1,8 +1,10 @@
 dsa-nagios-checks (9X) Xnstable; urgency=low
 
-  * dsa-check-entropy: document watermark default.
+  * dsa-check-entropy: 
+    - document watermark default
+    - fix off-by-one in output
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 28 Mar 2011 14:52:25 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 28 Mar 2011 15:54:21 +0200
 
 dsa-nagios-checks (89) unstable; urgency=low
 
