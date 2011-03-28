@@ -1,9 +1,9 @@
-dsa-nagios-checks (8x) xnstable; urgency=low
+dsa-nagios-checks (89) unstable; urgency=low
 
   * dsa-check-running-kernel: kFreeBSD support.
   * Add dsa-check-entropy.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 28 Mar 2011 14:46:16 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 28 Mar 2011 14:47:11 +0200
 
 dsa-nagios-checks (88) unstable; urgency=low
 
