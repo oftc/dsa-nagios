@@ -11,3 +11,4 @@ install: generated/nrpe_dsa.cfg
 	rsync -Prltvz --delete generated static handel.debian.org:draghi.debian.org/nagiosconfig
 
 .PHONY: all deb
+
