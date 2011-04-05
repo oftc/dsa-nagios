@@ -8,6 +8,6 @@ clean:
 	rm -rf generated
 
 install: generated/nrpe_dsa.cfg
-	rsync rsync -avHz --delete-before --ignore-errors -e 'ssh -i /var/lib/puppet/.ssh/id_rsa.puppet-sync' generated static handel.debian.org:draghi.debian.org/nagiosconfig
+	rsync -avHz --delete-before --ignore-errors -e 'ssh -i /var/lib/puppet/.ssh/id_rsa.puppet-sync' generated static handel.debian.org:draghi.debian.org/nagiosconfig
 
 .PHONY: all deb
