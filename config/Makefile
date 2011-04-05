@@ -11,4 +11,3 @@ install: generated/nrpe_dsa.cfg
 	rsync -Prltvz --delete -e 'ssh -i /var/lib/puppet/.ssh/id_rsa.puppet-sync' generated static handel.debian.org:draghi.debian.org/nagiosconfig
 
 .PHONY: all deb
-
