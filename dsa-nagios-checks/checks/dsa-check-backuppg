@@ -65,6 +65,7 @@ def load_conf(cf):
     return config
 
 
+notices_seq = []
 problems_seq = []
 problems_per_db = {}
 global_expires = []
@@ -75,6 +76,12 @@ global_expires = []
 #    global problems_per_db
 #    if not host in problems_per_db: problems_per_db[host] = {}
 #    problems_per_db[host][db] = True
+def note_info(key, value, pre=None):
+    global notices_seq
+    if pre is None:
+        notices_seq.append("%s: %s"%(key, value))
+    else:
+        notices_seq.append("[%s] %s: %s"%(pre, key, value))
 
 def note_warning(key, value, pre=None):
     global problems_seq
@@ -132,7 +139,10 @@ config = load_conf(options.conffile)
 os.chdir(config['rootdir'])
 for dir in os.listdir('.'):
     if not os.path.isdir(dir):
-        note_warning('NOT-A-DIR', dir)
+        if min(os.path.getmtime(dir), os.path.getctime(dir)) + 3600*4 > time.time():
+            note_info('IGNORED', dir)
+        else:
+            note_warning('NOT-A-DIR', dir)
         continue
 
     if not dir in config['backups']:
@@ -301,6 +311,8 @@ for dir in os.listdir('.'):
 
 
 for p in problems_seq:
+    print p
+for p in notices_seq:
     print p
 
 if options.expire:
