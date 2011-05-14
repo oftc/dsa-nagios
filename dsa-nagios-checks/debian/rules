@@ -17,6 +17,10 @@ install:
 		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/lib/nagios/plugins; \
 	done
 
+	for f in `ls -1 event_handlers/* | grep -v 'sample$$'`; do \
+		install -m 755 $$f $(CURDIR)/debian/dsa-nagios-checks/usr/lib/nagios/plugins; \
+	done
+
 	for f in `ls -1 etc/*`; do \
 		install -m 644 $$f $(CURDIR)/debian/dsa-nagios-checks/etc/nagios; \
 	done

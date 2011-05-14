@@ -1,5 +1,6 @@
 dsa-nagios-checks (9X) Xnstable; urgency=low
 
+  [ Peter Palfrader ]
   * dsa-check-entropy: 
     - document watermark default
     - fix off-by-one in output
@@ -7,7 +8,10 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
     - ignore regular files in pg backup's root directory if they are still
       fresh.
 
- -- Peter Palfrader <weasel@debian.org>  Fri, 22 Apr 2011 14:24:16 +0200
+  [ Stephen Gran ]
+  * Add event_handler to restart services
+
+ -- Stephen Gran <sgran@debian.org>  Sat, 14 May 2011 15:12:41 +0100
 
 dsa-nagios-checks (89) unstable; urgency=low
 
