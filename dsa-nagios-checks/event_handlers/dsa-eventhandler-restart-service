@@ -10,12 +10,14 @@
 # $1 $SERVICESTATE$
 # $2 $SERVICESTATETYPE$
 # $3 $SERVICEATTEMPT$
+# $4 $HOSTADDRESS$
 # $4 init script name
 
 state="$1"
 type="$2"
 attempt="$3"
-service="$4"
+host="$4"
+service="$5"
 
 # What state is the service in?
 case "${state}" in
@@ -46,7 +48,7 @@ case "${state}" in
 					# fixed the problem!
 					3)
 						# Call the init script to restart the HTTPD server
-						sudo /etc/init.d/${service} restart
+						/usr/lib/nagios/plugins/check_nrpe -n -H "${host}" -c "${service}"
 					;;
 				esac
 			;;
@@ -56,7 +58,7 @@ case "${state}" in
 			# Note: Contacts have already been notified of a problem with the service at this
 			# point (unless you disabled notifications for this service)
 			HARD)
-				sudo /etc/init.d/${service} restart
+				/usr/lib/nagios/plugins/check_nrpe -n -H "${host}" -c "${service}"
 			;;
 	esac
 	;;
