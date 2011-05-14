@@ -17,20 +17,12 @@ state="$1"
 type="$2"
 attempt="$3"
 host="$4"
-service="$5"
+starton="$5"
+service="$6"
 
 # What state is the service in?
 case "${state}" in
-	OK)
-	# The service just came back up, so don't do anything...
-	;;
-	WARNING)
-	# We don't really care about warning states, since the service is probably still running...
-	;;
-	UNKNOWN)
-	# We don't know what might be causing an unknown error, so don't do anything...
-	;;
-	CRITICAL)
+	"${starton}")
 	# Aha!  The service appears to have a problem - perhaps we should restart it
 	# Is this a "soft" or a "hard" state?
 		case "${type}" in
