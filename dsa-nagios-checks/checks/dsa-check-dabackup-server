@@ -31,11 +31,11 @@ AUTHKEYSFILE=/etc/ssh/userkeys/root
 err=0
 
 log() {
-	if [ "$1" == "warn" ] && [ "$err" -lt 1 ]; then
+	if [ "$1" = "warn" ] && [ "$err" -lt 1 ]; then
 		err=1
-	elif [ "$1" == "critical" ] && [ "$err" -lt 2 ]; then
+	elif [ "$1" = "critical" ] && [ "$err" -lt 2 ]; then
 		err=2
-	elif [ "$1" == "unknown" ] && [ "$err" == 0 ]; then
+	elif [ "$1" = "unknown" ] && [ "$err" = 0 ]; then
 		err=3
 	fi
 }
