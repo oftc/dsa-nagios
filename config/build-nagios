@@ -127,11 +127,13 @@ $nrpe = Nrpe.new()
 # host/service/etc definitions
 #
 # It skips over such keys as are listed in exclude_keys
-# and also skips private keys (those starting with an underscre)
+# and also skips private keys (those starting with an underscore)
 def print_block(fd, kind, hash, exclude_keys)
 	fd.puts "define #{kind} {"
 	hash.each_pair{ |key, value|
-		next if key[0,1] == '_'
+		next if key == '_extinfo'
+		next if key == '_hostgroups'
+		next if key == '_memberlist'
 		next if exclude_keys.include? key
 		fd.puts "	#{key}		#{value}"
 	}
