@@ -10,6 +10,10 @@ my @ok;
 
 my @cmd = ('sudo', 'megactl', '-Hv', '2>&1');
 my @output = `@cmd`;
+if ($? != 0) {
+	print "WARNING: Exec failed!\n";
+	exit 2;
+}
 
 for my $line (@output) {
 	if ($line =~ /^(\w+)\s+/) {
