@@ -91,12 +91,12 @@ if (@errs) {
 	print "CRITICAL: ";
 	print @errs;
 	print "\n";
-	exit 1;
+	exit 2;
 } elsif (@warn) {
 	print "WARNING: ";
 	print @warn;
 	print "\n";
-	exit 2;
+	exit 1;
 }
 unless (@ok) {
 	push @ok, "All devices OK";
