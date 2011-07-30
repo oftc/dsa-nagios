@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $devs = {};
+my @errs;
+my @warn;
+my @ok;
+
+my @cmd = ('sudo', 'megactl', '-Hv', '2>&1');
+my @output = `@cmd`;
+
+for my $line (@output) {
+	if ($line =~ /^(\w+)\s+/) {
+		my $dev = $1;
+		my @line = split /\s+/, $line;
+		$devs->{$dev}->{'header'} = \@line;
+		next;
+	}
+}
+
+sub check_controller {
+	my $dev = shift;
+	my ($err, $warn, $ok) = undef;
+	$ok .= "$dev->{'header'}->[0]: ";
+	for my $stat (@{$dev->{'header'}}) {
+		if ($stat =~ /batt:(.*)/) {
+			if ($1 ne 'good') {
+				$warn .= "$dev->{'header'}->[0]: " unless $warn;
+				$warn .= "Battery: $1 ";
+			}
+		}
+	}
+	$ok = "$dev->{'header'}->[0]: ok ";
+	return ($ok, $err, $warn);
+}
+
+sub check_ld {
+	my $dev = shift;
+	my ($err, $warn, $ok) = undef;
+	if ($dev->{'header'}->[5] ne 'online') {
+		$err .= "$dev->{'header'}->[0]: $dev->{'header'}->[5]";
+		return ($ok, $err, $warn);
+	}
+	$ok = "$dev->{'header'}->[0]: ok ";
+	return ($ok, $err, $warn);
+}
+
+sub check_pd {
+	my $dev = shift;
+	my ($err, $warn, $ok) = undef;
+	if ($dev->{'header'}->[5] ne 'online') {
+		$err .= "$dev->{'header'}->[0]: $dev->{'header'}->[5]";
+		return ($ok, $err, $warn);
+	}
+	for my $stat (@{$dev->{'header'}}) {
+		if ($stat =~ /(^errs|media|other):/) {
+			$warn .= "$dev->{'header'}->[0]: " unless $warn;
+			$warn .= $stat . " ";
+		}
+	}
+	$ok = "$dev->{'header'}->[0]: ok ";
+	return ($ok, $err, $warn);
+}
+
+for my $dev (sort keys %$devs) {
+	if ($dev =~ /^\w\d$/) {
+		my ($ok, $err, $warn) = check_controller($devs->{$dev});
+		push @errs, $err if $err;
+		push @warn, $warn if $warn;
+		push @ok, $ok if $ok;
+	} elsif ($dev =~ /^\w\d\w\d$/) {
+		my ($ok, $err, $warn) = check_ld($devs->{$dev});
+		push @errs, $err if $err;
+		push @warn, $warn if $warn;
+		push @ok, $ok if $ok;
+	} elsif ($dev =~ /^\w+\d+\w+\d+\w+\d+/) {
+		my ($ok, $err, $warn) = check_pd($devs->{$dev});
+		push @errs, $err if $err;
+		push @warn, $warn if $warn;
+		push @ok, $ok if $ok;
+	}
+}
+
+if (@errs) {
+	print "CRITICAL: ";
+	print @errs;
+	print "\n";
+	exit 1;
+} elsif (@warn) {
+	print "WARNING: ";
+	print @warn;
+	print "\n";
+	exit 2;
+}
+unless (@ok) {
+	push @ok, "All devices OK";
+}
+print "OK: ";
+print @ok;
+print "\n";
+exit 0;
+

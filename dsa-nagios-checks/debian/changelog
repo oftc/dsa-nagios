@@ -10,8 +10,9 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
 
   [ Stephen Gran ]
   * Add event_handler to restart services
+  * Add dsa-check-raid-megactl for awkward PeRC controllers
 
- -- Stephen Gran <sgran@debian.org>  Sat, 14 May 2011 15:12:41 +0100
+ -- Stephen Gran <sgran@debian.org>  Sat, 30 Jul 2011 13:30:07 +0100
 
 dsa-nagios-checks (89) unstable; urgency=low
 
