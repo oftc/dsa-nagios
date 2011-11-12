@@ -7,12 +7,14 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-backuppg:
     - ignore regular files in pg backup's root directory if they are still
       fresh.
+  * dsa-check-config:
+    - fix a bashism.
 
   [ Stephen Gran ]
   * Add event_handler to restart services
   * Add dsa-check-raid-megactl for awkward PeRC controllers
 
- -- Stephen Gran <sgran@debian.org>  Sat, 30 Jul 2011 13:30:07 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 10 Oct 2011 23:33:36 +0200
 
 dsa-nagios-checks (89) unstable; urgency=low
 

@@ -309,23 +309,26 @@ sub from_debianorg_places () {
 
     my @ak = grep { /^AuthorizedKeysFile\s/i } @lines;
     my @ak2 = grep { /^AuthorizedKeysFile2\s/i } @lines;
+    my @ak_files;
 
-    if (scalar @ak != 1) {
+    for my $line ((@ak, @ak2)) {
+	    my @file_locations = split /\s+/, $line;
+	    shift @file_locations;
+	    push @ak_files, @file_locations;
+    }
+
+    if (scalar @ak_files != 2) {
 	print $fh "UNKNOWN\n";
-	print $fh "There is more than one AuthorizedKeysFile definition in sshd_config\n";
+	print $fh "There should be two locations for User AuthorizedKeysFile defined in sshd_config\n";
 	exit
     }
-    if (scalar @ak2 != 1) {
-	print $fh "UNKNOWN\n";
-	print $fh "There is more than one AuthorizedKeysFile2 definition in sshd_config\n";
-	exit
-    }
-    unless ($ak[0] =~ m#^((?i)AuthorizedKeysFile)\s+/etc/ssh/userkeys/%u$# ) {
+
+    unless (grep { m#^/etc/ssh/userkeys/%u$# } @ak_files) {
 	print $fh "UNKNOWN\n";
 	print $fh "The AuthorizedKeysFile definition has an unexpected value.  Should be /etc/ssh/userkeys/%u\n";
 	exit
     }
-    unless ($ak2[0] =~ m#^((?i)AuthorizedKeysFile2)\s+/var/lib/misc/userkeys/%u$# ) {
+    unless (grep { m#^/var/lib/misc/userkeys/%u$# } @ak_files) {
 	print $fh "UNKNOWN\n";
 	print $fh "The AuthorizedKeysFile2 definition has an unexpected value.  Should be /var/lib/misc/userkeys/%u\n";
 	exit
