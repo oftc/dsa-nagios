@@ -9,12 +9,14 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
       fresh.
   * dsa-check-config:
     - fix a bashism.
+  * dsa-check-log-age-loghost
+    - allow minus (-) in hostnames.
 
   [ Stephen Gran ]
   * Add event_handler to restart services
   * Add dsa-check-raid-megactl for awkward PeRC controllers
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 10 Oct 2011 23:33:36 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 24 Dec 2011 16:25:32 +0100
 
 dsa-nagios-checks (89) unstable; urgency=low
 
