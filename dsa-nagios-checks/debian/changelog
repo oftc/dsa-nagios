@@ -16,7 +16,10 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * Add event_handler to restart services
   * Add dsa-check-raid-megactl for awkward PeRC controllers
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 24 Dec 2011 16:25:32 +0100
+  [ Martin Zobel-Helas ]
+  * add rudimentary check for unowned files 
+
+ -- Martin Zobel-Helas <zobel@debian.org>  Mon, 02 Jan 2012 16:46:33 +0100
 
 dsa-nagios-checks (89) unstable; urgency=low
 
