@@ -33,7 +33,7 @@ if [ -z "$host" ] || [ "$host" = "-h" ] ||  [ "$host" = "--help" ]; then
 	usage 3
 fi
 
-if [ "${host/[^a-z0-9]/}" != "$host" ]; then
+if [ "${host/[^a-z0-9-]/}" != "$host" ]; then
 	echo >&2 "$0: Invalid hostname $1"
 	exit 3
 fi
