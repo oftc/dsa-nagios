@@ -1,4 +1,4 @@
-dsa-nagios-checks (9X) Xnstable; urgency=low
+dsa-nagios-checks (90) unstable; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-entropy: 
