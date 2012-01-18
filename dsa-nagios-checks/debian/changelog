@@ -1,13 +1,15 @@
 dsa-nagios-checks (9X) Xnstable; urgency=low
 
-  * 
+  [ Peter Palfrader ]
+  * dsa-check-zone-rrsig-expiration: configurable packet size, and change
+    default size.
 
- -- Martin Zobel-Helas <zobel@debian.org>  Sat, 07 Jan 2012 17:17:50 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 18 Jan 2012 13:23:16 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
 
   [ Peter Palfrader ]
-  * dsa-check-entropy: 
+  * dsa-check-entropy:
     - document watermark default
     - fix off-by-one in output
   * dsa-check-backuppg:
@@ -23,7 +25,7 @@ dsa-nagios-checks (90) unstable; urgency=low
   * Add dsa-check-raid-megactl for awkward PeRC controllers
 
   [ Martin Zobel-Helas ]
-  * add rudimentary check for unowned files 
+  * add rudimentary check for unowned files
 
  -- Martin Zobel-Helas <zobel@debian.org>  Mon, 02 Jan 2012 16:46:33 +0100
 

@@ -41,6 +41,8 @@
 # Copyright (c) 2010 Peter Palfrader <peter@palfrader.org>
 # - various fixes and cleanups
 # - do more than one zone
+# Copyright (c) 2012 Peter Palfrader <peter@palfrader.org>
+#  - add -s option to configure udp packet size.  default changed from 4k to 1k
 
 
 # usage
@@ -89,8 +91,8 @@ sub convert_time {
 	return $ticks;
 }
 
-my %opts = (t=>30);
-getopts('hdt:c:w:', \%opts);
+my %opts = (t=>30, s=>1024);
+getopts('hdt:c:w:s:', \%opts);
 usage() unless scalar @ARGV == 1;
 usage() if $opts{h};
 my $zone = $ARGV[0];
@@ -136,7 +138,7 @@ sub do_recursion {
 			print STDERR "sending query for $zone RRSIG to $ns\n" if $opts{d};
 			$res->nameserver($ns);
 			$res->udp_timeout($opts{t});
-			$res->udppacketsize(4096);
+			$res->udppacketsize($opts{s});
 			$pkt = $res->send($zone, 'RRSIG');
 			last if $pkt;
 		}
@@ -281,7 +283,7 @@ sub send_query {
 	$res->nameserver($server) if $server;
 	$res->udp_timeout($opts{t});
 	$res->retry(2);
-	$res->udppacketsize(4096);
+	$res->udppacketsize($opts{s});
 	my $pkt = $res->send($qname, $qtype);
 	unless ($pkt) {
 		$res->usevc(1);
