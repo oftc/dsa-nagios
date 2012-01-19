@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright (c) 2010 Peter Palfrader <peter@palfrader.org>
+# Copyright (c) 2010,2012 Peter Palfrader <peter@palfrader.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -23,6 +23,8 @@
 
 use strict;
 use warnings;
+use threads;
+
 use English;
 use Getopt::Long;
 use FindBin qw($Bin);
@@ -59,18 +61,36 @@ sub convert_time {
 	return $ticks;
 }
 
-my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
-my $params = { 'warn' => '14d', 'critical' => '7d' };
+sub check_one {
+	$SIG{'KILL'} = sub { threads->exit(); };
+
+	my $zone = shift;
+	my $check = shift;
+	my $params = shift;
+
+	open(P, '-|', ($check, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
+	my @p = <P>;
+	close P;
+	$p[0] = $zone.': '. $p[0] if (scalar @p > 0);
+
+	my $res = $CHILD_ERROR >> 8;
+
+	return ($res, \@p);
+}
+
+my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--timeout=<nn>] [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
+my $params = { 'timeout' => 30, 'warn' => '14d', 'critical' => '7d' };
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
+	'--timeout=i' => \$params->{'timeout'},
 	'--warn=s' => \$params->{'warn'},
 	'--critical=s' => \$params->{'critical'},
 	'--geozonedir=s' => \$params->{'geozonedir'},
 ) or die ($USAGE);
 if ($params->{'help'}) {
-        print $USAGE;
-        exit(0);
+	print $USAGE;
+	exit(0);
 };
 die ($USAGE) unless (scalar @ARGV == 1);
 my $INDIR = shift;
@@ -131,23 +151,42 @@ if (defined $params->{'geozonedir'}) {
 	closedir(INDIR);
 }
 
-
 my @details;
 
+my %threads;
 for my $zone (sort {$a cmp $b} @dnsseczones) {
+	die "Duplicate zone $zone?\n"  if defined $threads{$zone};
+	my $thr = threads->create({'context' => 'list'},
+	                          \&check_one, $zone, $CHECK, $params);
+	$threads{$zone} = $thr;
+}
 
-	open(P, '-|', ($CHECK, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
-	my @p = <P>;
-	close P;
-	$p[0] = $zone.': '. $p[0] if (scalar @p > 0);
-	push @details, @p;
+my $begin = time;
+while (time - $begin <= $params->{timeout}) {
+	for my $zone (sort {$a cmp $b} keys %threads) {
+		next unless $threads{$zone}->is_joinable();
 
-	my $res = $CHILD_ERROR >> 8;
-	if ($res == 0) { push @{$count->{'ok'}}, $zone; }
-	elsif ($res == 1) { push @{$count->{'warn'}}, $zone; }
-	elsif ($res == 2) { push @{$count->{'critical'}}, $zone; }
-	else { push @{$count->{'unknown'}}, $zone; };
-};
+		my ($res, $det) = $threads{$zone}->join();
+
+		push @details, @$det;
+
+		if ($res == 0) { push @{$count->{'ok'}}, $zone; }
+		elsif ($res == 1) { push @{$count->{'warn'}}, $zone; }
+		elsif ($res == 2) { push @{$count->{'critical'}}, $zone; }
+		else { push @{$count->{'unknown'}}, $zone; };
+		delete $threads{$zone};
+	}
+	sleep(1);
+}
+for my $zone (sort {$a cmp $b} keys %threads) {
+	push @{$count->{'warn'}}, $zone;
+	push @details, "$zone: timeout during check\n";
+	$threads{$zone}->kill('KILL')->detach();
+}
+
+for my $k (keys %$count) {
+	@{$count->{$k}} = sort {$a cmp $b} @{$count->{$k}};
+}
 
 my $exit;
 my %state_mapping = (

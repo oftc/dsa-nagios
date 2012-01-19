@@ -3,8 +3,10 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Peter Palfrader ]
   * dsa-check-zone-rrsig-expiration: configurable packet size, and change
     default size.
+  * dsa-check-zone-rrsig-expiration-many: run checks in parallel and
+    properly timeout long checks.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 18 Jan 2012 13:23:16 +0100
+ -- Peter Palfrader <weasel@debian.org>  Thu, 19 Jan 2012 13:06:26 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
 
