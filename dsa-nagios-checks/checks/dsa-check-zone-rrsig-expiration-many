@@ -79,7 +79,7 @@ sub check_one {
 }
 
 my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--timeout=<nn>] [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
-my $params = { 'timeout' => 30, 'warn' => '14d', 'critical' => '7d' };
+my $params = { 'timeout' => 45, 'warn' => '14d', 'critical' => '7d' };
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
@@ -176,7 +176,7 @@ while (time - $begin <= $params->{timeout}) {
 		else { push @{$count->{'unknown'}}, $zone; };
 		delete $threads{$zone};
 	}
-	sleep(1);
+	sleep(1) unless scalar keys %threads == 0;
 }
 for my $zone (sort {$a cmp $b} keys %threads) {
 	push @{$count->{'warn'}}, $zone;
