@@ -1,9 +1,9 @@
-#!/usr/bin/ruby
+#!/usr/bin/python
 
 # Relay the status of a check that was previously run and which stored
 # its result in a file to nagios.
 #
-# Copyright 2008 Peter Palfrader
+# Copyright 2008, 2012 Peter Palfrader
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,58 +24,60 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'resolv'
-require 'optparse'
+import optparse
+import os
+import re
+import sys
+import time
 
-NAGIOS_STATUS = { "OK" => 0, "WARNING" => 1, "CRITICAL" => 2, "UNKNOWN" => 3 }
-UNITS_TO_SECONDS = { 's' => 1, 'm' => 60, 'h' => 60*60, 'd' => 24*60*60 }
+NAGIOS_STATUS = { "OK": 0, "WARNING": 1, "CRITICAL": 2, "UNKNOWN": 3 }
+UNITS_TO_SECONDS = { 's': 1, 'm': 60, 'h': 60*60, 'd': 24*60*60 }
 
-def show_help(parser, code=0, io=STDOUT)
-  program_name = File.basename($0, '.*')
-  io.puts "Usage: #{program_name} [options] <statusfile>"
-  io.puts parser.summarize
-  exit(code)
-end
+parser = optparse.OptionParser()
+parser.set_usage("%prog [options] <statusfile>")
+parser.add_option("-a", "--age", dest="age", metavar="AGE",
+    type="string", default="26h",
+    help="maximum age, in seconds (or use Nm, Nh or Nd) - default is 26h.")
+(options, args) = parser.parse_args()
 
-max_age = "26h"
-ARGV.options do |opts|
-        opts.on_tail("-h", "--help" , "Display this help screen")                                               { show_help(opts) }
-        opts.on("-a", "--age=AGE"  , String, "maximum age, in seconds (or use Nm, Nh or Nd) - default is 26h")  { |max_age| }
-        opts.parse!
-end
-show_help(ARGV.options, 1, STDERR) if ARGV.length != 1
+if len(args) != 1:
+    parser.print_help(file=sys.stderr)
+    sys.exit(1)
 
-statusfile = ARGV.shift
+statusfile = args[0]
 
 # find out what the max age is that we accept
-unless (m = /^([0-9]+)([smhd])?$/.match max_age)
-	STDERR.puts "Invalid age #{age}."
-	show_help(ARGV.options, 1, STDERR) if ARGV.length != 1
-end
-max_age = m[1].to_i * UNITS_TO_SECONDS[m[2] ? m[2] : 's']
+m = re.match('([0-9]+)([smhd])?$', options.age)
+if not m:
+    print >> sys.stderr, "Invalid age %s"%(options.age)
+    parser.print_help(file=sys.stderr)
+    sys.exit(1)
+(count, unit) = m.groups()
+if unit is None: unit = 's'
+max_age = int(count) * UNITS_TO_SECONDS[unit]
 
 # let's see if it exists
-unless File.exists? statusfile
-	puts "UNKNOWN: #{statusfile} does not exist."
-	exit NAGIOS_STATUS['UNKNOWN']
-end
+if not os.path.exists(statusfile):
+    print "UNKNOWN: %s does not exist."%(statusfile)
+    sys.exit(NAGIOS_STATUS['UNKNOWN'])
 
 
-mtime = File.stat(statusfile).mtime
-if mtime + max_age < Time.now
-	puts "WARNING: #{statusfile} is old: #{mtime}"
-	exit NAGIOS_STATUS['WARNING']
-end
+mtime = os.path.getmtime(statusfile)
+if mtime + max_age < time.time():
+    print "WARNING: %s is old: %.1f hours."%(statusfile, (time.time() - mtime)/3600)
+    sys.exit(NAGIOS_STATUS['WARNING'])
 
-status = File.new(statusfile)
-returnvalue = status.readline.chomp
+status = open(statusfile, "r")
+returnvalue = status.readline().strip()
 
-unless NAGIOS_STATUS.has_key? returnvalue
-	puts "UNKNOWN: #{statusfile} has invalid return value: #{returnvalue}"
-	exit NAGIOS_STATUS['UNKNOWN']
-end
+if not returnvalue in NAGIOS_STATUS:
+    print "UNKNOWN: %s has invalid return value: %s."%(statusfile, returnvalue)
+    sys.exit(NAGIOS_STATUS['UNKNOWN'])
 
-status.readlines.each do |line|
-	print line
-end
-exit NAGIOS_STATUS[returnvalue]
+for line in status:
+    print line,
+sys.exit(NAGIOS_STATUS[returnvalue])
+
+# vim:set et:
+# vim:set ts=4:
+# vim:set shiftwidth=4:
