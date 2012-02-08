@@ -298,7 +298,7 @@ my $longout = join("\n", @longout);
 my $perfout = "|".join(" ", @perfout);
 
 print $shortout;
-print $perfout,"\n";
 print $longout,"\n";
+print $perfout,"\n";
 
 exit $CODE{$EXITCODE};
