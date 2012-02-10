@@ -9,6 +9,9 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-statusfile: change shebang from ruby to python and fix syntax
     errors.
 
+  [ Tollef Fog Heen ]  
+  * Make the unowned files check skip /proc.
+
  -- Peter Palfrader <weasel@debian.org>  Wed, 08 Feb 2012 15:36:05 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
