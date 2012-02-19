@@ -225,45 +225,54 @@ my @reportform = (
 	  'listpackages' => 1,
 	  'long' => "%d local or obsolete packages: %s",
 	  'short' => "%d obs/loc",
+	  'perf' => "obs_loc=%d;1;5;0",
 	  'status' => 'WARNING' },
 	{ 'key' => 'outofdate',
 	  'listpackages' => 1,
 	  'long' => "%d out of date packages: %s",
 	  'short' => "%d updates",
+	  'perf' => "outdated=%d;1;5;0",
 	  'status' => 'WARNING' },
 	{ 'key' => 'current',
 	  'listpackages' => 0,
 	  'long' => "%d packages current.",
 	  'short' => "%d ok",
+	  'perf' => "current=%d;;;0",
 	  'status' => 'OK' },
 	{ 'key' => 'obsolete-ignored',
 	  'listpackages' => 1,
 	  'long' => "%d whitelisted local or obsolete packages: %s",
 	  'short' => "%d obs/loc(ignored)",
+	  'perf' => "obs_ign=%d;;;0",
 	  'status' => 'OK' },
 	{ 'key' => 'rc',
 	  'listpackages' => 1,
 	  'long' => "%d packages removed but not purged: %s",
 	  'short' => "%d rc",
+	  'perf' => "rm_unprg=%d;;;0",
 	  'status' => 'OK' },
 	{ 'key' => 'hi',
 	  'listpackages' => 1,
 	  'long' => "%d packages on hold: %s",
 	  'short' => "%d hi",
+	  'perf' => "hold=%d;;;0",
 	  'status' => 'OK' },
 	{ 'key' => 'pc',
 	  'listpackages' => 1,
 	  'long' => "%d packages requested to be purged but conffiles still installed: %s",
 	  'short' => "%d pc",
+	  'perf' => "prg_conf=%d;1;;0",
 	  'status' => 'WARNING' },
 	);
 
 my @longout;
+my @perfout;
 my @shortout;
 for my $form (@reportform) {
 	my $pkgs = $packages->{$form->{'key'}};
 	delete $packages->{$form->{'key'}};
 	my $num = scalar keys %$pkgs;
+	push @perfout, sprintf($form->{'perf'}, $num);
 	next unless ($num > 0);
 	if ($form->{'listpackages'}) {
 		my $list = join(", ", keys %$pkgs);
@@ -286,8 +295,10 @@ if (scalar keys %$packages) {
 
 my $shortout = $EXITCODE.": ".join(", ", @shortout);
 my $longout = join("\n", @longout);
+my $perfout = "|".join(" ", @perfout);
 
-print $shortout,"\n";
+print $shortout;
 print $longout,"\n";
+print $perfout,"\n";
 
 exit $CODE{$EXITCODE};
