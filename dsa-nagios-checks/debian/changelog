@@ -8,12 +8,14 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-nagios-checks: add perfdata (Alexander Reichle-Schmehl).
   * dsa-check-statusfile: change shebang from ruby to python and fix syntax
     errors.
+  * dsa-check-soas: support supplying an IP address for additional nameservers
+    to check on with -a.
 
-  [ Tollef Fog Heen ]  
+  [ Tollef Fog Heen ]
   * Make the unowned files check skip /proc.
   * Limit the number of unowned files we register in the state file to 40.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 08 Feb 2012 15:36:05 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 22 Feb 2012 13:01:59 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
 
