@@ -15,7 +15,11 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * Make the unowned files check skip /proc.
   * Limit the number of unowned files we register in the state file to 40.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 22 Feb 2012 13:01:59 +0100
+  [ Peter Palfrader ]
+  * Rewrite unowned files check into something that writes proper
+    nagios status files and behaves in a nice and sane way.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 24 Feb 2012 18:07:14 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
 
