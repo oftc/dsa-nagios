@@ -1,4 +1,4 @@
-dsa-nagios-checks (9X) Xnstable; urgency=low
+dsa-nagios-checks (91) unstable; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-zone-rrsig-expiration: configurable packet size, and change
@@ -19,7 +19,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * Rewrite unowned files check into something that writes proper
     nagios status files and behaves in a nice and sane way.
 
- -- Peter Palfrader <weasel@debian.org>  Fri, 24 Feb 2012 18:07:14 +0100
+ -- Peter Palfrader <weasel@debian.org>  Fri, 24 Feb 2012 18:12:36 +0100
 
 dsa-nagios-checks (90) unstable; urgency=low
 
