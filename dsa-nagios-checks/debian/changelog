@@ -1,8 +1,8 @@
-dsa-nagios-checks (9X) XXstable; urgency=low
+dsa-nagios-checks (92.1) unstable; urgency=low
 
-  * 
+  * Fix dsa-update-unowned-file-status cronjob entry more.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 25 Feb 2012 12:41:15 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sat, 25 Feb 2012 13:30:08 +0100
 
 dsa-nagios-checks (92) unstable; urgency=low
 
