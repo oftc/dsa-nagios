@@ -1,8 +1,10 @@
 dsa-nagios-checks (9X) Xnstable; urgency=low
 
-  * 
+  [ Tollef Fog Heen ]
+  * dsa-update-unowned-file-status: Use -fstype proc rather than hard
+    coding /proc in order to match procfs in chroots too.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 25 Feb 2012 13:31:52 +0100
+ -- Tollef Fog Heen <tfheen@debian.org>  Mon, 27 Feb 2012 16:29:57 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
