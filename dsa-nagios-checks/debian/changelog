@@ -4,7 +4,11 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-update-unowned-file-status: Use -fstype proc rather than hard
     coding /proc in order to match procfs in chroots too.
 
- -- Tollef Fog Heen <tfheen@debian.org>  Mon, 27 Feb 2012 16:29:57 +0100
+  [ Peter Palfrader ]
+  * dsa-check-msa-eventlog: Add --verbose switch to show info level
+    event log entries.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 29 Feb 2012 15:49:53 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 

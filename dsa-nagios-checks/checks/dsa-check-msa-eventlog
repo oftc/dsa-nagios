@@ -6,7 +6,7 @@
 # once an issue has been acknowledged/fixed, change the --startindex option
 
 
-# Copyright (C) 2009 Peter Palfrader <peter@palfrader.org>
+# Copyright (C) 2009,2012 Peter Palfrader <peter@palfrader.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -34,13 +34,15 @@ use Net::SNMP;
 use Getopt::Long;
 
 
-my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--timeout=<timeout>] [--startindex=<idx>] <host> <community>\n";
+my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--timeout=<timeout>] [--startindex=<idx>] [--verbose] <host> <community>\n";
 my $params;
+$params->{'verbosity'} = 0;
 Getopt::Long::config('bundling');
 if (!GetOptions (
 	'--help'         => \$params->{'help'},
 	'--timeout=i'    => \$params->{'timeout'},
 	'--startindex=i' => \$params->{'startindex'},
+	'-verbose'       => \$params->{'verbosity'},
 	)) {
 	die ($usage);
 };
@@ -125,7 +127,7 @@ for my $idx (sort {$a <=> $b} keys %{$data{'severity'}}) {
 	my $sev = $snmp_severity{$data{'severity'}->{$idx}};
 	die("Unexpected severity $data{'severity'}->{$idx}\n") unless $sev;
 	my $sevint = $severity_int{$sev};
-	if ($sevint > 0) {
+	if ($sevint > -$params->{'verbosity'}) {
 		my $msg = $data{'message'}->{$idx};
 		if (grep {$_ eq $msg} @ignores) {
 			$num{$sev.'-ignored'}++;
