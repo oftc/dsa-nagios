@@ -7,8 +7,9 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Peter Palfrader ]
   * dsa-check-msa-eventlog: Add --verbose switch to show info level
     event log entries.
+  * add dsa-check-crl-expire.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 29 Feb 2012 15:49:53 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 07 Mar 2012 15:25:29 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
