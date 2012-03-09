@@ -36,7 +36,17 @@ sub check_age {
 };
 
 my @msg;
-for $f (qw{/var/lib/misc/thishost/passwd.tdb /var/lib/misc/passwd.db}) {
+my @to_check = ();
+
+if (-f '/var/lib/misc/thishost/last_update.trace') {
+	# New style check
+	push @to_check, '/var/lib/misc/thishost/last_update.trace';
+} else {
+	# Old style
+	push @to_check, qw{/var/lib/misc/thishost/passwd.tdb /var/lib/misc/passwd.db};
+}
+
+for $f (@to_check) {
 	unless (-e $f) {
 		print "WARNING: $f does not exist.\n";
 		exit $CODE{'WARNING'};
