@@ -9,6 +9,8 @@ my %CODE = (
 	'UNKNOWN'       => 3
 );
 
+my $f;
+
 $SIG{__DIE__ } = sub() {
 	print shift;
 	exit $CODE{'UNKNOWN'};
@@ -34,18 +36,29 @@ sub check_age {
 };
 
 my @msg;
-my $f = "/var/lib/misc/thishost/last_update.trace";
-unless (-e $f) {
-	print "WARNING: $f does not exist.\n";
-	exit $CODE{'WARNING'};
-};
+my @to_check = ();
 
-my $a = check_age($f);
-if ($a->[0] != 0) {
-	print $a->[1], "\n";
-	exit $a->[0];
+if (-f '/var/lib/misc/thishost/last_update.trace') {
+	# New style check
+	push @to_check, '/var/lib/misc/thishost/last_update.trace';
+} else {
+	# Old style
+	push @to_check, qw{/var/lib/misc/thishost/passwd.tdb /var/lib/misc/passwd.db};
+}
+
+for $f (@to_check) {
+	unless (-e $f) {
+		print "WARNING: $f does not exist.\n";
+		exit $CODE{'WARNING'};
+	};
+
+	my $a = check_age($f);
+	if ($a->[0] != 0) {
+		print $a->[1], "\n";
+		exit $a->[0];
+	};
+	push @msg, $a->[1];
 };
-push @msg, $a->[1];
 
 print "OK: ", join(', ', @msg), "\n";
 exit 0;
