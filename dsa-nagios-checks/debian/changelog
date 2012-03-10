@@ -8,12 +8,14 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-msa-eventlog: Add --verbose switch to show info level
     event log entries.
   * add dsa-check-crl-expire.
-  * dsa-check-udldap-freshness: check new last_update.trace instead
-    of /var/lib/misc/thishost/passwd.{db,tdb}.
   * rename checks/dsa-check-backuppg.conf.sample ->
     etc/dsa-check-backuppg.conf.sample.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 10 Mar 2012 20:47:28 +0100
+  [ Stephen Gran ]
+  * dsa-check-udldap-freshness: check new last_update.trace if it
+    exists instead of /var/lib/misc/thishost/passwd.{db,tdb}.
+
+ -- Peter Palfrader <weasel@debian.org>  Sat, 10 Mar 2012 20:50:55 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
