@@ -10,12 +10,13 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * add dsa-check-crl-expire.
   * rename checks/dsa-check-backuppg.conf.sample ->
     etc/dsa-check-backuppg.conf.sample.
+  * dsa-check-running-kernel: Fix finding meta package for 3.x kernels.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
     exists instead of /var/lib/misc/thishost/passwd.{db,tdb}.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 10 Mar 2012 20:50:55 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sun, 18 Mar 2012 20:34:29 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
