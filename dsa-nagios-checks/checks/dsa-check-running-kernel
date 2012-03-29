@@ -93,7 +93,7 @@ get_avail() {
 	local imagename=0
 	# --no-all-versions show shows only the candidate
 	for vers in $(apt-cache --no-all-versions show ${prefix}-image-${metavers} | sed -n 's/^Depends: //p' | tr ',' '\n' | tr -d ' ' | grep ${prefix}-image | awk '{print $1}' | sort -u); do
-		if dpkg --compare-versions $vers gt $imagename; then
+		if dpkg --compare-versions "1.$vers" gt "1.$imagename"; then
 			imagename=$vers
 		fi
 	done
@@ -103,7 +103,7 @@ get_avail() {
 	fi
 
 	if [ "$imagename" != "${prefix}-image-${kervers}" ]; then
-		if dpkg --compare-versions "$imagename" lt "${prefix}-image-${kervers}"; then
+		if dpkg --compare-versions 1."$imagename" lt 1."${prefix}-image-${kervers}"; then
 			return 2
 		fi
 		echo "$imagename" != "${prefix}-image-${kervers}"
