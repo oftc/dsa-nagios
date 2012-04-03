@@ -12,12 +12,15 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * rename checks/dsa-check-backuppg.conf.sample ->
     etc/dsa-check-backuppg.conf.sample.
   * dsa-check-running-kernel: Fix finding meta package for 3.x kernels.
+  * dsa-check-packages: Ignore :$arch in package names of dpkg -l output,
+    at least for the "primary" arch.  Does not really handle multi-arch
+    packages, but it makes things work again for now.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
     exists instead of /var/lib/misc/thishost/passwd.{db,tdb}.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 18 Mar 2012 20:34:29 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 04 Apr 2012 01:05:01 +0200
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 

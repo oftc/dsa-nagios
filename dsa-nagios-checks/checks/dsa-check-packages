@@ -61,7 +61,13 @@ sub record($) {
 sub get_packages {
 	$ENV{'COLUMNS'} = 1000;
 	$ENV{'LC_ALL'} = 'C';
-	open(F, "dpkg -l|") or die ("Cannot run dpkg: $!\n");
+	open(F, "dpkg --print-architecture|") or die ("Cannot run dpkg --print-architecture: $!\n");
+	my $arch = <F>;
+	chomp($arch);
+	close(F);
+
+
+	open(F, "dpkg -l|") or die ("Cannot run dpkg -l: $!\n");
 	my @lines = <F>;
 	close(F);
 	chomp(@lines);
@@ -72,6 +78,7 @@ sub get_packages {
 	my %pkgs;
 	for my $line (@lines) {
 		my ($state, $pkg, $version, undef) = split(/  */, $line);
+		$pkg =~ s/\Q:$arch\E$//;
 		$pkgs{$state}{$pkg} = { 'installed' => $version }
 	}
 
