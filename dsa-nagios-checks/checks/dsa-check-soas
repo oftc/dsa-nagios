@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 # Copyright 2006, 2012 Peter Palfrader
+#           2012  Uli Martens
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,6 +30,7 @@ require 'yaml'
 NAGIOS_STATUS = { :OK => 0, :WARNING => 1, :CRITICAL => 2, :UNKNOWN => -1 };
 @verbose = 0;
 @additional_nameservers = []
+@check_soa_nameservers = true;
 
 def show_help(parser, code=0, io=STDOUT)
   program_name = File.basename($0, '.*')
@@ -37,12 +39,19 @@ def show_help(parser, code=0, io=STDOUT)
   exit(code)
 end
 ARGV.options do |opts|
-        opts.on_tail("-h", "--help" , "Display this help screen")                { show_help(opts) }
-        opts.on("-v", "--verbose"   , String, "Be verbose")                      { @verbose += 1 }
-        opts.on("-a", "--add=HOST"  , String, "Also check SOA on <nameserver>")  { |val| @additional_nameservers << val }
+        opts.on_tail("-h", "--help" , "Display this help screen")                               { show_help(opts) }
+        opts.on("-v", "--verbose"   , String, "Be verbose")                                     { @verbose += 1 }
+        opts.on("-a", "--add=HOST"  , String, "Also check SOA on <nameserver>")                 { |val| @additional_nameservers << val }
+        opts.on("-n", "--no-soa-ns" , String, "Don't query SOA record for list of nameservers") { @check_soa_nameservers = false }
         opts.parse!
 end
 show_help(ARGV.options, 1, STDERR) if ARGV.length == 0
+
+if @additional_nameservers.count <= 1 and not @check_soa_nameservers
+	program_name = File.basename($0, '.*')
+	STDERR.puts "#{program_name}: Only know about #{@additional_nameservers.count} nameserver(s) and --no-soa-ns specified.  I want at least two."
+	exit(1)
+end
 
 warnings = []
 oks = []
@@ -59,13 +68,15 @@ end
 dns = Resolv::DNS.new
 ARGV.each{ |domain|
 	serial = []
-	nameservers = dns.getresources(domain, Resolv::DNS::Resource::IN::NS)
-	nameservernames = nameservers.collect{ |ns| ns.name.to_s }
 	nameserver_addresses = {}
-	nameservernames.each do |nameserver|
-		addrs = resolve_ns(dns, domain, nameserver)
-		warnings << "Duplicate nameserver #{nameserver} for #{domain}" if nameserver_addresses[nameserver]
-		nameserver_addresses[nameserver] = addrs
+	if @check_soa_nameservers
+		nameservers = dns.getresources(domain, Resolv::DNS::Resource::IN::NS)
+		nameservernames = nameservers.collect{ |ns| ns.name.to_s }
+		nameservernames.each do |nameserver|
+			addrs = resolve_ns(dns, domain, nameserver)
+			warnings << "Duplicate nameserver #{nameserver} for #{domain}" if nameserver_addresses[nameserver]
+			nameserver_addresses[nameserver] = addrs
+		end
 	end
 	@additional_nameservers.each do |ns|
 		begin
