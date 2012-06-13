@@ -46,6 +46,7 @@ HOST_TEMPLATE_NAME='generic-host'          # host templates that all our host de
 SERVICE_TEMPLATE_NAME='generic-service'    # host templates that all our host definitions use
 HOST_ALIVE_CHECK='check-host-alive'        # host alive check if server is pingable
 NRPE_PROCESS_SERVICE='process - nrpe'      # nrpe checks will depend on this one
+NRPE_LOAD_CHECK='load'
 
 
 def warn (msg)
@@ -168,7 +169,12 @@ def addService(hosts, service, files, servers)
 		service['check_command'] = "#{ NRPE_CHECKNAME }!#{ check }"
 
 		service['depends'] = ensure_array( service['depends'] )
-		service['depends'] << NRPE_PROCESS_SERVICE unless service['service_description'] == NRPE_PROCESS_SERVICE  # Depend on NRPE unless we are it
+		unless service['service_description'] == NRPE_PROCESS_SERVICE
+			# Depend on the load check to reduce noise
+			service['depends'] << NRPE_LOAD_CHECK unless service['service_description'] == NRPE_LOAD_CHECK
+			# Depend on NRPE unless we are it
+			service['depends'] << NRPE_PROCESS_SERVICE
+		end
 	end
 
 	hosts.each{ |host|
