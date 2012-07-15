@@ -19,11 +19,12 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
     exists instead of /var/lib/misc/thishost/passwd.{db,tdb}.
+  * dsa-check-statusfile: Complain if there is no extended information
 
   [ Uli Martens ]
   * dsa-check-soas: Add --no-soa-ns flag.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 21 Apr 2012 09:54:00 +0200
+ -- Stephen Gran <sgran@debian.org>  Sun, 15 Jul 2012 17:32:57 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
