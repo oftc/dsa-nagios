@@ -138,6 +138,10 @@ config = load_conf(options.conffile)
 
 os.chdir(config['rootdir'])
 for dir in os.listdir('.'):
+    if dir.startswith('.'):
+        note_info('IGNORED', dir)
+        continue
+
     if not os.path.isdir(dir):
         if min(os.path.getmtime(dir), os.path.getctime(dir)) + 3600*4 > time.time():
             note_info('IGNORED', dir)

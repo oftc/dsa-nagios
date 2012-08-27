@@ -15,6 +15,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-packages: Ignore :$arch in package names of dpkg -l output,
     at least for the "primary" arch.  Does not really handle multi-arch
     packages, but it makes things work again for now.
+  * dsa-check-backuppg: Ignore .dotfiles in rootdir.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
@@ -24,7 +25,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Uli Martens ]
   * dsa-check-soas: Add --no-soa-ns flag.
 
- -- Stephen Gran <sgran@debian.org>  Sun, 15 Jul 2012 17:32:57 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sat, 25 Aug 2012 18:17:55 +0200
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
