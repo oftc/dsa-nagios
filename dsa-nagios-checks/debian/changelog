@@ -25,7 +25,10 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Uli Martens ]
   * dsa-check-soas: Add --no-soa-ns flag.
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 25 Aug 2012 18:17:55 +0200
+  [ Martin Zobel-Helas ]
+  * Add dsa-check-drbd, taken from http://code.google.com/p/ganeti/wiki/DrbdDevicesMonitoring
+
+ -- Martin Zobel-Helas <zobel@debian.org>  Sat, 15 Sep 2012 13:40:12 +0200
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
