@@ -138,7 +138,7 @@ config = load_conf(options.conffile)
 
 os.chdir(config['rootdir'])
 for dir in os.listdir('.'):
-    if dir.startswith('.'):
+    if dir.startswith('.') or dir.endswith('.old'):
         note_info('IGNORED', dir)
         continue
 

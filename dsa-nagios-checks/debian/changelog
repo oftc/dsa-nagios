@@ -15,7 +15,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-packages: Ignore :$arch in package names of dpkg -l output,
     at least for the "primary" arch.  Does not really handle multi-arch
     packages, but it makes things work again for now.
-  * dsa-check-backuppg: Ignore .dotfiles in rootdir.
+  * dsa-check-backuppg: Ignore .dotfiles and *.old in rootdir.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
