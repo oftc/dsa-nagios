@@ -147,7 +147,7 @@ get_image_linux() {
 	off=`get_offset "$image" $LZHDR`
 	[ "$?" != "0" ] && off="-1"
 	if [ "$off" -ne "-1" ]; then
-		(dd ibs="$[off-1]" skip=1 count=0 && dd bs=512k) < "$image" 2>/dev/null | lzcat 2>/dev/null
+		(dd ibs="$[off-1]" skip=1 count=0 && dd bs=512k) < "$image" 2>/dev/null | xzcat 2>/dev/null
 		return
 	fi
 
