@@ -128,7 +128,8 @@ get_image_linux() {
 
 	GZHDR1="\x1f\x8b\x08\x00"
 	GZHDR2="\x1f\x8b\x08\x08"
-	LZHDR="\x00\x00\x00\x02\xff"
+	LZHDR1="\x00\x00\x00\x02\xff"
+	LZHDR2="\x00\x00\x00\x04\xff"
 
 	off=`get_offset "$image" $GZHDR1`
 	[ "$?" != "0" ] && off="-1"
@@ -144,8 +145,12 @@ get_image_linux() {
 		return
 	fi
 
-	off=`get_offset "$image" $LZHDR`
+	off=`get_offset "$image" $LZHDR1`
 	[ "$?" != "0" ] && off="-1"
+	if [ "$off" -eq "-1" ]; then
+		off=`get_offset "$image" $LZHDR2`
+		[ "$?" != "0" ] && off="-1"
+	fi
 	if [ "$off" -ne "-1" ]; then
 		(dd ibs="$[off-1]" skip=1 count=0 && dd bs=512k) < "$image" 2>/dev/null | xzcat 2>/dev/null
 		return
