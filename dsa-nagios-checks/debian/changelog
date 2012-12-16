@@ -15,6 +15,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-packages: Ignore :$arch in package names of dpkg -l output,
     at least for the "primary" arch.  Does not really handle multi-arch
     packages, but it makes things work again for now.
+  * dsa-check-packages: A better multi-arch capable version.
   * dsa-check-backuppg: Ignore .dotfiles and *.old in rootdir.
 
   [ Stephen Gran ]
@@ -28,7 +29,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Martin Zobel-Helas ]
   * Add dsa-check-drbd, taken from http://code.google.com/p/ganeti/wiki/DrbdDevicesMonitoring
 
- -- Martin Zobel-Helas <zobel@debian.org>  Sat, 15 Sep 2012 13:40:12 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 16 Dec 2012 10:49:48 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
