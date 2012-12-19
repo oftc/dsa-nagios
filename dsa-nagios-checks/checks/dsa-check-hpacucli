@@ -64,11 +64,12 @@ sub record($) {
 	};
 }
 
-my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--ignore-transfer-speed=<pd> [--ignore-transfer-speed=<pd> ...]]\n";
+my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--no-battery] [--ignore-transfer-speed=<pd> [--ignore-transfer-speed=<pd> ...]]\n";
 my $params;
 Getopt::Long::Configure('bundling');
 if (!GetOptions (
 	'--help'                      => \$params->{'help'},
+	'--no-battery'                => \$params->{'no-battery'},
 	'--ignore-transfer-speed=s@'  => \$params->{'ignore-transfer-speed'},
 	)) {
 	die ($usage);
@@ -236,6 +237,8 @@ for my $slot (sort @controllers) {
 			my $status = $2;
 			push @{$status{$status}}, $system;
 			if ($status ne 'OK') {
+				next if ($params->{'no-battery'} && $system eq 'Cache');
+				next if ($params->{'no-battery'} && $system eq 'Battery/Capacitor');
 				record('WARNING');
 			};
 		} else {

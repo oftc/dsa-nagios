@@ -17,6 +17,8 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
     packages, but it makes things work again for now.
   * dsa-check-packages: A better multi-arch capable version.
   * dsa-check-backuppg: Ignore .dotfiles and *.old in rootdir.
+  * dsa-check-hpacucli: Add --no-battery to ignore battery/capacitor failures
+    and disabled caches.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
