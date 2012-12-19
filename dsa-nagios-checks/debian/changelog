@@ -19,6 +19,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-backuppg: Ignore .dotfiles and *.old in rootdir.
   * dsa-check-hpacucli: Add --no-battery to ignore battery/capacitor failures
     and disabled caches.
+  * dsa-check-hpasm: Typo fix.
 
   [ Stephen Gran ]
   * dsa-check-udldap-freshness: check new last_update.trace if it
@@ -31,7 +32,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Martin Zobel-Helas ]
   * Add dsa-check-drbd, taken from http://code.google.com/p/ganeti/wiki/DrbdDevicesMonitoring
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 16 Dec 2012 10:49:48 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 19 Dec 2012 19:27:39 +0100
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 
