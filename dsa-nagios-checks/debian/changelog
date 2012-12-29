@@ -1,3 +1,9 @@
+dsa-nagios-checks (9x) Xnstable; urgency=low
+
+  * Start new changelog
+
+ -- Stephen Gran <sgran@debian.org>  Sat, 29 Dec 2012 13:28:47 +0000
+
 dsa-nagios-checks (93) unstable; urgency=low
 
   [ Tollef Fog Heen ]
