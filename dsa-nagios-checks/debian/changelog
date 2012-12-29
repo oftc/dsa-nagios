@@ -1,4 +1,4 @@
-dsa-nagios-checks (9X) Xnstable; urgency=low
+dsa-nagios-checks (93) unstable; urgency=low
 
   [ Tollef Fog Heen ]
   * dsa-update-unowned-file-status: Use -fstype proc rather than hard
