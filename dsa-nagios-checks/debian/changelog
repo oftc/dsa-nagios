@@ -25,6 +25,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   * dsa-check-udldap-freshness: check new last_update.trace if it
     exists instead of /var/lib/misc/thishost/passwd.{db,tdb}.
   * dsa-check-statusfile: Complain if there is no extended information
+  * add dsa-check-filesystems (only checks ext at the moment)
 
   [ Uli Martens ]
   * dsa-check-soas: Add --no-soa-ns flag.
@@ -32,7 +33,7 @@ dsa-nagios-checks (9X) Xnstable; urgency=low
   [ Martin Zobel-Helas ]
   * Add dsa-check-drbd, taken from http://code.google.com/p/ganeti/wiki/DrbdDevicesMonitoring
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 19 Dec 2012 19:27:39 +0100
+ -- Stephen Gran <sgran@debian.org>  Sat, 29 Dec 2012 12:05:57 +0000
 
 dsa-nagios-checks (92.1) unstable; urgency=low
 

@@ -1,0 +1,42 @@
+#!/usr/bin/ruby
+
+require 'filesystem'
+
+ignorefs = ["NFS", "nfs", "nfs4", "nfsd", "afs", "binfmt_misc", "proc", "smbfs",
+	    "autofs", "iso9660", "ncpfs", "coda", "devpts", "ftpfs", "devfs",
+	    "mfs", "shfs", "sysfs", "cifs", "lustre_lite", "tmpfs", "usbfs",
+	    "udf", "fusectl", "fuse.snapshotfs", "rpc_pipefs"]
+mountpoints = {}
+
+FileSystem.mounts.each do |m|
+	if ((not ignorefs.include?(m.fstype)) && (m.options !~ /bind/))
+		mountpoints[m.device] = { 'type' => m.fstype, 'mount' => m.mount }
+	end
+end
+
+def check_ext3(dev, mnt)
+	output=%x{tune2fs -l #{dev}}
+	if output =~ /FS Error count:\s*(\d+)/ and $1.to_i > 0
+		return "#{dev} (#{mnt}) has #{$1} errors"
+	end
+end
+
+output = []
+mountpoints.keys.each do |m|
+	temp = ''
+	begin
+		if mountpoints[m]['type'] =~ /ext/
+			temp = check_ext3(m, mountpoints[m]['mount'])
+		end
+	rescue Exception => e
+	end
+	if temp
+		output << temp
+	end
+end
+
+if output.length > 0
+	puts output.join("\n")
+	exit 1
+end
+exit 0
