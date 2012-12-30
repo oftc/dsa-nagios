@@ -39,4 +39,5 @@ if output.length > 0
 	puts output.join("\n")
 	exit 1
 end
+puts "OK: All filesystems ok."
 exit 0
