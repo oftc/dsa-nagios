@@ -169,12 +169,19 @@ freebsd_check_running_version() {
 
 	local q='@\(#\)FreeBSD '"$r $v"
 
-	if zcat "$imagefile" | strings | egrep -q "$q"; then
+	if zcat "$imagefile" | $STRINGS | egrep -q "$q"; then
 		echo "OK"
 	else
 		echo "not OK"
 	fi
 }
+
+STRINGS="";
+if [ -x "$(which strings)" ]; then
+	STRINGS="$(which strings)"
+elif [ -x "$(which busybox)" -a "$( echo foobar | $(which busybox) strings 2>/dev/null)" = "foobar" ]; then
+	STRINGS="$(which busybox) strings"
+fi
 
 searched=""
 for on_disk in \
@@ -183,12 +190,12 @@ for on_disk in \
 	"/boot/kfreebsd-`uname -r`.gz"; do
 
 	if [ -e "$on_disk" ]; then
-		if [ ! -x "$(which strings)" ]; then
-			echo "UNKNOWN: 'strings' command missing, perhaps install binutils?"
+		if [ -z "$STRINGS" ]; then
+			echo "UNKNOWN: 'strings' command missing, perhaps install binutils or busybox?"
 			exit $UNKNOWN
 		fi
 		if [ "${on_disk/vmlinu}" != "$on_disk" ]; then
-			on_disk_version="`get_image_linux "$on_disk" | strings | grep 'Linux version' | head -n1`"
+			on_disk_version="`get_image_linux "$on_disk" | $STRINGS | grep 'Linux version' | head -n1`"
 			if [ -x /usr/bin/lsb_release ] ; then
 				vendor=$(lsb_release -i -s)
 				if [ -n "$vendor" ] && [ "xDebian" != "x$vendor" ] ; then
@@ -196,13 +203,13 @@ for on_disk in \
 				fi
 			fi
 			[ -z "$on_disk_version" ] || break
-			on_disk_version="`cat "$on_disk" | strings | grep 'Linux version' | head -n1`"
+			on_disk_version="`cat "$on_disk" | $STRINGS | grep 'Linux version' | head -n1`"
 			[ -z "$on_disk_version" ] || break
 
 			echo "UNKNOWN: Failed to get a version string from image $on_disk"
 			exit $UNKNOWN
 		else
-			on_disk_version="$(zcat $on_disk | strings | grep Debian | head -n 1 | sed -e 's/Debian [[:alnum:]]\+ (\(.*\))/\1/')"
+			on_disk_version="$(zcat $on_disk | $STRINGS | grep Debian | head -n 1 | sed -e 's/Debian [[:alnum:]]\+ (\(.*\))/\1/')"
 		fi
 	fi
 	searched="$searched $on_disk"
