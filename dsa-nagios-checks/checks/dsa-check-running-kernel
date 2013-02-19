@@ -5,7 +5,7 @@
 
 # Copyright 2008,2009,2011 Peter Palfrader
 # Copyright 2009 Stephen Gran
-# Copyright 2010 Uli Martens
+# Copyright 2010,2012,2013 Uli Martens
 # Copyright 2011 Alexander Reichle-Schmehl
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -121,40 +121,36 @@ get_avail() {
 	return 1
 }
 
+cat_vmlinux() {
+	local image header filter hdroff
+
+	image="$1"
+	header="$2"
+	filter="$3"
+	hdroff="$4"
+
+	off=`get_offset "$image" $header`
+	if [ "$?" != 0 ]; then
+		# not found, exit
+		return 1
+	fi
+
+	(dd ibs="$((off+$hdroff))" skip=1 count=0 && dd bs=512k) < "$image"  2>/dev/null | $filter 2>/dev/null
+}
+
 get_image_linux() {
-	local image GZHDR1 GZHDR2 LZHDR off
+	local image
 
 	image="$1"
 
-	GZHDR1="\x1f\x8b\x08\x00"
-	GZHDR2="\x1f\x8b\x08\x08"
-	LZHDR1="\x00\x00\x00\x02\xff"
-	LZHDR2="\x00\x00\x00\x04\xff"
-
-	off=`get_offset "$image" $GZHDR1`
-	[ "$?" != "0" ] && off="-1"
-	if [ "$off" -eq "-1" ]; then
-		off=`get_offset "$image" $GZHDR2`
-		[ "$?" != "0" ] && off="-1"
-	fi
-	if [ "$off" -eq "0" ]; then
-		zcat < "$image"
-		return
-	elif [ "$off" -ne "-1" ]; then
-		(dd ibs="$off" skip=1 count=0 && dd bs=512k) < "$image"  2>/dev/null | zcat 2>/dev/null
-		return
-	fi
-
-	off=`get_offset "$image" $LZHDR1`
-	[ "$?" != "0" ] && off="-1"
-	if [ "$off" -eq "-1" ]; then
-		off=`get_offset "$image" $LZHDR2`
-		[ "$?" != "0" ] && off="-1"
-	fi
-	if [ "$off" -ne "-1" ]; then
-		(dd ibs="$[off-1]" skip=1 count=0 && dd bs=512k) < "$image" 2>/dev/null | xzcat 2>/dev/null
-		return
-	fi
+	# gzip compressed image
+	if cat_vmlinux "$image" "\x1f\x8b\x08\x00"      "zcat"   0; then return; fi
+	if cat_vmlinux "$image" "\x1f\x8b\x08\x08"      "zcat"   0; then return; fi
+	# lzma compressed image
+	if cat_vmlinux "$image" "\x00\x00\x00\x02\xff"  "xzcat" -1; then return; fi
+	if cat_vmlinux "$image" "\x00\x00\x00\x04\xff"  "xzcat" -1; then return; fi
+	# xz compressed image
+	if cat_vmlinux "$image" "\xfd\x37\x7a\x58\x5a " "xzcat"  0; then return; fi
 
 	echo "ERROR: Unable to extract kernel image." 2>&1
 	exit 1
