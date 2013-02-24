@@ -315,7 +315,8 @@ config['servicegroups'] = {} unless config.has_key? 'servicegroups'
 ##############
 # HOSTS
 ##############
-config['servers'].each_pair{ |name, server|
+config['servers'].keys.sort.each{ |name|
+	server = config['servers'][name]
 	# Formerly we used 'ip' instead of 'address' in our source file
 	# Handle this change but warn					XXX
 	if server.has_key?('ip')
@@ -358,7 +359,9 @@ config['servers'].each_pair{ |name, server|
 ##############
 # HOSTGROUPS
 ##############
-config['hostgroups'].each_pair{ |name, hg|
+config['hostgroups'].keys.sort.each{ |name|
+	hg = config['hostgroups'][name]
+
 	next if hg['private']
 	throw "Empty hostgroup #{name}" if hg['_memberlist'].length == 0
 
@@ -447,7 +450,9 @@ config['services'].each{ |service|
 ##############
 # SERVICEGROUPS
 ##############
-config['servicegroups'].each_pair{ |name, sg|
+config['servicegroups'].keys.sort.each{ |name|
+	sg = config['servicegroups'][name]
+
 	set_complain_if_set sg, 'servicegroup_name', name                       , 'Servicegroup', name
 
 	print_block files['servicegroups'], 'servicegroup', sg, %w()
@@ -457,7 +462,8 @@ config['servicegroups'].each_pair{ |name, sg|
 ##############
 # NRPE config file
 ##############
-$nrpe.checks.each_pair{ |name, check|
+$nrpe.checks.keys.sort.each{ |name|
+	check = $nrpe.checks[name]
 	files['nrpe'].puts "command[#{ name }]=#{ check }"
 }
 
