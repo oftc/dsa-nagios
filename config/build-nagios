@@ -178,7 +178,6 @@ def addService(hosts, service, files, servers)
 
 		exclude_keys = %w(nrpe runfrom remotecheck
 		                  depends
-		                  no-servicegroups
 		                  hosts hostgroups excludehosts excludehostgroups)
 		if servers[host]['no-servicegroups']
 			exclude_keys << 'servicegroups'
@@ -335,7 +334,7 @@ config['servers'].keys.sort.each{ |name|
 	set_if_unset        server, 'use'          , HOST_TEMPLATE_NAME
 	set_if_unset        server, 'check_command', HOST_ALIVE_CHECK    unless server['pingable'] == false
 
-	print_block files['hosts']      , 'host'       , server            , %w(hostgroups pingable)
+	print_block files['hosts']      , 'host'       , server            , %w(hostgroups pingable no-servicegroups)
 
 
 
