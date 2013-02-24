@@ -176,9 +176,14 @@ def addService(hosts, service, files, servers)
 		set_complain_if_set s, 'host_name', host, 'Service', s['service_description']
 		merge_contacts(servers[host], s)
 
-		print_block files['services'], 'service', s, %w(nrpe runfrom remotecheck
-		                                                depends
-		                                                hosts hostgroups excludehosts excludehostgroups)
+		exclude_keys = %w(nrpe runfrom remotecheck
+		                  depends
+		                  no-servicegroups
+		                  hosts hostgroups excludehosts excludehostgroups)
+		if servers[host]['no-servicegroups']
+			exclude_keys << 'servicegroups'
+		end
+		print_block files['services'], 'service', s, exclude_keys
 	}
 
 	if service['depends']
