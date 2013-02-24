@@ -130,12 +130,12 @@ $nrpe = Nrpe.new()
 # and also skips private keys (those starting with an underscore)
 def print_block(fd, kind, hash, exclude_keys)
 	fd.puts "define #{kind} {"
-	hash.each_pair{ |key, value|
+	hash.keys.sort.each{ |key|
 		next if key == '_extinfo'
 		next if key == '_hostgroups'
 		next if key == '_memberlist'
 		next if exclude_keys.include? key
-		fd.puts "	#{key}		#{value}"
+		fd.puts "	#{key}		#{hash[key]}"
 	}
 	fd.puts "}"
 	fd.puts
