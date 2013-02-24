@@ -380,6 +380,8 @@ config['services'].each{ |service|
 
 	split_away_extinfo service
 
+	# make sure the depends list is an array
+	service['depends'] = ensure_array( service['depends'] )
 
 	# Both 'name' and 'service_description' are valid for a service's name
 	# Internally we only use service_description as that's nagios' official term
