@@ -147,7 +147,7 @@ def merge_contacts(host, service)
 		[host, service].each{ |source|
 			contacts.push source[k] if source.has_key?(k)
 		}
-		service[k] = contacts.join(",") unless contacts.empty?
+		service[k] = contacts.sort.join(",") unless contacts.empty?
 	}
 end
 
@@ -209,7 +209,7 @@ def addService(hosts, service, files, servers)
 
 
 	set_complain_if_set service['_extinfo'], 'service_description' , service['service_description'], 'serviceextinfo', service['service_description']
-	set_complain_if_set service['_extinfo'], 'host_name'           , hosts.join(',')               , 'serviceextinfo', service['service_description']
+	set_complain_if_set service['_extinfo'], 'host_name'           , hosts.sort.join(',')          , 'serviceextinfo', service['service_description']
 
 	print_block files['serviceextinfo'], 'serviceextinfo', service['_extinfo'], %w()
 end
@@ -365,8 +365,8 @@ config['hostgroups'].keys.sort.each{ |name|
 	next if hg['private']
 	throw "Empty hostgroup #{name}" if hg['_memberlist'].length == 0
 
-	set_complain_if_set hg, 'hostgroup_name', name                       , 'Hostgroup', name
-	set_complain_if_set hg, 'members'       , hg['_memberlist'].join(","), 'Hostgroup', name
+	set_complain_if_set hg, 'hostgroup_name', name                            , 'Hostgroup', name
+	set_complain_if_set hg, 'members'       , hg['_memberlist'].sort.join(","), 'Hostgroup', name
 
 	print_block files['hostgroups'], 'hostgroup', hg, %w()
 }
