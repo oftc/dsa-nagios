@@ -182,7 +182,7 @@ def addService(hosts, service, files, servers)
 	}
 
 	if service['depends']
-		service['depends'].each{ |prerequisite|
+		service['depends'].sort.each{ |prerequisite|
 			hosts.sort.each{ |host|
 				prerequisite_host = host
 				pre = prerequisite
