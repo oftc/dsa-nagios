@@ -171,7 +171,7 @@ def addService(hosts, service, files, servers)
 		service['depends'] << NRPE_PROCESS_SERVICE unless service['service_description'] == NRPE_PROCESS_SERVICE  # Depend on NRPE unless we are it
 	end
 
-	hosts.each{ |host|
+	hosts.sort.each{ |host|
 		s = service.clone
 		set_complain_if_set s, 'host_name', host, 'Service', s['service_description']
 		merge_contacts(servers[host], s)
@@ -183,7 +183,7 @@ def addService(hosts, service, files, servers)
 
 	if service['depends']
 		service['depends'].each{ |prerequisite|
-			hosts.each{ |host|
+			hosts.sort.each{ |host|
 				prerequisite_host = host
 				pre = prerequisite
 				# split off a hostname if there's one
@@ -412,7 +412,7 @@ config['services'].each{ |service|
 		# service also depend on NRPE on the relay
 		relay = service['runfrom']
 
-		hosts.each{ |host|
+		hosts.sort.each{ |host|
 			# how to recursively copy this thing?
 			hostservice = YAML::load( service.to_yaml )
 			host_ip = config['servers'][host]['address']
