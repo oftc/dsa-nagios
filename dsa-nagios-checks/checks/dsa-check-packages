@@ -120,9 +120,14 @@ sub get_packages {
 				next if ($pkgname eq $from_list); # no :$arch in pkgname we asked for
 
 				my $ma_fix_pkgname = $pkgname.':'.$installed->{$from_list}->{'arch'};
-				($ma_fix_pkgname eq $from_list) or die "Unexpected order mismatch in apt-cache policy output\n";
-				# print $pkgname, " - ", $from_list, "\n";
-				$pkgname = $from_list;
+				my $ma_fix_from_list = $from_list.':'.$installed->{$from_list}->{'arch'};
+
+				if ($pkgname eq $ma_fix_from_list || # e.g. ia32-libs-i386.  dpkg -l: ia32-libs-i386, apt-cache policy: ia32-libs-i386:i386
+				    $ma_fix_pkgname eq $from_list) {
+					$pkgname = $from_list;
+				} else {
+					die "Unexpected order mismatch in apt-cache policy output (apt-cache policy name: $pkgname - dpkg -l name: $from_list)\n";
+				}
 			}
 		} elsif ($line =~ /^ +Installed: (.*)$/) {
 			# etch dpkg -l does not print epochs, so use this info, it's better
