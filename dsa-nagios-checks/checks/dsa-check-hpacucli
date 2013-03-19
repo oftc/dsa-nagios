@@ -29,7 +29,6 @@
 use strict;
 use English;
 use Getopt::Long;
-use POSIX qw(uname);
 
 # nagios exit codes
 my %CODE = (
@@ -48,12 +47,7 @@ $SIG{'__DIE__'} = sub {
 
 sub runcmd($) {
 	my ($cmd) = @_;
-	my ($os, $host, $kernel, $date, $arch) = uname();
-	if ($kernel =~ m/^3(.*)/) {
-		$cmd = "sudo setarch x86_64 --uname-2.6 hpacucli $cmd";
-	} else {
-		$cmd = "sudo hpacucli $cmd";
-	}
+	$cmd = "sudo hpacucli $cmd";
 	open(FH, $cmd."|") or die ("Cannot run $cmd: $!");
 	my @lines = <FH>;
 	close FH;
