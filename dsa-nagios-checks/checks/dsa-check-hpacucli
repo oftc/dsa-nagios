@@ -41,7 +41,7 @@ my %CODE = (
 my $EXITCODE = 'OK';
 
 $SIG{'__DIE__'} = sub {
-	print STDERR @_;
+	print @_;
 	exit $CODE{'UNKNOWN'};
 };
 
