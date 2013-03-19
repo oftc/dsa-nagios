@@ -2,7 +2,7 @@
 
 check=/usr/lib/nagios/plugins/dsa-check-bacula-lastbackup
 usage() {
-	echo >&2 "Usage: $0 <full|any> <host>"
+	echo >&2 "Usage: $0 <full|any> <host> [warn age [critical age (hours)]]"
 	exit 1
 }
 
@@ -11,7 +11,7 @@ if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
 fi
 
 if [ "$1" = "full" ]; then
-	level="full"
+	level="F"
 	crit=1560
 	warn=840
 elif [ "$1" = "any" ]; then
