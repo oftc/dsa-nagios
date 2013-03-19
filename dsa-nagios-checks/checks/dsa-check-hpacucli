@@ -208,11 +208,11 @@ for my $slot (sort @controllers) {
 			record('WARNING');
 			push @{$status{'unknown transfer speed'}}, $drive;
 		} elsif (ref($expected) eq 'ARRAY') {
-			if (scalar(grep { $value{$key} eq $_ } @$expected) == 0) {
+			if (scalar(grep { uc($value{$key}) eq uc($_) } @$expected) == 0) {
 				record('WARNING');
 				push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
 			};
-		} elsif ($value{$key} ne $expected) {
+		} elsif (uc($value{$key}) ne uc($expected)) {
 			record('WARNING');
 			push @{$status{'bad transfer speed'}}, $drive."(".$value{$key}.")";
 		};

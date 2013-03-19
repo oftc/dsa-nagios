@@ -6,6 +6,8 @@ dsa-nagios-checks (9x) UNRELEASED; urgency=low
   [ Peter Palfrader ]
   * dsa-check-packages: work better with weird multi-arch cases.
   * dsa-check-hpacucli: print errors to stdout so that nrpe can read it.
+  * dsa-check-hpacucli: new hpacucli changed case of transfer speed.  Upcase
+    all before comparing.
 
  -- Stephen Gran <sgran@debian.org>  Sat, 29 Dec 2012 13:28:47 +0000
 
