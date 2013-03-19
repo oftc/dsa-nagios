@@ -1,0 +1,20 @@
+#!/bin/sh
+
+check=/usr/lib/nagios/plugins/dsa-check-bacula-lastbackup
+usage() {
+	echo >&2 "Usage: $0 <full|any> <host>"
+	exit 1
+}
+
+if [ "$#" != 2 ]; then
+	usage
+fi
+
+if [ "$1" = "full" ]; then
+	exec "$check" -level=F -warningAge=840 -criticalAge=1560 -client="$2"
+elif [ "$1" = "any" ]; then
+	exec "$check" -level="*" -client="$2"
+else
+	usage
+fi
+
