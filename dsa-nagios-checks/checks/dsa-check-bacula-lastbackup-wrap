@@ -11,9 +11,9 @@ if [ "$#" != 2 ]; then
 fi
 
 if [ "$1" = "full" ]; then
-	exec "$check" -level=F -warningAge=840 -criticalAge=1560 -client="$2"
+	exec "$check" -level=F -warningAge=840 -criticalAge=1560 -client="$2.debian.org"
 elif [ "$1" = "any" ]; then
-	exec "$check" -level="*" -client="$2"
+	exec "$check" -level="*" -client="$2.debian.org"
 else
 	usage
 fi
