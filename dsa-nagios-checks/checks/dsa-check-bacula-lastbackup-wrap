@@ -6,15 +6,24 @@ usage() {
 	exit 1
 }
 
-if [ "$#" != 2 ]; then
+if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
 	usage
 fi
 
 if [ "$1" = "full" ]; then
-	exec "$check" -level=F -warningAge=840 -criticalAge=1560 -client="$2.debian.org"
+	level="full"
+	crit=1560
+	warn=840
 elif [ "$1" = "any" ]; then
-	exec "$check" -level="*" -client="$2.debian.org"
+	level="*"
+	crit=60
+	warn=36
 else
 	usage
 fi
 
+if [ "$#" -ge 3 ]; then warn="$3"; fi
+if [ "$#" -ge 4 ]; then crit="$4"; fi
+
+
+exec "$check" -level="$level" -warningAge="$warn" -criticalAge="$crit" -client="$2.debian.org"
