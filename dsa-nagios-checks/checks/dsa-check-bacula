@@ -1,0 +1,119 @@
+#!/usr/bin/python
+
+# queries a bacula database for the last backup of a given host
+
+# Copyright 2010, 2011, 2013 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import optparse
+import psycopg2
+import psycopg2.extras
+import re
+import sys
+
+codes = {
+    'UNKNOWN': 3,
+    'CRITICAL': 1,
+    'WARNING': 2,
+    'OK': 0 }
+
+
+def convert_time(s, default_unit='h'):
+    m = re.match('([0-9]+)([smhdw])?$', s)
+    if m is None: raise ValueError
+    ticks = int(m.group(1))
+    unit = m.group(2)
+    if unit is None: unit = default_unit
+
+    if unit == 's': None
+    elif unit == 'm': ticks *= 60
+    elif unit == 'h': ticks *= 60*60
+    elif unit == 'd': ticks *= 60*60*24
+    elif unit == 'w': ticks *= 60*60*24*7
+    else: raise ValueError
+    return ticks
+
+
+parser = optparse.OptionParser()
+parser.set_usage("%prog [options] <host> [<backup-level>]")
+parser.add_option("-w", "--warn", metavar="AGE", dest="warn",
+  help="Warn if backup older than (default: 28h)")
+parser.add_option("-c", "--critical", metavar="AGE", dest="critical",
+  help="Warn if backup older than (default: 72h)")
+parser.add_option("-d", "--db-connect-string", metavar="connect-string", dest="db",
+  help="Database connect string")
+parser.add_option("-D", "--db-connect-string-file", metavar="FILE", dest="dbfile",
+  default='/etc/nagios/bacula-database',
+  help="File to read database connect string from (/etc/nagios/bacula-database)")
+(options, args) = parser.parse_args()
+
+if len(args) == 1:
+    host = args[0]
+    level = None
+elif len(args) == 2:
+    host = args[0]
+    level = args[1]
+else:
+    parser.print_help()
+    sys.exit(codes['UNKNOWN'])
+
+if options.warn is None: options.warn = '28'
+if options.critical is None: options.critical = '72'
+options.warn     = convert_time(options.warn)
+options.critical = convert_time(options.critical)
+
+if options.db is not None:
+    pass
+elif options.dbfile is not None:
+    options.db = open(options.dbfile).read().rstrip()
+else:
+    print >>sys.stderr, "Need one of -d or -D."
+    sys.exit(codes['UNKNOWN'])
+
+
+query = "SELECT min(extract('epoch' from (CURRENT_TIMESTAMP - realendtime))) AS age FROM job WHERE name=%(host)s AND jobstatus='T'"
+params = { 'host': host }
+if level is not None:
+    query += " AND level=%(level)s"
+    params['level'] = level
+else:
+    level = 'any'
+
+conn = psycopg2.connect(options.db)
+
+cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+cursor.execute(query, params)
+records = cursor.fetchall()
+if len(records) == 0:
+    print "CRITICAL: No backups of %s/%s."%(host, level)
+    sys.exit(codes['CRITICAL'])
+elif len(records) > 1:
+    print "UNKNOWN: got too many records back from query."
+    sys.exit(codes['UNKNOWN'])
+elif records[0]['age'] > options.critical:
+    print "CRITICAL: Last backup of %s/%s is %.2f days old."%(host, level, float(records[0]['age'])/3600/24)
+    sys.exit(codes['CRITICAL'])
+elif records[0]['age'] > options.warn:
+    print "WARN: Last backup of %s/%s is %.2f days old."%(host, level, float(records[0]['age'])/3600/24)
+    sys.exit(codes['WARN'])
+else:
+    print "OK: Last backup of %s/%s is %.2f days old."%(host, level, float(records[0]['age'])/3600/24)
+    sys.exit(codes['OK'])
