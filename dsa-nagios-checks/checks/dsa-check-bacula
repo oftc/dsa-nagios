@@ -102,7 +102,7 @@ conn = psycopg2.connect(options.db)
 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 cursor.execute(query, params)
 records = cursor.fetchall()
-if len(records) == 0:
+if len(records) == 0 or records[0][0] is None:
     print "CRITICAL: No backups of %s/%s."%(host, level)
     sys.exit(codes['CRITICAL'])
 elif len(records) > 1:
