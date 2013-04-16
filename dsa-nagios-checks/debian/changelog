@@ -1,4 +1,4 @@
-dsa-nagios-checks (9x) UNRELEASED; urgency=low
+dsa-nagios-checks (94) unstable; urgency=low
 
   [ Stephen Gran ]
   * Start new changelog
@@ -10,8 +10,12 @@ dsa-nagios-checks (9x) UNRELEASED; urgency=low
     all before comparing.
   * New bacula check:
     - dsa-check-bacula
+  * Changed according to gitlog without corresponding debian/changelog entry:
+    - dsa-check-drbd
+    - dsa-check-filesystems
+    - dsa-check-running-kernel
 
- -- Stephen Gran <sgran@debian.org>  Sat, 29 Dec 2012 13:28:47 +0000
+ -- Peter Palfrader <weasel@debian.org>  Tue, 16 Apr 2013 11:32:23 +0200
 
 dsa-nagios-checks (93) unstable; urgency=low
 
