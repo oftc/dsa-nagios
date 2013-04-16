@@ -130,12 +130,17 @@ cat_vmlinux() {
 	hdroff="$4"
 
 	off=`get_offset "$image" $header`
-	if [ "$?" != 0 ]; then
+	local ret="$?"
+	if [ "$ret" != 0 ]; then
 		# not found, exit
 		return 1
 	fi
 
-	(dd ibs="$((off+$hdroff))" skip=1 count=0 && dd bs=512k) < "$image"  2>/dev/null | $filter 2>/dev/null
+	(if [ "$off" != 0 ]; then
+	   dd ibs="$((off+hdroff))" skip=1 count=0
+	 fi &&
+	 dd bs=512k) < "$image"  2>/dev/null | $filter 2>/dev/null
+	return 0
 }
 
 get_image_linux() {
