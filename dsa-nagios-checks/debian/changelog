@@ -1,8 +1,8 @@
-dsa-nagios-checks (95) UNRELEASED; urgency=low
+dsa-nagios-checks (95) unstable; urgency=low
 
   * dsa-check-running-kernel: Try to fix zcat kernel case.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 16 Apr 2013 11:33:59 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 16 Apr 2013 17:40:49 +0200
 
 dsa-nagios-checks (94) unstable; urgency=low
 
