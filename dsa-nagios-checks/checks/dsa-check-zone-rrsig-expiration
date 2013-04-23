@@ -43,6 +43,8 @@
 # - do more than one zone
 # Copyright (c) 2012 Peter Palfrader <peter@palfrader.org>
 #  - add -s option to configure udp packet size.  default changed from 4k to 1k
+# Copyright (c) 2013 Peter Palfrader <peter@palfrader.org>
+#  - add -r option to override initial refs.
 
 
 # usage
@@ -92,7 +94,7 @@ sub convert_time {
 }
 
 my %opts = (t=>30, s=>1024);
-getopts('hdt:c:w:s:', \%opts);
+getopts('hdt:c:w:s:r:', \%opts);
 usage() unless scalar @ARGV == 1;
 usage() if $opts{h};
 my $zone = $ARGV[0];
@@ -121,6 +123,7 @@ k.root-servers.net
 l.root-servers.net
 m.root-servers.net
 );
+@refs = split(/\s*,\s*/, $opts{r}) if (defined $opts{r});
 
 $start = [gettimeofday()];
 do_recursion();

@@ -1,3 +1,11 @@
+dsa-nagios-checks (96) UNRELEASED; urgency=low
+
+  * dsa-check-zone-rrsig-expiration, dsa-check-zone-rrsig-expiration-many:
+    Allow supplying the nameservers to start recursion at (per zone).
+    This is useful for reverse zones of RFC1918 space.
+
+ -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
+
 dsa-nagios-checks (95) unstable; urgency=low
 
   * dsa-check-running-kernel: Try to fix zcat kernel case.

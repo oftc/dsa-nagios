@@ -66,9 +66,13 @@ sub check_one {
 
 	my $zone = shift;
 	my $check = shift;
+	my $extra = shift;
 	my $params = shift;
 
-	open(P, '-|', ($check, '-w', $params->{'warn'}, '-c', $params->{'critical'}, $zone)) or die ("Cannot run $CHECK for $zone\n");
+	my @cmd = ($check, '-w', $params->{'warn'}, '-c', $params->{'critical'});
+	push(@cmd, '-r', $extra->{'initial_refs'}) if exists $extra->{'initial_refs'};
+	push(@cmd, $zone);
+	open(P, '-|', @cmd) or die ("Cannot run $CHECK for $zone\n");
 	my @p = <P>;
 	close P;
 	$p[0] = $zone.': '. $p[0] if (scalar @p > 0);
@@ -105,7 +109,7 @@ my $count =
 	};
 
 
-my @dnsseczones;
+my %dnsseczones;
 # load list of classic zones that will do DNSSEC
 chdir $INDIR or die "chdir $INDIR failed? $!\n";
 opendir INDIR, '.' or die ("Cannot opendir $INDIR\n");
@@ -115,14 +119,18 @@ for my $file (sort {$a cmp $b} (readdir INDIR)) {
 	next if $file =~ /^(dsset|keyset)-/;
 
 	my $do_dnssec = 0;
+	my $initial_refs = undef;
 	open(F, '<', $file) or die ("Cannot open $file: $!\n");
 	for (<F>) {
-		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; last; }
+		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; }
+		if (/^; check-initial-refs\s*=\s*(.*?)\s*$/) { $initial_refs = $1; }
 	};
 	close F;
 
 	if ($do_dnssec) {
-		push @dnsseczones, $file;
+		die "Duplicate zone $file?\n" if exists $dnsseczones{$file};
+		$dnsseczones{$file} = {};
+		$dnsseczones{$file}->{'initial_refs'} = $initial_refs if defined $initial_refs;
 	} else {
 		push @{$count->{'unsigned'}}, $file;
 	};
@@ -143,7 +151,8 @@ if (defined $params->{'geozonedir'}) {
 		my $zone = basename($file, '.zone');
 
 		if ($zc->{'dnssec'}) {
-			push @dnsseczones, $zone;
+			die "Duplicate zone $zone?\n" if exists $dnsseczones{$zone};
+			$dnsseczones{$zone} = {};
 		} else {
 			push @{$count->{'unsigned'}}, $zone;
 		};
@@ -154,10 +163,10 @@ if (defined $params->{'geozonedir'}) {
 my @details;
 
 my %threads;
-for my $zone (sort {$a cmp $b} @dnsseczones) {
+for my $zone (sort {$a cmp $b} keys %dnsseczones) {
 	die "Duplicate zone $zone?\n"  if defined $threads{$zone};
 	my $thr = threads->create({'context' => 'list'},
-	                          \&check_one, $zone, $CHECK, $params);
+	                          \&check_one, $zone, $CHECK, $dnsseczones{$zone}, $params);
 	$threads{$zone} = $thr;
 }
 
