@@ -4,6 +4,9 @@ dsa-nagios-checks (96) UNRELEASED; urgency=low
     Allow supplying the nameservers to start recursion at (per zone).
     This is useful for reverse zones of RFC1918 space.
   * dsa-check-bacula: exit status fix.
+  * dsa-check-hpacucli:
+    - support filtering controllers.
+    - add an option to accept no-controllers as an OK state.
 
  -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
 

@@ -64,12 +64,14 @@ sub record($) {
 	};
 }
 
-my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--no-battery] [--ignore-transfer-speed=<pd> [--ignore-transfer-speed=<pd> ...]]\n";
+my $usage = "$PROGRAM_NAME: Usage: $PROGRAM_NAME [--no-battery] [--ignore-controller=<regex>] [--no-controller-ok] [--ignore-transfer-speed=<pd> [--ignore-transfer-speed=<pd> ...]]\n";
 my $params;
 Getopt::Long::Configure('bundling');
 if (!GetOptions (
 	'--help'                      => \$params->{'help'},
 	'--no-battery'                => \$params->{'no-battery'},
+	'--no-controller-ok'          => \$params->{'no-controller-ok'},
+	'--ignore-controller=s'       => \$params->{'ignore-controller'},
 	'--ignore-transfer-speed=s@'  => \$params->{'ignore-transfer-speed'},
 	)) {
 	die ($usage);
@@ -85,6 +87,7 @@ my @controllers;
 for (@$ctrlallshow) {
 	chomp;
 	next if /^$/;
+	next if ($params->{'ignore-controller'} && /$params->{'ignore-controller'}/);
 	if (/in Slot ([0-9a-z]+)/) {
 		push @controllers, $1;
 		next;
@@ -93,8 +96,13 @@ for (@$ctrlallshow) {
 };
 
 if (scalar @controllers == 0) {
-	print "UNKNONW: No smartarray controllers found with hpacucli\n";
-	exit $CODE{'UNKNOWN'}
+	if ($params->{'no-controller-ok'}) {
+		print "No smartarray controllers found with hpacucli\n";
+		exit $CODE{'OK'}
+	} else {
+		print "UNKNOWN: No smartarray controllers found with hpacucli\n";
+		exit $CODE{'UNKNOWN'}
+	}
 };
 
 my @resultstr;
