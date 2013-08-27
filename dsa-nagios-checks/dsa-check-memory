@@ -1,0 +1,71 @@
+#!/usr/bin/python
+
+from optparse import OptionParser
+import sys
+
+parser = OptionParser(version='0.1')
+parser.add_option("-w", "--warning", dest="warn", default=False, help="warning level")
+parser.add_option("-c", "--critical", dest="crit", default=False, help="critical level")
+parser.add_option("-m", "--mode", dest="mode", default='mb', help="Check mode (mb or pct)")
+
+exit_codes = {
+    'OK':       0,
+    'WARNING':  1,
+    'CRITICAL': 2,
+    'UNKNOWN':  3
+}
+
+(options, args) = parser.parse_args()
+
+if options.mode == 'mb':
+    options.warn = options.warn or 500
+    options.crit = options.crit or 100
+elif options.mode == 'pct':
+    options.warn = options.warn or 10
+    options.crit = options.crit or 5
+else:
+    print "What mode is %s?" % options.mode
+    sys.exit(1)
+
+options.warn = int(options.warn)
+options.crit = int(options.crit)
+
+with open('/proc/meminfo', 'r') as fd:
+    data = fd.readlines()
+
+memset = {}
+interesting_keys = ['MemTotal', 'MemFree', 'Buffers', 'Cached', 'SwapTotal', 'SwapFree']
+
+for line in data:
+    temp = line.split()
+    temp[0] = temp[0][:-1]
+    if temp[0] in interesting_keys:
+        memset[temp[0]] = int(temp[1])
+
+total_vm = memset['MemTotal'] + memset['SwapTotal']
+avail_vm = memset['MemFree'] + memset['Buffers'] +\
+           memset['Cached']  + memset['SwapFree']
+
+free_pct = int((avail_vm * 100)/total_vm)
+used_mem = int(total_vm - avail_vm)
+
+if options.mode == 'pct':
+    if free_pct < options.crit:
+        print "CRITICAL: Free VM: %d%%" % free_pct
+        sys.exit(exit_codes['CRITICAL'])
+    elif free_pct < options.warn:
+        print "WARNING: Free VM: %d%%" % free_pct
+        sys.exit(exit_codes['WARNING'])
+    else:
+        print "OK: Free VM: %d%%" % free_pct
+	sys.exit(exit_codes['OK'])
+else:
+    if avail_vm < options.crit:
+        print "CRITICAL: Free VM: %d" % avail_vm
+        sys.exit(exit_codes['CRITICAL'])
+    elif avail_vm < options.warn:
+        print "WARNING: Free VM: %d" % avail_vm
+        sys.exit(exit_codes['WARNING'])
+    else:
+        print "OK: Free VM: %d" % avail_vm
+	sys.exit(exit_codes['OK'])
