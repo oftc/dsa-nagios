@@ -59,7 +59,7 @@ if ($state =~ m/CRITICAL|DOWN|UNREACHABLE/ ) {
 open(MAIL, "|$SENDMAIL -t -oi -f $ENVELOPE_FROM") or
 	die ("Cannot exec sendmail: $!\n");
 print MAIL "From: $HEADER_FROM\n";
-print MAIL "To: $BOT_ADDRESS\n";
+print MAIL "To: $bot_address\n";
 print MAIL "Subject: Announce $project\n";
 print MAIL "Precedence: junk\n";
 print MAIL "\n";
