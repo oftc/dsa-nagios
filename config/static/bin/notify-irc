@@ -63,5 +63,5 @@ print MAIL "To: $bot_address\n";
 print MAIL "Subject: Announce $project\n";
 print MAIL "Precedence: junk\n";
 print MAIL "\n";
-print MAIL "[$hosttype] $service is $state: $info\n";
+print MAIL "NEW: [$hosttype] $service is $state: $info\n";
 close(MAIL);
