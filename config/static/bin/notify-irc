@@ -1,0 +1,67 @@
+#!/usr/bin/perl -wT
+
+# Copyright (c) 2005, 2006, 2007, 2008 Peter Palfrader <peter@palfrader.org>
+# Copyright (c) 2013 Tollef Fog Heen
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+use strict;
+use English;
+use File::Basename;
+
+my $ENVELOPE_FROM = 'nagios@debian.org';
+my $HEADER_FROM = 'nagios@debian.org';
+my $SENDMAIL = '/usr/sbin/sendmail';
+
+
+$ENV{'PATH'} = '/bin:/usr/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+die ("Usage: $PROGRAM_NAME <project> <contact_email> <type> <host> <service> <state> <output>\n") unless (scalar @ARGV == 7);
+umask 077;
+
+my ($project, $bot_address, $type, $host, $service, $state, $info) = @ARGV;
+my $hosttype;
+
+$type =~ tr/A-Z/a-z/;
+$service = $host unless (defined $service and $service =~ /\S/);
+
+if ($state =~ m/CRITICAL|DOWN|UNREACHABLE/ ) {
+    $hosttype = "5$host";
+} elsif ($state =~ m/WARNING/) {
+    $hosttype = "7$host";
+} elsif ($state =~ m/OK|UP/ ) {
+    $hosttype = "3$host";
+} elsif ($state =~ m/UNKNOWN/) {
+    $hosttype = "10$host";
+} else {
+    $hosttype = "$type\@$host";
+}
+
+open(MAIL, "|$SENDMAIL -t -oi -f $ENVELOPE_FROM") or
+	die ("Cannot exec sendmail: $!\n");
+print MAIL "From: $HEADER_FROM\n";
+print MAIL "To: $BOT_ADDRESS\n";
+print MAIL "Subject: Announce $project\n";
+print MAIL "Precedence: junk\n";
+print MAIL "\n";
+print MAIL "[$hosttype] $service is $state: $info\n";
+close(MAIL);
