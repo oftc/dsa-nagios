@@ -7,6 +7,7 @@ dsa-nagios-checks (96) UNRELEASED; urgency=low
   * dsa-check-hpacucli:
     - support filtering controllers.
     - add an option to accept no-controllers as an OK state.
+  * remove weak keys check
 
  -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
 
