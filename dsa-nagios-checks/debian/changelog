@@ -8,6 +8,10 @@ dsa-nagios-checks (96) UNRELEASED; urgency=low
     - support filtering controllers.
     - add an option to accept no-controllers as an OK state.
   * remove weak keys check
+  * dsa-check-dnssec-delegation
+    - handle zones with no keys that have the SEP bit.
+    - warn on all domains where parent has a non-empty DS bit that does
+      not match ours, even if we did not expect it to have one at all.
 
  -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
 

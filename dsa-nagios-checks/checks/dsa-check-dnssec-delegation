@@ -39,6 +39,7 @@ sub get_tag_generic {
 	my $type = shift;
 
 	my @result;
+	my @zsks;
 	print "Querying $type $zone\n" if $params->{'verbose'};
 	my $pkt = $RES->send($zone, $type);
 	return () unless $pkt;
@@ -47,11 +48,18 @@ sub get_tag_generic {
 		next unless ($rr->type eq $type);
 		next unless (lc($rr->name) eq lc($zone));
 
-		# only handle KSKs, i.e. keys with the SEP flag set
-		next if ($type eq 'DNSKEY' && !($rr->is_sep));
+		# for now only handle KSKs, i.e. keys with the SEP flag set
+		if ($type eq 'DNSKEY' && !($rr->is_sep)) {
+			push @zsks, $rr->keytag;
+			next;
+		}
 
 		push @result, $rr->keytag;
 	};
+	if ($type eq 'DNSKEY' && (scalar @result) == 0) {
+		# use remaining keys if no keys with the SEP bit are present
+		@result = @zsks;
+	}
 	my %unique = ();
 	@result = sort {$a <=> $b} grep {!$unique{$_}++} @result;
 	return @result
@@ -144,10 +152,8 @@ sub what_to_check {
 	}
 	close(F);
 
-	my @keys = ();
-	push @keys, 'dlv' if $do_dlv;
-	push @keys, 'ds' if $do_ds;
-	return @keys;
+	return { 'dlv' => $do_dlv,
+	         'ds' => $do_ds };
 }
 
 Getopt::Long::config('bundling');
@@ -215,25 +221,30 @@ if ($mode eq 'overview') {
 	}
 	exit(0);
 } elsif ($mode eq 'check-dlv' || $mode eq 'check-ds' || $mode eq 'check-header') {
-	my $key;
-	$key = 'dlv' if $mode eq 'check-dlv';
-	$key = 'ds' if $mode eq 'check-ds';
-	$key = 'per-zone' if $mode eq 'check-header';
-	die ("key undefined") unless $key;
+	my @to_check;
+	push @to_check, 'dlv' if $mode eq 'check-header' ||  $mode eq 'check-dlv';
+	push @to_check, 'ds'  if $mode eq 'check-header' ||  $mode eq 'check-ds';
 
 	my @warn;
 	my @ok;
 	for my $zone (sort {$a cmp $b} keys %zones) {
-		my @thiskeys = $key eq 'per-zone' ? what_to_check($zone, $zones{$zone}) : ($key);
+		my $require = { map { $_ => 1 } @to_check };
+		if ($mode eq 'check-header') {
+			$require = what_to_check($zone, $zones{$zone})
+		}
 
 		my $dnskey = join(', ', get_dnskeytags($zone)) || '-';
-		for my $thiskey (@thiskeys) {
+		for my $thiskey (@to_check) {
 			my $target = join(', ', $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone)) || '-';
 
 			if ($dnskey ne $target) {
-				push @warn, "$zone ([$dnskey] != [$target])";
+				if ($require->{$thiskey} || $target ne '-') {
+					push @warn, "$zone ([$dnskey] != [$target])";
+				}
 			} else  {
-				push @ok, "$zone ($dnskey)";
+				if ($require->{$thiskey}) {
+					push @ok, "$zone ($dnskey)";
+				}
 			};
 		}
 	}
