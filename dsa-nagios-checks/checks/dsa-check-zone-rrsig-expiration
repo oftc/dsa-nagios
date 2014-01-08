@@ -224,7 +224,7 @@ sub do_analyze {
 		my $ND = sprintf "%3.1f days", ($min_exp-$NOW)/86400;
 		warning("$min_type RRSIG expires in $ND at $min_ns")
 	}
-	success(sprintf("No RRSIGs expiring in the next %3.1f days", $WARN/86400));
+	success(sprintf("No RRSIGs at zone apex expiring in the next %3.1f days", $WARN/86400));
 }
 
 sub sigrr_exp_epoch {

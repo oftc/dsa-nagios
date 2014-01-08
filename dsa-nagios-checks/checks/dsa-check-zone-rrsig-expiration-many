@@ -116,13 +116,12 @@ opendir INDIR, '.' or die ("Cannot opendir $INDIR\n");
 for my $file (sort {$a cmp $b} (readdir INDIR)) {
 	next if ( -l "$file" );
 	next unless ( -f "$file" );
-	next if $file =~ /^(dsset|keyset)-/;
 
-	my $do_dnssec = 0;
+	my $do_dnssec = 1;
 	my $initial_refs = undef;
 	open(F, '<', $file) or die ("Cannot open $file: $!\n");
 	for (<F>) {
-		if (/^; wzf:\s*dnssec\s*=\s*1\s*$/) { $do_dnssec = 1; }
+		if (/^; wzf:\s*dnssec\s*=\s*0\s*$/) { $do_dnssec = 0; }
 		if (/^; check-initial-refs\s*=\s*(.*?)\s*$/) { $initial_refs = $1; }
 	};
 	close F;
@@ -144,18 +143,9 @@ if (defined $params->{'geozonedir'}) {
 	for my $file (sort {$a cmp $b} (readdir INDIR)) {
 		next unless $file =~ /\.zone$/;
 
-		open (F, '<', $file) or die "Cannot open $file: $!\n";
-		my ($zc, undef, undef) = Load(join "", (<F>));
-		close F;
-
 		my $zone = basename($file, '.zone');
-
-		if ($zc->{'dnssec'}) {
-			die "Duplicate zone $zone?\n" if exists $dnsseczones{$zone};
-			$dnsseczones{$zone} = {};
-		} else {
-			push @{$count->{'unsigned'}}, $zone;
-		};
+		die "Duplicate zone $zone?\n" if exists $dnsseczones{$zone};
+		$dnsseczones{$zone} = {};
 	}
 	closedir(INDIR);
 }
