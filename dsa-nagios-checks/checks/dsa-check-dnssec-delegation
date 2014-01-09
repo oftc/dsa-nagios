@@ -175,6 +175,15 @@ sub what_to_check {
 	return { 'dlv' => $do_dlv,
 	         'ds' => $do_ds };
 }
+sub diff_spec {
+	my $a = shift;
+	my $b = shift;
+
+	my @elems = intersect(@$a, @$b);
+	push @elems, map { '-'.$_ } array_minus(@$a, @$b);
+	push @elems, map { '+'.$_ } array_minus(@$b, @$a);
+	return join(',', @elems);
+}
 
 Getopt::Long::config('bundling');
 GetOptions (
@@ -254,27 +263,18 @@ if ($mode eq 'overview') {
 		}
 
 		my @dnskey = get_dnskeytags($zone);
-		my $dnskey = join(",", @dnskey) || '-';
 		for my $thiskey (@to_check) {
 			my @target = $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone);
-			my $target = join(",", @target) || '-';
 
-			my @isect = intersect(@dnskey, @target);
-			if (scalar @isect == 0) {
+			my $spec = diff_spec(\@target, \@dnskey);
+			# if the intersection between DS and KEY is empty,
+			# or if there are DS records for keys we do not have, that's an issue.
+			if (intersect(@dnskey, @target) == 0 || array_minus(@target, @dnskey)) {
 				if ($require->{$thiskey} || scalar @target > 0) {
-					push @warn, "$zone ([$dnskey] ~ [$target])";
+					push @warn, "$zone ($spec)";
 				}
 			} else  {
 				if ($require->{$thiskey}) {
-					my $spec;
-					if (!array_diff(@dnskey, @target)) {
-						$spec = $dnskey;
-					} else {
-						my @elems = intersect(@dnskey, @target);
-						push @elems, map { '-'.$_ } array_minus(@target, @dnskey);
-						push @elems, map { '+'.$_ } array_minus(@dnskey, @target);
-						$spec = join ',', @elems;
-					}
 					push @ok, "$zone ($spec)";
 				}
 			};
