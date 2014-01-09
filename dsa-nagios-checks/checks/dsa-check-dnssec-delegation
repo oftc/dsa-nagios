@@ -28,6 +28,26 @@ use Net::DNS::Resolver;
 use Getopt::Long;
 use File::Basename;
 
+# taken from Array::Utils
+# http://cpansearch.perl.org/src/ZMIJ/Array-Utils-0.5/Utils.pm
+# This module is Copyright (c) 2007 Sergei A. Fedorov.
+# You may distribute under the terms of either the GNU General Public
+# License or the Artistic License, as specified in the Perl README file.
+#
+sub intersect(\@\@) {
+	my %e = map { $_ => undef } @{$_[0]};
+	return grep { exists( $e{$_} ) } @{$_[1]};
+}
+sub array_diff(\@\@) {
+	my %e = map { $_ => undef } @{$_[1]};
+	return @{[ ( grep { (exists $e{$_}) ? ( delete $e{$_} ) : ( 1 ) } @{ $_[0] } ), keys %e ] };
+}
+sub array_minus(\@\@) {
+	my %e = map{ $_ => undef } @{$_[1]};
+	return grep( ! exists( $e{$_} ), @{$_[0]} );
+}
+
+
 $SIG{'__DIE__'} = sub { print @_; exit 4; };
 
 my $RES = Net::DNS::Resolver->new;
@@ -233,17 +253,29 @@ if ($mode eq 'overview') {
 			$require = what_to_check($zone, $zones{$zone})
 		}
 
-		my $dnskey = join(', ', get_dnskeytags($zone)) || '-';
+		my @dnskey = get_dnskeytags($zone);
+		my $dnskey = join(",", @dnskey) || '-';
 		for my $thiskey (@to_check) {
-			my $target = join(', ', $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone)) || '-';
+			my @target = $thiskey eq 'ds' ? get_dstags($zone) : get_dlvtags($zone);
+			my $target = join(",", @target) || '-';
 
-			if ($dnskey ne $target) {
-				if ($require->{$thiskey} || $target ne '-') {
-					push @warn, "$zone ([$dnskey] != [$target])";
+			my @isect = intersect(@dnskey, @target);
+			if (scalar @isect == 0) {
+				if ($require->{$thiskey} || scalar @target > 0) {
+					push @warn, "$zone ([$dnskey] ~ [$target])";
 				}
 			} else  {
 				if ($require->{$thiskey}) {
-					push @ok, "$zone ($dnskey)";
+					my $spec;
+					if (!array_diff(@dnskey, @target)) {
+						$spec = $dnskey;
+					} else {
+						my @elems = intersect(@dnskey, @target);
+						push @elems, map { '-'.$_ } array_minus(@target, @dnskey);
+						push @elems, map { '+'.$_ } array_minus(@dnskey, @target);
+						$spec = join ',', @elems;
+					}
+					push @ok, "$zone ($spec)";
 				}
 			};
 		}
