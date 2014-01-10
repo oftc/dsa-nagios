@@ -57,6 +57,7 @@ my $params;
 sub get_tag_generic {
 	my $zone = shift;
 	my $type = shift;
+	my %options = @_;
 
 	my @result;
 	my @zsks;
@@ -68,35 +69,39 @@ sub get_tag_generic {
 		next unless ($rr->type eq $type);
 		next unless (lc($rr->name) eq lc($zone));
 
+		my $tag = $options{'pretty'} ? sprintf("%5d(%d)", $rr->keytag, $rr->algorithm) : $rr->keytag;
 		# for now only handle KSKs, i.e. keys with the SEP flag set
 		if ($type eq 'DNSKEY' && !($rr->is_sep)) {
-			push @zsks, $rr->keytag;
+			push @zsks, $tag;
 			next;
 		}
 
-		push @result, $rr->keytag;
+		push @result, $tag;
 	};
 	if ($type eq 'DNSKEY' && (scalar @result) == 0) {
 		# use remaining keys if no keys with the SEP bit are present
 		@result = @zsks;
 	}
 	my %unique = ();
-	@result = sort {$a <=> $b} grep {!$unique{$_}++} @result;
+	@result = sort {$a cmp $b} grep {!$unique{$_}++} @result;
 	return @result
 };
 
 sub get_dnskeytags {
 	my $zone = shift;
-	return get_tag_generic($zone, 'DNSKEY');
+	my %options = @_;
+	return get_tag_generic($zone, 'DNSKEY', %options);
 };
 sub get_dstags {
 	my $zone = shift;
-	return get_tag_generic($zone, 'DS');
+	my %options = @_;
+	return get_tag_generic($zone, 'DS', %options);
 };
 sub get_dlvtags {
 	my $zone = shift;
+	my %options = @_;
 	$zone .= ".".$DLV;
-	return get_tag_generic($zone, 'DLV');
+	return get_tag_generic($zone, 'DLV', %options);
 };
 sub has_dnskey_parent {
 	my $zone = shift;
@@ -232,15 +237,15 @@ $DLV = $params->{'dlv'} if $params->{'dlv'};
 if ($mode eq 'overview') {
 	my %data;
 	for my $zone (keys %zones) {
-		$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone)),
-				 'ds'     => join(', ', get_dstags($zone)),
-				 'dlv'    => join(', ', get_dlvtags($zone)),
+		$data{$zone} = { 'dnskey' => join(', ', get_dnskeytags($zone, pretty=>1)),
+				 'ds'     => join(', ', get_dstags($zone, pretty=>1)),
+				 'dlv'    => join(', ', get_dlvtags($zone, pretty=>1)),
 				 'parent_dnssec' => get_parent_dnssec_status($zone) };
 	}
 
-	my $format = "%60s %-15s %-15s %-3s %-10s\n";
+	my $format = "%60s %-20s %-15s %-3s %-10s\n";
 	printf $format, "zone", "DNSKEY", "DS\@parent", "DLV", "dnssec\@parent";
-	printf $format, "-"x 60,  "-"x 15,  "-"x 15,  "-"x 3, "-"x 10;
+	printf $format, "-"x 60,  "-"x 20,  "-"x 15,  "-"x 3, "-"x 10;
 	for my $zone (sort {$a cmp $b} keys %data) {
 		printf $format, $zone,
 			$data{$zone}->{'dnskey'},
