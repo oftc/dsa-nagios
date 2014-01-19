@@ -4,11 +4,11 @@ Priority: extra
 Maintainer: Peter Palfrader <weasel@debian.org>
 Uploaders: Stephen Gran <sgran@debian.org>, Martin Zobel-Helas <zobel@debian.org>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.2
+Standards-Version: 3.9.4
 
 Package: dsa-nagios-checks
 Architecture: all
-Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby
+Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby, python
 Recommends: libnet-dns-sec-perl
 Suggests: hpacucli
 Conflicts: dsa-nagios-nrpe-config

@@ -6,6 +6,8 @@ clean:
 	dh_clean
 
 build:
+build-arch:
+build-indep:
 
 install:
 	dh_testdir

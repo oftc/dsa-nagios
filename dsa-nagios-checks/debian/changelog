@@ -1,4 +1,4 @@
-dsa-nagios-checks (96) UNRELEASED; urgency=low
+dsa-nagios-checks (96) unstable; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-zone-rrsig-expiration, dsa-check-zone-rrsig-expiration-many:
@@ -25,6 +25,7 @@ dsa-nagios-checks (96) UNRELEASED; urgency=low
   * dsa-check-mq-connection:
     Check that all messages have been consumed and that there is an active
     consumer.
+  * kill some lintian warnings
 
  -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
 
