@@ -1,5 +1,6 @@
 dsa-nagios-checks (96) UNRELEASED; urgency=low
 
+  [ Peter Palfrader ]
   * dsa-check-zone-rrsig-expiration, dsa-check-zone-rrsig-expiration-many:
     Allow supplying the nameservers to start recursion at (per zone).
     This is useful for reverse zones of RFC1918 space.
@@ -19,6 +20,11 @@ dsa-nagios-checks (96) UNRELEASED; urgency=low
   * dsa-check-dnssec-delegation:
     - accept any ds/dnskey combination whose intersection is not empty.
       (previously we required them to match exactly.)
+
+  [ Stephen Gran ]
+  * dsa-check-mq-connection:
+    Check that all messages have been consumed and that there is an active
+    consumer.
 
  -- Peter Palfrader <weasel@debian.org>  Tue, 23 Apr 2013 20:12:09 +0200
 
