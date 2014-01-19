@@ -61,19 +61,25 @@ if [ "${prefix/[^a-z0-9-]/}" != "$prefix" ]; then
 	exit 3
 fi
 
-sudo -u rabbitmq rabbitmqctl list_queues -p ${vhost} name messages consumers \
-	| grep "${prefix}-${host}.debian.org" \
-	| while read name messages consumers; do
-	if [ "${name}" != "${prefix}-${host}.debian.org" ]; then
-		echo "Unexpected output: ${name} ${messages} ${consumers}"
-		exit 3
-	fi
-	if [ "${messages}" -gt 0 ] ; then
-		if [ "${consumers}" -eq 0 ]; then
-			echo "${host} not connected to MQ"
-			exit 2
+check_conn () {
+	sudo -u rabbitmq rabbitmqctl list_queues -p ${vhost} name messages consumers \
+		| grep "${prefix}-${host}.debian.org" \
+		| while read name messages consumers; do
+		if [ "${name}" != "${prefix}-${host}.debian.org" ]; then
+			echo "Unexpected output: ${name} ${messages} ${consumers}"
+			return 3
 		fi
-	fi
-done
-echo "${host} connected to ${prefix}-${host}.debian.org in ${vhost}"
-exit 0
+		if [ "${messages}" -gt 0 ] ; then
+			if [ "${consumers}" -eq 0 ]; then
+				echo "${host} not connected to MQ"
+				return 2
+			fi
+		fi
+	done
+}
+check_conn
+ret=$?
+if [ $ret -eq 0 ]; then
+	echo "${host} connected to ${prefix}-${host}.debian.org in ${vhost}"
+fi
+exit $ret
