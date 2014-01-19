@@ -1,3 +1,9 @@
+dsa-nagios-checks (97) UNRELEASED; urgency=low
+
+  * Update dsa-check-mq-connection to actually work
+
+ -- Stephen Gran <sgran@debian.org>  Sun, 19 Jan 2014 12:18:39 +0000
+
 dsa-nagios-checks (96) unstable; urgency=low
 
   [ Peter Palfrader ]
