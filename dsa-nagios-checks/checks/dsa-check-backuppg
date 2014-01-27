@@ -219,8 +219,11 @@ for dir in os.listdir('.'):
                 basefn = '%s.BASE.%s-%s.tar.gz'%(db, info['label'], info['start wal location'].split(' ',2)[0].replace('/', '_'))
                 baseffn = os.path.join(dir, basefn)
                 if not basefn in files:
-                    note_warning_db(dir, db, 'MISSING-BASE', basefn)
-                    continue
+                    basefn = '%s.BASE.%s.tar.gz'%(db, info['label'])
+                    baseffn = os.path.join(dir, basefn)
+                    if not basefn in files:
+                        note_warning_db(dir, db, 'MISSING-BASE', basefn)
+                        continue
                 files.remove(basefn)
                 if backup_state[db]['can_expire_next']:
                     backup_state[db]['expires'].append(baseffn)

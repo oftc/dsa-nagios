@@ -1,8 +1,12 @@
 dsa-nagios-checks (97) UNRELEASED; urgency=low
 
+  [ Stephen Gran ]
   * Update dsa-check-mq-connection to actually work
 
- -- Stephen Gran <sgran@debian.org>  Sun, 19 Jan 2014 12:18:39 +0000
+  [ Peter Palfrader ]
+  * dsa-check-backuppg: allow BASE backup filenames without the WAL ID.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 27 Jan 2014 22:29:15 +0100
 
 dsa-nagios-checks (96) unstable; urgency=low
 
