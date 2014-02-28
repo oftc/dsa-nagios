@@ -48,7 +48,7 @@ check_ldap_conf() {
 
 	if egrep '^URI.*ldap://db.debian.org' /etc/ldap/ldap.conf > /dev/null &&
 	   egrep '^BASE.*dc=debian,dc=org' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^TLS_CACERT.*/etc/ssl/certs/spi-cacert-2008.pem' /etc/ldap/ldap.conf > /dev/null &&
+	   egrep '^TLS_CACERT.*/etc/ssl/servicecerts/db.debian.org.crt' /etc/ldap/ldap.conf > /dev/null &&
 	   egrep '^TLS_REQCERT.*hard' /etc/ldap/ldap.conf > /dev/null ; then
 		log ok "ldap.conf configured properly"
 		return

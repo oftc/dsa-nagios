@@ -1,10 +1,11 @@
-dsa-nagios-checks (97) UNRELEASED; urgency=low
+dsa-nagios-checks (97) unstable; urgency=low
 
   [ Stephen Gran ]
   * Update dsa-check-mq-connection to actually work
 
   [ Peter Palfrader ]
   * dsa-check-backuppg: allow BASE backup filenames without the WAL ID.
+  * dsa-check-config: Update for new TLS_CACERT config.
 
  -- Peter Palfrader <weasel@debian.org>  Mon, 27 Jan 2014 22:29:15 +0100
 
