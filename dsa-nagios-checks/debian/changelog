@@ -1,6 +1,6 @@
-dsa-nagios-checks (98) UNRELEASED; urgency=low
+dsa-nagios-checks (98) unstable; urgency=low
 
-  * 
+  * Add dsa-check-dchroots-current.
 
  -- Peter Palfrader <weasel@debian.org>  Fri, 28 Feb 2014 19:40:16 +0100
 

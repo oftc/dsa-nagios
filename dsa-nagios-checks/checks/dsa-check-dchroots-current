@@ -1,0 +1,11 @@
+#!/bin/bash
+
+oldtars=$(find /srv/chroot -mindepth 1 -maxdepth 1 -name '*.tar.gz' -mtime +14 -printf "%f ")
+
+if [ -z "$oldtars" ]; then
+	echo "OK: All tarballs in /srv/chroot are recent"
+	exit 0
+else
+	echo "Warning: Some tarballs are old: $oldtars"
+	exit 1
+fi
