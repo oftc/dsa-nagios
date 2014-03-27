@@ -1,6 +1,6 @@
 dsa-nagios-checks (99) UNRELEASED; urgency=low
 
-  * 
+  * dsa-check-hpacucli: SATA drives have different transfer speed.
 
  -- Peter Palfrader <weasel@debian.org>  Thu, 13 Mar 2014 09:49:55 +0100
 
