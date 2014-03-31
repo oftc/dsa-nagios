@@ -1,8 +1,9 @@
-dsa-nagios-checks (99) UNRELEASED; urgency=low
+dsa-nagios-checks (99) unstable; urgency=low
 
   * dsa-check-hpacucli: SATA drives have different transfer speed.
+  * dsa-check-edac: add.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 13 Mar 2014 09:49:55 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 31 Mar 2014 10:45:57 +0200
 
 dsa-nagios-checks (98) unstable; urgency=low
 
