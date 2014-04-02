@@ -1,6 +1,6 @@
 dsa-nagios-checks (100) UNRELEASED; urgency=low
 
-  * 
+  * dsa-check-running-kernel: Check from all compression tokens.
 
  -- Peter Palfrader <weasel@debian.org>  Mon, 31 Mar 2014 10:46:35 +0200
 
