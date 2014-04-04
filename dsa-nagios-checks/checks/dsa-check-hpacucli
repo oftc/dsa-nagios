@@ -108,10 +108,63 @@ if (scalar @controllers == 0) {
 my @resultstr;
 
 for my $slot (sort @controllers) {
-	my $pds = runcmd("controller slot=$slot pd all show");
 	my @drives;
 	my $nodrives = 0;
 	my %status;
+
+	my $ldallshow = runcmd("controller slot=$slot ld all show");
+	my @logicaldrives;
+	for (@$ldallshow) {
+		chomp;
+		next if /^$/;
+		next if (/^\S.*in Slot $slot/);
+		next if /^ *array [A-Z]$/;
+		if (/logicaldrive ([0-9a-z]+)/) {
+			push @logicaldrives, $1;
+			next;
+		} elsif (/^Error: The specified device does not have any logical drives.$/) {
+			$nodrives = 1;
+		} else {
+			die ("Cannot read line '$_' gotten from hpacucli controller slot = $slot logicaldrive all show\n");
+		}
+	};
+
+	# check logicaldrives
+	for my $logicaldrive (sort @logicaldrives) {
+		my $lds = runcmd("controller slot=$slot ld $logicaldrive show");
+		for (@$lds) {
+			chomp;
+			next if /^$/;
+			if (/^ *Parity Initialization Status: (Initialization Completed|Initialization Failed|Rebuilding)$/) {
+				my $status = $1;
+				if ($status eq 'Initialization Completed') {
+					push @{$status{'OK'}}, "Parity LD$logicaldrive";
+				} elsif ($status eq 'Rebuilding') {
+					push @{$status{'Failed'}}, "Parity LD$logicaldrive";
+					record('WARNING');
+				} elsif ($status eq 'Initialization Failed') {
+					push @{$status{'Failed'}}, "Parity LD$logicaldrive";
+					record('CRITICAL');
+				} else {
+					record('UNKNOWN');
+				}
+			}
+		}
+	}
+
+	if (!$nodrives && scalar @logicaldrives == 0) {
+		push @resultstr, "Slot $slot: unexpectedly, found no logical drives in list.";
+		record('UNKNOWN');
+	} elsif ($nodrives && scalar keys %status > 0) {
+		push @resultstr, "Slot $slot: have no logical drives but status results?";
+		record('UNKNOWN');
+		next;
+	} elsif ($nodrives) {
+		push @resultstr, "Slot $slot: no logical drives";
+	};
+
+
+	my $pds = runcmd("controller slot=$slot pd all show");
 	for (@$pds) {
 		chomp;
 		next if /^$/;
