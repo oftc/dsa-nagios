@@ -2,6 +2,8 @@ dsa-nagios-checks (100) UNRELEASED; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-running-kernel: Check from all compression tokens.
+  * dsa-check-zone-rrsig-expiration-many: Initialize exit to UNKNOWN, in case
+    it does not get set later.
 
   [ George Kargiotakis ]
   * dsa-check-hpacucli: Add Parity check for logical drives.
