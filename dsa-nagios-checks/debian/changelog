@@ -8,6 +8,9 @@ dsa-nagios-checks (100) UNRELEASED; urgency=low
   [ George Kargiotakis ]
   * dsa-check-hpacucli: Add Parity check for logical drives.
 
+  [ Stephen Gran ]
+  * dsa-check-mq-connection: Catch case when host has never connected
+
  -- Peter Palfrader <weasel@debian.org>  Fri, 04 Apr 2014 18:55:33 +0200
 
 dsa-nagios-checks (99) unstable; urgency=low
