@@ -187,7 +187,7 @@ for my $k (keys %$count) {
 	@{$count->{$k}} = sort {$a cmp $b} @{$count->{$k}};
 }
 
-my $exit = 255;
+my $exit = 0;
 my %state_mapping = (
 	'unknown' => 255,
 	'critical' => 2,
