@@ -75,7 +75,10 @@ check_conn () {
 				return 2
 			fi
 		fi
+		return 0
 	done
+	echo "${host} not connected to MQ"
+	return 2
 }
 check_conn
 ret=$?
