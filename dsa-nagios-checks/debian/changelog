@@ -5,13 +5,16 @@ dsa-nagios-checks (100) UNRELEASED; urgency=low
   * dsa-check-zone-rrsig-expiration-many: Initialize exit properly, in case
     it does not get set later.
 
+  [ Helmut Grohne ]
+  * dsa-check-cert-expire: Make timers configurable.
+
   [ George Kargiotakis ]
   * dsa-check-hpacucli: Add Parity check for logical drives.
 
   [ Stephen Gran ]
   * dsa-check-mq-connection: Catch case when host has never connected
 
- -- Peter Palfrader <weasel@debian.org>  Fri, 04 Apr 2014 18:55:33 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 26 Apr 2014 12:10:21 +0200
 
 dsa-nagios-checks (99) unstable; urgency=low
 
