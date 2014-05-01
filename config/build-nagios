@@ -26,9 +26,9 @@
 
 require "yaml"
 
-ORG="dsa"
-SHORTORG="dsa"
-GENERATED_PREFIX="./generated/"
+ORG="oftc"
+SHORTORG="oftc"
+GENERATED_PREFIX="/etc/oftc/nagios/generated/"
 
 nagios_filename = {};
 %w(hosts hostgroups services dependencies hostextinfo serviceextinfo servicegroups).each{
@@ -270,7 +270,7 @@ end
 #############################################################################################
 
 # Load the config
-config = YAML::load( File.open( 'nagios-master.cfg' ) )
+config = YAML::load( File.open( GENERATED_PREFIX+'nagios-master-auto' ) )
 
 files = {}
 # Remove old created files
