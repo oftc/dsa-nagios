@@ -1,8 +1,11 @@
 dsa-nagios-checks (101) UNRELEASED; urgency=low
 
   * dsa-check-zone-rrsig-expiration-many: add --debug option to pass through.
+  * dsa-check-zone-rrsig-expiration: Do not ask for RRSIG directly, instead
+    ask for SOA with dnssec data.  Apparently some nameservers do give you the
+    RRSIG on the DS record instead of a referral (rcode0's for instance).
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 20 May 2014 13:54:29 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 20 May 2014 13:58:00 +0200
 
 dsa-nagios-checks (100) unstable; urgency=low
 

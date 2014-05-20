@@ -137,25 +137,28 @@ sub do_recursion {
 	do {
 		print STDERR "\nRECURSE\n" if $opts{d};
 		my $pkt;
+		my $prettyrefs = (scalar @refs) ? join(", ", @refs) : "root servers";
 		foreach my $ns (shuffle @refs) {
-			print STDERR "sending query for $zone RRSIG to $ns\n" if $opts{d};
+			print STDERR "sending query for $zone SOA to $ns\n" if $opts{d};
 			$res->nameserver($ns);
 			$res->udp_timeout($opts{t});
 			$res->udppacketsize($opts{s});
-			$pkt = $res->send($zone, 'RRSIG');
+			$pkt = $res->send($zone, 'SOA');
 			last if $pkt;
 		}
-		critical("No response to seed query") unless $pkt;
+		print STDERR "No response to seed query for $zone SOA from $prettyrefs, retrying.\n" if $opts{d};
+		critical("No response to seed query for $zone from $prettyrefs.") unless $pkt;
 		critical($pkt->header->rcode . " from " . $pkt->answerfrom)
 			unless ($pkt->header->rcode eq 'NOERROR');
 		@refs = ();
 		foreach my $rr ($pkt->authority) {
 			print STDERR $rr->string, "\n" if $opts{d};
-			push (@refs, $rr->nsdname);
+			push (@refs, $rr->nsdname) if $rr->type eq 'NS';
 			next unless lc($rr->name) eq lc($zone);
 			add_nslist_to_data($pkt);
 			$done = 1;
 		}
+		critical("No new references after querying for $zone SOA from $prettyrefs.  Packet was ".$pkt->string) unless (scalar @refs);
 	} while (! $done);
 }
 
@@ -166,11 +169,11 @@ sub do_queries {
 		$n = 0;
 		foreach my $ns (keys %$data) {
 			next if $data->{$ns}->{done};
-			print STDERR "\nQUERY $ns\n" if $opts{d};
+			print STDERR "\nQUERY \@$ns SOA $zone\n" if $opts{d};
 
-			my $pkt = send_query($zone, 'RRSIG', $ns);
+			my $pkt = send_query($zone, 'SOA', $ns);
 			add_nslist_to_data($pkt);
-			$data->{$ns}->{queries}->{RRSIG} = $pkt;
+			$data->{$ns}->{queries}->{SOA} = $pkt;
 
 			print STDERR "done with $ns\n" if $opts{d};
 			$data->{$ns}->{done} = 1;
@@ -185,7 +188,7 @@ sub do_analyze {
 	my %MAX_EXP_BY_TYPE;
 	foreach my $ns (keys %$data) {
 		print STDERR "\nANALYZE $ns\n" if $opts{d};
-		my $pkt = $data->{$ns}->{queries}->{RRSIG};
+		my $pkt = $data->{$ns}->{queries}->{SOA};
 		critical("No response from $ns") unless $pkt;
 		print STDERR $pkt->string if $opts{d};
 		critical($pkt->header->rcode . " from $ns")
@@ -285,6 +288,8 @@ sub send_query {
 	my $res = Net::DNS::Resolver->new;
 	$res->nameserver($server) if $server;
 	$res->udp_timeout($opts{t});
+	$res->udp_timeout($opts{t});
+	$res->dnssec(1);
 	$res->retry(2);
 	$res->udppacketsize($opts{s});
 	my $pkt = $res->send($qname, $qtype);
