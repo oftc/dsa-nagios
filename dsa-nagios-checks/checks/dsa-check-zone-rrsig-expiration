@@ -45,6 +45,8 @@
 #  - add -s option to configure udp packet size.  default changed from 4k to 1k
 # Copyright (c) 2013 Peter Palfrader <peter@palfrader.org>
 #  - add -r option to override initial refs.
+# Copyright (c) 2014 Peter Palfrader <peter@palfrader.org>
+#  - Do not ask for RRSIG directly, instead ask for SOA with dnssec data
 
 
 # usage
