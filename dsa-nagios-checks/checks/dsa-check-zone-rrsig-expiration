@@ -137,7 +137,7 @@ sub do_recursion {
 	do {
 		print STDERR "\nRECURSE\n" if $opts{d};
 		my $pkt;
-		my $prettyrefs = (scalar @refs) ? join(", ", @refs) : "root servers";
+		my $prettyrefs = (scalar @refs) ? join(", ", @refs) : "empty set(!?)";
 		foreach my $ns (shuffle @refs) {
 			print STDERR "sending query for $zone SOA to $ns\n" if $opts{d};
 			$res->nameserver($ns);
