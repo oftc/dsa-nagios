@@ -146,7 +146,7 @@ sub do_recursion {
 			$pkt = $res->send($zone, 'SOA');
 			last if $pkt;
 		}
-		print STDERR "No response to seed query for $zone SOA from $prettyrefs, retrying.\n" if $opts{d};
+		print STDERR "No response to seed query for $zone SOA from $prettyrefs.\n" if $opts{d};
 		critical("No response to seed query for $zone from $prettyrefs.") unless $pkt;
 		critical($pkt->header->rcode . " from " . $pkt->answerfrom)
 			unless ($pkt->header->rcode eq 'NOERROR');
