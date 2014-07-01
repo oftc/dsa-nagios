@@ -48,15 +48,16 @@ my %callbacks = (
 
 my $params = {};
 
-my $USAGE = "PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant] [--fan-high] [--dimm-na] [--fan-ignore-not-present]\n";
+my $USAGE = "PROGRAM_NAME: Usage: $PROGRAM_NAME [--help] [--ps-no-redundant] [--fan-no-redundant] [--fan-high] [--dimm-na] [--fan-ignore-not-present] [--ignore-failed=<S> [--ignore-failed=<S>]n";
 Getopt::Long::config('bundling');
-if (!GetOptions (
-        '--help'                        => \$params->{'help'},
-        '--ps-no-redundant'             => \$params->{'ps-no-redundant'},
-        '--fan-no-redundant'            => \$params->{'fan-no-redundant'},
-        '--fan-high'                    => \$params->{'fan-high'},
-        '--dimm-na'                     => \$params->{'dimm-na'},
-        '--fan-ignore-not-present'      => \$params->{'fan-ignore-not-present'},
+if (!GetOptions ($params,
+        '--help',
+        '--ps-no-redundant',
+        '--fan-no-redundant',
+        '--fan-high',
+        '--dimm-na',
+        '--fan-ignore-not-present',
+        '--ignore-failed=s@',
         )) {
         die ("$USAGE");
 };
@@ -70,6 +71,7 @@ if ($params->{'help'}) {
 my $prompt = "hpasmcli>";
 my $exit_status = 0;
 my $ret = '';
+my %ignore_failed = map {$_ => 1} @{$params->{'ignore-failed'}};
 
 sub do_dimm {
   my @output = @_;
@@ -88,8 +90,9 @@ sub do_dimm {
       if ($in_block) {
         unless (($status eq 'Ok') ||
                 ($params->{'dimm-na'} && $status eq 'N/A')) {
-          $message = sprintf("DIMM%d: %s ", $dimm_num, $status);
-          $exit_status |= 2;
+          my $what = sprintf("DIMM%d", $dimm_num);
+          $message = sprintf("%s: %s ", $what, $status);
+          $exit_status |= 2 unless (exists $ignore_failed{$what});
         }
         $return .= $message if ($message);
         $message = $status = '';
@@ -143,15 +146,16 @@ sub do_fans {
         last;
       }
 
+      my $what = sprintf("FAN%d", $fan_num);
       if ($line[2] ne 'Yes') {
-        $message = sprintf("FAN%d: status=%s ", $fan_num, $line[2]);
-        $exit_status |= 2 unless ($params->{'fan-ignore-not-present'});
+        $message = sprintf("%s: status=%s ", $what, $line[2]);
+        $exit_status |= 2 unless ($params->{'fan-ignore-not-present'} || (exists $ignore_failed{$what}));
       } elsif ($line[3] ne 'NORMAL') {
-        $message = sprintf("FAN%d: speed=%s ", $fan_num, $line[3]);
-        $exit_status |= 1 unless ($line[3] eq 'HIGH' && $params->{'fan-high'});
+        $message = sprintf("%s: speed=%s ", $what, $line[3]);
+        $exit_status |= 1 unless ($line[3] eq 'HIGH' && $params->{'fan-high'} || (exists $ignore_failed{$what}));
       } elsif ($line[5] ne 'Yes') {
-        $message = sprintf("FAN%d: redundant=%s ",$fan_num, $line[5]);
-        $exit_status |= 1 unless ($params->{'fan-no-redundant'});
+        $message = sprintf("%s: redundant=%s ", $what, $line[5]);
+        $exit_status |= 1 unless ($params->{'fan-no-redundant'} || (exists $ignore_failed{$what}));
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {
       last;
@@ -168,7 +172,8 @@ sub do_fans {
 
 sub do_powersupply {
   my @output = @_;
-  my $ps_num = my $return = my $message = '';
+  my $ps_num = '?';
+  my $return = my $message = '';
   my $header_seen = my $num_ps = 0;
 
   for my $line (@output) {
@@ -179,6 +184,7 @@ sub do_powersupply {
       next;
     }
 
+    my $what = sprintf("PS%s", $ps_num);
     if ($line =~ /^Power supply #(\d+)/) {
       if ($num_ps) {
         $return .= $message if ($message);
@@ -189,20 +195,20 @@ sub do_powersupply {
     } elsif ($line =~ /\s+Present\s*:\s+(.*)/) {
       my $present = $1;
       if ($present ne 'Yes') {
-        $message = sprintf("PS%d missing ", $ps_num);
-        $exit_status |= 1;
+        $message = sprintf("%s missing ", $what);
+        $exit_status |= 1 unless (exists $ignore_failed{$what});
       }
     } elsif ($line =~ /\s+Condition\s*:\s+(.*)/) {
       my $status = $1;
       if ($status ne 'Ok') {
-        $message = sprintf("PS%d: %s  ", $ps_num, $status);
-        $exit_status |= 2;
+        $message = sprintf("%s: %s  ", $what, $status);
+        $exit_status |= 2 unless (exists $ignore_failed{$what});
       }
     } elsif ($line =~ /\s+Redundant\s*:\s+(.*)/) {
       my $redundant = $1;
       if ($redundant ne 'Yes') {
-        $message = sprintf("PS%d not redundant ", $ps_num);
-        $exit_status |= 1 unless ($params->{'ps-no-redundant'});
+        $message = sprintf("%s not redundant ", $what);
+        $exit_status |= 1 unless ($params->{'ps-no-redundant'} || (exists $ignore_failed{$what}));
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {
       last;
@@ -248,14 +254,15 @@ sub do_temp {
       next if ($threshold eq '-');
       $num_temp++;
 
+      my $what = sprintf("TEMP zone=%s", $zone);
       if ($current_temp ne '-') {
         my $off = $threshold - $current_temp;
         if ($off <= 0) {
-          $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
-          $exit_status |= 2;
+          $message = sprintf("%s %sC/%sC ", $what, $current_temp, $threshold);
+          $exit_status |= 2 unless (exists $ignore_failed{$what});
         } elsif ($off < ($threshold/10)) {
-          $message = sprintf("TEMP zone=%s %sC/%sC ", $zone, $current_temp, $threshold);
-          $exit_status |= 1;
+          $message = sprintf("%s %sC/%sC ", $what, $current_temp, $threshold);
+          $exit_status |= 1 unless (exists $ignore_failed{$what});
         }
       }
     } elsif ($line =~ /($prompt|^\s*$)/) {

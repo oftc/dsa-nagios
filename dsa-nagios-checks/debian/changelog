@@ -4,8 +4,10 @@ dsa-nagios-checks (101) UNRELEASED; urgency=low
   * dsa-check-zone-rrsig-expiration: Do not ask for RRSIG directly, instead
     ask for SOA with dnssec data.  Apparently some nameservers do give you the
     RRSIG on the DS record instead of a referral (rcode0's for instance).
+  * dsa-check-hpasm: Support supplying a list of things for which failures are
+    ignored.
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 20 May 2014 13:58:00 +0200
+ -- Peter Palfrader <weasel@debian.org>  Tue, 01 Jul 2014 18:34:23 +0200
 
 dsa-nagios-checks (100) unstable; urgency=low
 
