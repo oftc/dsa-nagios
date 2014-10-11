@@ -7,12 +7,13 @@ dsa-nagios-checks (101) UNRELEASED; urgency=low
     RRSIG on the DS record instead of a referral (rcode0's for instance).
   * dsa-check-hpasm: Support supplying a list of things for which failures are
     ignored.
+  * dsa-check-soas: do some queries without RD set.
 
   [ Hendrik Köhler ]
   * Extend dsa-check-entropy output so Icinga2 can process performance
     data (e.g. used by Graphite).
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 01 Jul 2014 18:34:23 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sat, 11 Oct 2014 09:43:01 +0200
 
 dsa-nagios-checks (100) unstable; urgency=low
 
