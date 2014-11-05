@@ -8,12 +8,15 @@ dsa-nagios-checks (101) UNRELEASED; urgency=low
   * dsa-check-hpasm: Support supplying a list of things for which failures are
     ignored.
   * dsa-check-soas: do some queries without RD set.
+  * dsa-check-running-kernel: in cat_vmlinux(), only consider the first 5 hits
+    for the magic start sequence.  This makes running times bearable on our
+    new octeons.
 
   [ Hendrik Köhler ]
   * Extend dsa-check-entropy output so Icinga2 can process performance
     data (e.g. used by Graphite).
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 11 Oct 2014 09:43:01 +0200
+ -- Peter Palfrader <weasel@debian.org>  Wed, 05 Nov 2014 14:57:51 +0100
 
 dsa-nagios-checks (100) unstable; urgency=low
 
