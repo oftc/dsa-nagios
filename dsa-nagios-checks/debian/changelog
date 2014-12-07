@@ -1,3 +1,9 @@
+dsa-nagios-checks (102) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 11:00:33 +0100
+
 dsa-nagios-checks (101) unstable; urgency=low
 
   [ Peter Palfrader ]
