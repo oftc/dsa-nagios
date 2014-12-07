@@ -1,8 +1,8 @@
-dsa-nagios-checks (103) UNRELEASED; urgency=medium
+dsa-nagios-checks (103) unstable; urgency=medium
 
-  * 
+  * dsa-update-apt-status: run apt-get update in a flock wrapper.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:07:00 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:29:20 +0100
 
 dsa-nagios-checks (102) unstable; urgency=medium
 
