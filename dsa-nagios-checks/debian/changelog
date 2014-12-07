@@ -11,12 +11,13 @@ dsa-nagios-checks (101) UNRELEASED; urgency=low
   * dsa-check-running-kernel: in cat_vmlinux(), only consider the first 5 hits
     for the magic start sequence.  This makes running times bearable on our
     new octeons.
+  * dsa-check-config: check if existing ed25519 host keys are in ldap.
 
   [ Hendrik Köhler ]
   * Extend dsa-check-entropy output so Icinga2 can process performance
     data (e.g. used by Graphite).
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 05 Nov 2014 14:57:51 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 10:56:34 +0100
 
 dsa-nagios-checks (100) unstable; urgency=low
 
