@@ -1,3 +1,9 @@
+dsa-nagios-checks (103) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:07:00 +0100
+
 dsa-nagios-checks (102) unstable; urgency=medium
 
   * dsa-check-entropy: unbreak script by removing non-ASCII characters.
