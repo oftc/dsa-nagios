@@ -1,8 +1,8 @@
-dsa-nagios-checks (104) UNRELEASED; urgency=medium
+dsa-nagios-checks (104) unstable; urgency=medium
 
-  * 
+  * Fix iptables-save cronjob.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:32:09 +0100
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 14:29:31 +0100
 
 dsa-nagios-checks (103) unstable; urgency=medium
 
