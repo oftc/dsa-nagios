@@ -1,4 +1,4 @@
-dsa-nagios-checks (105) UNRELEASED; urgency=medium
+dsa-nagios-checks (105) unstable; urgency=medium
 
   [ Peter Palfrader ]
   * dsa-check-dnssec-delegation: Ignore revoked DNSKEYs in zone.
@@ -7,7 +7,7 @@ dsa-nagios-checks (105) UNRELEASED; urgency=medium
   [ Paul Wise ]
   * dsa-check-backuppg: Ignore removed tmp files instead of crashing
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 00:08:49 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 00:10:25 +0100
 
 dsa-nagios-checks (104) unstable; urgency=medium
 
