@@ -47,6 +47,7 @@ import copy
 import time
 import re
 import os
+import errno
 import sys
 import yaml
 import optparse
