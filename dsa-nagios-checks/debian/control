@@ -8,7 +8,7 @@ Standards-Version: 3.9.4
 
 Package: dsa-nagios-checks
 Architecture: all
-Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby, python
+Depends: nagios-nrpe-server, nagios-plugins-basic, ${misc:Depends}, binutils, libberkeleydb-perl, dsa-ssh-weak-keys, ruby, python, libyaml-syck-perl
 Recommends: libnet-dns-sec-perl
 Suggests: hpacucli
 Conflicts: dsa-nagios-nrpe-config

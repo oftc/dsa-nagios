@@ -1,8 +1,8 @@
-dsa-nagios-checks (106) UNRELEASED; urgency=medium
+dsa-nagios-checks (106) unstable; urgency=medium
 
-  * 
+  * Depend on libyaml-syck-perl.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 00:12:34 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 14:17:39 +0100
 
 dsa-nagios-checks (105) unstable; urgency=medium
 
