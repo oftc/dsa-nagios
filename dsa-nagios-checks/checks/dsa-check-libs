@@ -30,7 +30,7 @@ $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $LSOF = '/usr/bin/lsof -F0';
-my $VERSION = '0.2012042101';
+my $VERSION = '0.2015012901';
 
 # nagios exit codes
 my $OK = 0;
