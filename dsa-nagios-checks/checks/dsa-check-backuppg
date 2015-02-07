@@ -47,6 +47,7 @@ import copy
 import time
 import re
 import os
+import errno
 import sys
 import yaml
 import optparse
@@ -143,7 +144,15 @@ for dir in os.listdir('.'):
         continue
 
     if not os.path.isdir(dir):
-        if min(os.path.getmtime(dir), os.path.getctime(dir)) + 3600*4 > time.time():
+        try:
+            mtime = os.path.getmtime(dir)
+            ctime = os.path.getctime(dir)
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                continue
+            else:
+                raise e
+        if min(mtime, ctime) + 3600*4 > time.time():
             note_info('IGNORED', dir)
         else:
             note_warning('NOT-A-DIR', dir)
