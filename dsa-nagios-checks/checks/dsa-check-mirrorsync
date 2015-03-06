@@ -53,7 +53,8 @@ sub usage($$) {
 };
 
 # Work around LWP not being able to verify service certs directly
-$ENV{'HTTPS_CA_DIR'} = '/etc/ssl/ca-debian';
+my $ca_dir = '/etc/ssl/ca-debian';
+$ENV{'HTTPS_CA_DIR'} = $ca_dir if -d $ca_dir;
 
 $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
