@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if ! [ -e /var/run/stunnel4/stunnel-ekeyd.pid ] ; then
+  echo "No stunnel-ekeyd.pid."
+  exit 0
+fi
+pid="$(cat /var/run/stunnel4/stunnel-ekeyd.pid)"
+fds=$(ls -1 /proc/"$pid"/fd | wc -l)
+
+if [ "$fds" -gt 100 ]; then
+  echo "Crazy number of open FDs ($n)."
+  exit 2
+else
+  echo "All seems fine."
+  exit 0
+fi
