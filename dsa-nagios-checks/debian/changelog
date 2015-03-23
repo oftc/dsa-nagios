@@ -1,3 +1,9 @@
+dsa-nagios-checks (108) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 23 Mar 2015 13:33:58 +0100
+
 dsa-nagios-checks (107) unstable; urgency=medium
 
   * Add dsa-check-stunnel-sanity.
