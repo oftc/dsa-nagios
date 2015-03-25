@@ -8,7 +8,7 @@ pid="$(cat /var/run/stunnel4/stunnel-ekeyd.pid)"
 fds=$(ls -1 /proc/"$pid"/fd | wc -l)
 
 if [ "$fds" -gt 100 ]; then
-  echo "Crazy number of open FDs ($n)."
+  echo "Crazy number of open FDs ($fds)."
   exit 2
 else
   echo "All seems fine."

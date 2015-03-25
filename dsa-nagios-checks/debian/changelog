@@ -1,8 +1,8 @@
 dsa-nagios-checks (108) UNRELEASED; urgency=medium
 
-  * 
+  * dsa-check-stunnel-sanity: Fix variable name in output.
 
- -- Peter Palfrader <weasel@debian.org>  Mon, 23 Mar 2015 13:33:58 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 25 Mar 2015 07:20:54 +0100
 
 dsa-nagios-checks (107) unstable; urgency=medium
 
