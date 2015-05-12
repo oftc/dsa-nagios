@@ -165,7 +165,7 @@ for my $f (sort {$a cmp $b} keys %logfiles) {
 	my $last = '';
 	while (<FH>) {
 		chomp;
-		if (/^sent\s+\d+\s+bytes\s+received\s+\d+\s+bytes\s+[\d\.]+\s+bytes\/sec$/) {
+		if (/^sent\s+[\d,]+\s+bytes\s+received\s+[\d,]+\s+bytes\s+[\d,\.]+\s+bytes\/sec$/) {
 			problem('OK', 'probably ok', $f);
 			close(FH);
 			next FILE;
