@@ -162,9 +162,9 @@ freebsd_check_running_version() {
 	local r="$(uname -r)"
 	local v="$(uname -v| sed -e 's/^#[0-9]*/&:/')"
 
-	local q='@\(#\)FreeBSD '"$r $v"
+	local q='@(#)FreeBSD '"$r $v"
 
-	if zcat "$imagefile" | $STRINGS | egrep -q "$q"; then
+	if zcat "$imagefile" | $STRINGS | grep -F -q "$q"; then
 		echo "OK"
 	else
 		echo "not OK"
