@@ -71,15 +71,26 @@ check_ssh_hostkeys() {
 			return
 		fi
 	else
-		log ok "no ed25519 host key."
+		log ok "no ed25519 host key"
 		return
 	fi
 }
+
+check_ipv6_dad() {
+	if ip a | grep -q dadfailed; then
+		log warn "some configured ipv6 addresses failed DAD"
+	else
+		log ok "no DAD failures"
+	fi
+
+}
+
 
 
 check_aliases
 check_ldap_conf
 check_ssh_hostkeys
+check_ipv6_dad
 
 [ "$critical" = "" ] || echo -n "Critical: $critical; "
 [ "$warn" = "" ] || echo -n "Warning: $warn; "
