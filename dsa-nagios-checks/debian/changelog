@@ -4,8 +4,10 @@ dsa-nagios-checks (108) UNRELEASED; urgency=medium
   * dsa-check-dabackup: Fix regex as rsync now adds thousands separator on its
       numbers.
   * dsa-check-config: check for DAD failures.
+  * dsa-check-config: retire ldap.conf check - we ship it with puppet
+      nowadays anyway.
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 17 May 2015 11:57:06 +0200
+ -- Peter Palfrader <weasel@debian.org>  Sun, 31 May 2015 19:16:01 +0200
 
 dsa-nagios-checks (107) unstable; urgency=medium
 

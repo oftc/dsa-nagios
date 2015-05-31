@@ -40,23 +40,6 @@ check_aliases() {
 	log warn "debian-admin not found in root entry in aliases"
 }
 
-check_ldap_conf() {
-	if ! [ -e /etc/ldap/ldap.conf ]; then
-		log unknown "/etc/ldap/ldap.conf not found"
-		return
-	fi
-
-	if egrep '^URI.*ldap://db.debian.org' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^BASE.*dc=debian,dc=org' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^TLS_CACERT.*/etc/ssl/servicecerts/db.debian.org.crt' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^TLS_REQCERT.*hard' /etc/ldap/ldap.conf > /dev/null ; then
-		log ok "ldap.conf configured properly"
-		return
-	fi
-
-	log warn "ldap.conf does not have URI, BASE, TLS_CACERT, TLS_REQCERT all configured correctly"
-}
-
 check_ssh_hostkeys() {
 	if [ -e /etc/ssh/ssh_host_ed25519_key ] ; then
 		if ! [ -e /etc/ssh/ssh_host_ed25519_key.pub ]; then
@@ -88,7 +71,6 @@ check_ipv6_dad() {
 
 
 check_aliases
-check_ldap_conf
 check_ssh_hostkeys
 check_ipv6_dad
 
