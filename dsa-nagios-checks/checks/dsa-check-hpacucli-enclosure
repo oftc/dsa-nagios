@@ -109,6 +109,16 @@ for (@$status) {
 			if ($status ne 'OK') {
 				record('WARNING');
 			};
+	} elsif (m/^(Error): (The specified device does not have a Storage Enclosure identified by.*)/) {
+			my $status = $1;
+			my $detail = "$enc: Unidentified Storage Enclosure";
+			push @{$status{$status}}, $detail;
+			record('CRITICAL');
+	} elsif (m/^(Error): (.*)/) {
+			my $status = $1;
+			my $detail = $2;
+			push @{$status{$status}}, $detail;
+			record('CRITICAL');
 	}
 
 };
