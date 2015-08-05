@@ -1,8 +1,9 @@
-dsa-nagios-checks (109) UNRELEASED; urgency=medium
+dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
 
-  * 
+  * dsa-check-dabackup: use old logfile if lockfile indicates da-backup still
+    running
 
- -- Peter Palfrader <weasel@debian.org>  Sun, 31 May 2015 19:19:42 +0200
+ -- Peter Palfrader <weasel@debian.org>  Wed, 05 Aug 2015 09:16:19 +0200
 
 dsa-nagios-checks (108) unstable; urgency=medium
 
