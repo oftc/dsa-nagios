@@ -32,6 +32,9 @@ use Fcntl qw(:seek);
 my $DABACKUP_CONF = '/etc/da-backup.conf';
 my $MAX_AGE = 30*60*60;
 my $TOO_FRESH = 5*60;
+my $MAX_LOCK_AGE = 24*60*60;
+my $LOCKFILE = '/var/lock/da-backup.lock';
+
 my %CODE = (
 	'UNDEF'         => -1,
 	'OK'            => 0,
@@ -68,9 +71,10 @@ my $params = {};
 
 Getopt::Long::config('bundling');
 if (!GetOptions (
-	'h|help'        =>  \$params->{'help'},
-	'f|fresh=i'     =>  \$TOO_FRESH,
-	'm|maxage=i'    =>  \$MAX_AGE,
+	'h|help'         =>  \$params->{'help'},
+	'f|fresh=i'      =>  \$TOO_FRESH,
+	'm|maxage=i'     =>  \$MAX_AGE,
+	'M|maxlockage=i' =>  \$MAX_LOCK_AGE,
 	)) {
 	die ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [-fwhv]\n");
 };
@@ -136,7 +140,12 @@ for my $f (sort {$a cmp $b} keys %logfiles) {
 	my @stat = stat("$logdir/$f") or die ("Cannot stat $logdir/$f: $!\n");
 	my $age = time - $stat[10];
 
-	if ($age < $TOO_FRESH) { # File is too new, let's use the old one
+	my $lockage = undef;
+	if (my @lockstat = stat("$logdir/$f")) {
+		$lockage = time - $lockstat[10];
+	}
+
+	if ($age < $TOO_FRESH || (defined $lockage && $lockage < $MAX_LOCK_AGE)) { # File is too new, let's use the old one
 		if (-e "$logdir/$f.0") {
 			$f .= ".0";
 			my @stat = stat("$logdir/$f") or die ("Cannot stat $logdir/$f: $!\n");
