@@ -147,7 +147,7 @@ end
 
 dns = Resolv::DNS.new
 ARGV.each{ |domain|
-	serial = []
+	serial = {}
 	nameserver_addresses = {}
 	if @check_soa_nameservers
 		nameservers = dns.getresources(domain, Resolv::DNS::Resource::IN::NS)
@@ -184,18 +184,27 @@ ARGV.each{ |domain|
 				warnings << "Nameserver #{nameserver} for #{domain} returns #{soas.length} SOAs" if soas.length != 1
 				soas.each do |soa|
 					puts " Nameserver #{nameserver} returns serial #{soa.serial} for #{domain}" if @verbose > 0
-					serial << soa.serial unless serial.include? soa.serial
+					sn = soa.serial.to_i
+					if serial.has_key? sn then
+						serial[sn] << nameserver
+					else
+						serial[sn] = [nameserver]
+					end
 				end
 			end
 		end
 	end
-	case serial.length
+	case serial.keys.length
 		when 0
 			warnings << "Found no serials for #{domain}"
 		when 1
-			oks << "#{domain} is at #{serial.first}"
+			oks << "#{domain} is at #{serial.keys.first}"
 		else
-			warnings << "Nameservers disagree on serials for #{domain}: found #{serial.join(', ')}" if serial.length != 1
+			text = []
+			serial.keys.sort.each do |sn|
+				text << "#{sn} (#{serial[sn].join(', ')})"
+			end
+			warnings << "Nameservers disagree on serials for #{domain}: found #{text.join(', ')}"
 	end
 }
 dns.close

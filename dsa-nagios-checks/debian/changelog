@@ -2,8 +2,9 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
 
   * dsa-check-dabackup: use old logfile if lockfile indicates da-backup still
     running.
+  * dsa-check-soas: on soa disagreement, list nameservers.
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 05 Aug 2015 09:16:19 +0200
+ -- Peter Palfrader <weasel@debian.org>  Thu, 06 Aug 2015 09:37:24 +0200
 
 dsa-nagios-checks (108) unstable; urgency=medium
 
