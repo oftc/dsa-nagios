@@ -141,7 +141,7 @@ for my $f (sort {$a cmp $b} keys %logfiles) {
 	my $age = time - $stat[10];
 
 	my $lockage = undef;
-	if (my @lockstat = stat("$logdir/$f")) {
+	if (my @lockstat = stat($LOCKFILE)) {
 		$lockage = time - $lockstat[10];
 	}
 
