@@ -98,7 +98,6 @@ class DSADNS < Resolv::DNS
 		begin
 			@config.resolv(name) {|candidate, tout, nameserver, port|
 				msg = Message.new
-puts @rd
 				msg.rd = @rd
 				msg.add_question(candidate, typeclass)
 				unless sender = senders[[candidate, nameserver, port]]
