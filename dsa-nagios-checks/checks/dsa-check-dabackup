@@ -30,7 +30,7 @@ use Getopt::Long;
 use Fcntl qw(:seek);
 
 my $DABACKUP_CONF = '/etc/da-backup.conf';
-my $MAX_AGE = 30*60*60;
+my $MAX_AGE = 40*60*60;
 my $TOO_FRESH = 5*60;
 my $MAX_LOCK_AGE = 24*60*60;
 my $LOCKFILE = '/var/lock/da-backup.lock';
