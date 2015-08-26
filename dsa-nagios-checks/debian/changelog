@@ -1,8 +1,13 @@
 dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
 
+  [ Peter Palfrader ]
   * dsa-check-dabackup: use old logfile if lockfile indicates da-backup still
     running.
   * dsa-check-soas: on soa disagreement, list nameservers.
+
+  [ Aurelien Jarno ]
+  * dsa-check-libs: also ignore files that are open via normal file handles
+    on NFS.
 
  -- Peter Palfrader <weasel@debian.org>  Thu, 06 Aug 2015 09:37:24 +0200
 

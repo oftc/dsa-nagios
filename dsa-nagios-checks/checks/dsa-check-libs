@@ -170,7 +170,7 @@ LINE: for my $line (@lsof)  {
 	my $inode = $fields{i};
 	my $path  = $fields{n};
 	if ($path =~ m/\.dpkg-/ || $path =~ m/\(deleted\)/ || $path =~ /path inode=/ || $path =~ m#/\.nfs# || $fd eq 'DEL') {
-		my $deleted_in_path = ($path =~ m/\(deleted\)/);
+		my $deleted_in_path = ($path =~ m/\(deleted\)/ || $path =~ m/\.nfs/);
 		next if ($deleted_in_path && $fd =~ /^[0-9]*$/); # Ignore deleted files that are open via normal file handles.
 
 		$path =~ s/^\(deleted\)//; # in some cases "(deleted)" is at the beginning of the string
