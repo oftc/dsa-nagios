@@ -9,7 +9,11 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * dsa-check-libs: also ignore files that are open via normal file handles
     on NFS.
 
- -- Peter Palfrader <weasel@debian.org>  Thu, 06 Aug 2015 09:37:24 +0200
+  [ Peter Palfrader ]
+  * dsa-check-libs: accept -v as short for --verbose.
+  * dsa-check-libs: ignore deleted CWDs.
+
+ -- Peter Palfrader <weasel@debian.org>  Fri, 11 Sep 2015 10:21:15 +0200
 
 dsa-nagios-checks (108) unstable; urgency=medium
 

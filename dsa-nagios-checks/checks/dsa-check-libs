@@ -53,6 +53,7 @@ if (!GetOptions (
 	'--version'	=> \$params->{'version'},
 	'--quiet'       => \$params->{'quiet'},
 	'--verbose'	=> \$params->{'verbose'},
+	'-v'		=> \$params->{'verbose'},
 	'--config=s'	=> \$params->{'config'},
 	)) {
 	dief ("$PROGRAM_NAME: Usage: $PROGRAM_NAME [--help|--version] [--verbose] [--quiet] [--config=<CONFIGFILE>]\n");
@@ -172,6 +173,7 @@ LINE: for my $line (@lsof)  {
 	if ($path =~ m/\.dpkg-/ || $path =~ m/\(deleted\)/ || $path =~ /path inode=/ || $path =~ m#/\.nfs# || $fd eq 'DEL') {
 		my $deleted_in_path = ($path =~ m/\(deleted\)/ || $path =~ m/\.nfs/);
 		next if ($deleted_in_path && $fd =~ /^[0-9]*$/); # Ignore deleted files that are open via normal file handles.
+		next if ($deleted_in_path && $fd eq 'cwd'); # Ignore deleted directories that we happen to be in.
 
 		$path =~ s/^\(deleted\)//; # in some cases "(deleted)" is at the beginning of the string
 		for my $i (@{$config->{'ignorelist'}}) {
