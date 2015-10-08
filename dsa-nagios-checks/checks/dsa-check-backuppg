@@ -51,6 +51,7 @@ import errno
 import sys
 import yaml
 import optparse
+import socket
 
 def load_conf(cf):
     if cf is not None:
@@ -97,11 +98,14 @@ def note_warning_db(host, db, key, value):
     problems_per_db[host][db] = True
 
 
-def wal_pre(w):
+def wal_pre(w, host, db):
     (w1,w2) = w
     if w2 == 0:
         w1 -= 1
-        w2 = 0xFE
+        if (host,db) in ( ('moszumanska', 'main'), ):
+            w2 = 0xFE
+        else:
+            w2 = 0xFF
     else:
         w2 -= 1
 
@@ -231,8 +235,13 @@ for dir in os.listdir('.'):
                     basefn = '%s.BASE.%s.tar.gz'%(db, info['label'])
                     baseffn = os.path.join(dir, basefn)
                     if not basefn in files:
-                        note_warning_db(dir, db, 'MISSING-BASE', basefn)
-                        continue
+                        m = re.match('([a-z0-9.]+)-\d{8}-\d{6}', info['label'])
+                        if m and (m.group(1) != socket.getfqdn()):
+                            note_info(dir, 'IGNORED-OTHER-BASE: '+basefn)
+                            continue
+                        else:
+                            note_warning_db(dir, db, 'MISSING-BASE', basefn)
+                            continue
                 files.remove(basefn)
                 if backup_state[db]['can_expire_next']:
                     backup_state[db]['expires'].append(baseffn)
@@ -273,7 +282,7 @@ for dir in os.listdir('.'):
                     backup_state[db]['newest-wal'] = thissegment
                     backup_state[db]['newest-wal-file'] = ffn
                 else:
-                    if not wal_pre(backup_state[db]['oldest-wal']) == thissegment:
+                    if not wal_pre(backup_state[db]['oldest-wal'], dir, db) == thissegment:
                         note_warning_db(dir, db, 'WAL-MISSING-AFTER', ffn)
                         ignored_dbs[db] = True
                         continue
