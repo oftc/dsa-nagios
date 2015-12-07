@@ -248,13 +248,15 @@ for my $slot (sort @controllers) {
 				$expected = [ '1.5Gbps', '3.0Gbps' ];
 			} elsif ($value{'PHY Count'} eq '2') {
 				if (defined($value{'Redundant Path(s)'})) {
-					$expected = [ '3.0GBPS, 3.0GBPS', '6.0GBPS, 6.0GBPS' ];
+					$expected = [ '3.0GBPS, 3.0GBPS', '6.0GBPS, 6.0GBPS',
+					       	      '12.0GBPS, 12.0GBPS' ];
 				} else {
 					$expected = [ '3.0GBPS, Unknown', 'Unknown, 3.0GBPS',
-					              '6.0GBPS, Unknown', 'Unknown, 6.0GBPS' ];
+					              '6.0GBPS, Unknown', 'Unknown, 6.0GBPS',
+					              '12.0GBPS, Unknown', 'Unknown, 12.0GBPS' ];
 				}
 			} else {
-				$expected = [ '3.0GBPS', '6.0GBPS' ];
+				$expected = [ '3.0GBPS', '6.0GBPS', '12.0GBPS' ];
 			}
 		} else {
 			warn "Should not be here.  Do not know what to do with type '$type'\n";

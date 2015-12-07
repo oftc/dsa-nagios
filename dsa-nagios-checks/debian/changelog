@@ -21,6 +21,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
 
   [ Julien Cristau ]
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
+  * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
  -- Peter Palfrader <weasel@debian.org>  Fri, 11 Sep 2015 10:21:15 +0200
 
