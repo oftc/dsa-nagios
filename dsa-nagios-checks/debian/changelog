@@ -19,6 +19,9 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * dsa-update-unowned-file-status: avoid printing the apex of pruned
     directory trees.
 
+  [ Julien Cristau ]
+  * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
+
  -- Peter Palfrader <weasel@debian.org>  Fri, 11 Sep 2015 10:21:15 +0200
 
 dsa-nagios-checks (108) unstable; urgency=medium
