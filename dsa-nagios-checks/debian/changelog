@@ -20,6 +20,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
     directory trees.
 
   [ Julien Cristau ]
+  * dsa-check-hpacucli: accept 3.0Gbps as transfer speed for SATA
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
   * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
