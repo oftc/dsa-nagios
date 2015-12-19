@@ -7,7 +7,7 @@ retention: 1814400
 backups:
   stabile:
     - snapshot
-  ries:
+  franck:
     - dak
   grieg:
     - wanna-build
