@@ -12,6 +12,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   [ Peter Palfrader ]
   * dsa-check-libs: accept -v as short for --verbose.
   * dsa-check-libs: ignore deleted CWDs.
+  * dsa-check-drbd: Add --ok-no-devices option.
 
   [ Tollef Fog Heen ]
   * dsa-update-unowned-file-status: ignore fdescfs, used for /dev/fd on
@@ -24,7 +25,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
   * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
- -- Peter Palfrader <weasel@debian.org>  Fri, 11 Sep 2015 10:21:15 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 21 Dec 2015 10:40:57 +0100
 
 dsa-nagios-checks (108) unstable; urgency=medium
 

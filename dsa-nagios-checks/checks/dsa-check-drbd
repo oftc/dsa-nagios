@@ -4,6 +4,7 @@
 # check_drbd v0.5.3			           #
 # by Brandon Lee Poyner    bpoyner / CCAC.edu	   #
 ####################################################
+## 20151221 Peter Palfrader: add --ok-no-devices
 
 use strict;
 use File::Basename;
@@ -13,6 +14,7 @@ my $drbd_proc='/proc/drbd';
 my $drbd_devices=0;
 my ($drbd_expect, $drbd_role, $drbd_version, $debug_mode); 
 my (%options, %cs, %st, %ld, %ds, %check, %warning, %critical);
+my $ok_no_devices = 0;
 
 my $prog_name=basename($0);
 my $prog_revision='0.5.3';
@@ -86,7 +88,7 @@ my %state = (
 
 sub print_usage {
 	print <<EOF
-Usage: $prog_name [-d <All|Configured|...>] [-e expect] [-p proc] [-r role] [-o states] [-w states] [-c states] [--debug]
+Usage: $prog_name [-d <All|Configured|...>] [-e expect] [-p proc] [-r role] [-o states] [-w states] [-c states] [--debug] [--ok-no-devices]
 	Options:
 	-d STRING [default: $drbd_devices.  Example: 0,1,2 ]
 	-p STRING [default: $drbd_proc.  Use '-' for stdin]
@@ -137,6 +139,7 @@ sub parse_options {
 		"o|ok=s" => \$ok_string,
 		"w|warning=s" => \$warning_string,
 		"c|critical=s" => \$critical_string,
+		"ok-no-devices" => \$ok_no_devices,
 		"debug" => \$debug);
 	if (defined($help) && ($help ne "")) {
 		&print_help;
@@ -266,7 +269,7 @@ sub parse_drbd_devices {
 		$check{$device} = 1;
 	}
 	if (int(keys %check) == 0) {
-		&myexit('UNKNOWN',"No configured devices found");
+		&myexit($ok_no_devices ? 'OK' : 'UNKNOWN',"No configured devices found");
 	}
 	if (defined($debug_mode) && ($debug_mode == 1)) {
 		# 
