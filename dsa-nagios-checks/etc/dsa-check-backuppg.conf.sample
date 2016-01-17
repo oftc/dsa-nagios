@@ -6,10 +6,11 @@ warn-age:
 retention: 1814400
 backups:
   stabile:
-    - snapshot
+    snapshot:
   franck:
-    - dak
+    dak:
   grieg:
-    - wanna-build
+    wanna-build:
+      timeline: 3
   sibelius:
-    - 2ndsnapshot
+    2ndsnapshot:

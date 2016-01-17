@@ -195,7 +195,7 @@ for dir in os.listdir('.'):
             continue
 
         (db, type) = r.groups(1)
-        if not isinstance(config['backups'][dir], list) or not db in config['backups'][dir]:
+        if not isinstance(config['backups'][dir], dict) or not db in config['backups'][dir]:
             if not db in ignored_dbs:
                 note_warning_db(dir, db, 'NOT-CONFIGURED', '%s/%s'%(dir, db))
             ignored_dbs[db] = True
@@ -211,6 +211,10 @@ for dir in os.listdir('.'):
             # can_expire_next: Can expire all files that we handle from now on
             backup_state[db]['can_expire_next'] = False
             backup_state[db]['expires'] = []
+            if isinstance(config['backups'][dir][db], dict) and 'timeline' in config['backups'][dir][db]:
+                backup_state[db]['timeline'] = config['backups'][dir][db]['timeline']
+            else:
+                backup_state[db]['timeline'] = 1
 
         # Apparently we already have seen a base backup and all its wal files
         # which we want to keep, so everything what we see now is older than
@@ -273,8 +277,8 @@ for dir in os.listdir('.'):
                             backup_state[db]['can_expire_next'] = True
 
                 (timeline, wal1, wal2) = map(lambda x: int(x,16), r.groups())
-                if not timeline == 1:
-                    note_warning_db(dir, db, 'CANNOT-HANDLE-TIMELINES_NOT_1', ffn)
+                if not timeline == backup_state[db]['timeline']:
+                    note_warning_db(dir, db, 'UNEXPECTED-TIMELINE', ffn)
                     continue
 
                 thissegment = (wal1, wal2)
