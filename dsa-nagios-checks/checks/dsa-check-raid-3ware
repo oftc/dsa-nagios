@@ -71,7 +71,7 @@ if ($params->{'help'}) {
 if ($params->{'version'}) {
 	print "nagios-check-raid-3ware $VERSION\n";
 	print "nagios check for 3ware raids\n";
-	print "Copyright (c) 2006 Peter Palfrader <peter\@palfrader.org>\n";
+	print "Copyright (c) 2006,2008,2009,2016 Peter Palfrader <peter\@palfrader.org>\n";
 	exit (0);
 };
 
