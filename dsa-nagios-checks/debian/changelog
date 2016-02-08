@@ -16,6 +16,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * dsa-check-backuppg: allow specifying which timeline we expect a database
     to be on.
   * dsa-check-cert-expire-dir: add
+  * dsa-check-raid-3ware: modernize
 
   [ Tollef Fog Heen ]
   * dsa-update-unowned-file-status: ignore fdescfs, used for /dev/fd on
@@ -28,7 +29,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
   * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
- -- Peter Palfrader <weasel@debian.org>  Tue, 02 Feb 2016 07:58:55 +0100
+ -- Peter Palfrader <weasel@debian.org>  Mon, 08 Feb 2016 10:03:28 +0100
 
 dsa-nagios-checks (108) unstable; urgency=medium
 

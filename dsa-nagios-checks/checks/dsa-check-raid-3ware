@@ -1,6 +1,6 @@
 #!/usr/bin/perl -Tw
 
-# Copyright (C) 2006,2008,2009 Peter Palfrader <peter@palfrader.org>
+# Copyright (C) 2006,2008,2009,2016 Peter Palfrader <peter@palfrader.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -85,10 +85,20 @@ unless (-e $TW_CLI) {
 	exit $UNKNOWN;
 };
 
-my $sudo = $params->{'no-sudo'} ? '' : 'sudo ';
-my $command = "$sudo $TW_CLI info c$params->{'controller'} u$params->{'unit'} status";
+for my $thing (qw{controller unit}) {
+	if ($params->{$thing} =~ m/^([0-9]+)$/) {
+		$params->{$thing} = $1;
+	} else {
+		die("Invalid $thing $1.\n");
+	}
+};
+
+my @command;
+push @command, "sudo" if $params->{'no-sudo'};
+push @command, ($TW_CLI, 'info', "c$params->{'controller'}", "u$params->{'unit'}", "status");
+my $command = join(' ', @command);
 print STDERR "Running $command\n" if $params->{'verbose'};
-open (TW, "$command|") or die ("Cannot run $command: $!\n");
+open (TW, "-|", @command) or die ("Cannot run $command: $!\n");
 my @tw=<TW>;
 close TW;
 if ($CHILD_ERROR) { # program failed
