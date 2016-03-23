@@ -21,6 +21,8 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
     warnings.
   * dsa-check-zone-rrsig-expiration-many: stop waiting for the timeout after
     the last zone checker finished.
+  * dsa-check-zone-rrsig-expiration: Handle cases where a child and parent
+    domain share nameservers.
 
   [ Tollef Fog Heen ]
   * dsa-update-unowned-file-status: ignore fdescfs, used for /dev/fd on
@@ -33,7 +35,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
   * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 23 Mar 2016 09:08:38 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 23 Mar 2016 09:26:05 +0100
 
 dsa-nagios-checks (108) unstable; urgency=medium
 

@@ -141,26 +141,26 @@ sub do_recursion {
 		my $pkt;
 		my $prettyrefs = (scalar @refs) ? join(", ", @refs) : "empty set(!?)";
 		foreach my $ns (shuffle @refs) {
-			print STDERR "sending query for $zone SOA to $ns\n" if $opts{d};
+			print STDERR "sending query for $zone NS to $ns\n" if $opts{d};
 			$res->nameserver($ns);
 			$res->udp_timeout($opts{t});
 			$res->udppacketsize($opts{s});
-			$pkt = $res->send($zone, 'SOA');
+			$pkt = $res->send($zone, 'NS');
 			last if $pkt;
 		}
-		print STDERR "No response to seed query for $zone SOA from $prettyrefs.\n" if $opts{d};
 		critical("No response to seed query for $zone from $prettyrefs.") unless $pkt;
 		critical($pkt->header->rcode . " from " . $pkt->answerfrom)
 			unless ($pkt->header->rcode eq 'NOERROR');
 		@refs = ();
-		foreach my $rr ($pkt->authority) {
+		foreach my $rr ($pkt->authority, $pkt->answer) {
 			print STDERR $rr->string, "\n" if $opts{d};
 			push (@refs, $rr->nsdname) if $rr->type eq 'NS';
 			next unless lc($rr->name) eq lc($zone);
 			add_nslist_to_data($pkt);
+			#print STDERR "Adding for $zone: ", $pkt->string, "\n" if $opts{d};
 			$done = 1;
 		}
-		critical("No new references after querying for $zone SOA from $prettyrefs.  Packet was ".$pkt->string) unless (scalar @refs);
+		critical("No new references after querying for $zone NS from $prettyrefs.  Packet was ".$pkt->string) unless (scalar @refs);
 	} while (! $done);
 }
 
@@ -305,9 +305,9 @@ sub send_query {
 sub get_nslist {
 	my $pkt = shift;
 	return () unless $pkt;
-	return () unless $pkt->authority;
+	return () if (!$pkt->authority && !$pkt->answer);
 	my @nslist;
-	foreach my $rr ($pkt->authority) {
+	foreach my $rr ($pkt->authority, $pkt->answer) {
 		next unless ($rr->type eq 'NS');
 		next unless ($rr->name eq $zone);
 		push(@nslist, lc($rr->nsdname));
