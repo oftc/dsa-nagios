@@ -309,7 +309,7 @@ sub get_nslist {
 	my @nslist;
 	foreach my $rr ($pkt->authority, $pkt->answer) {
 		next unless ($rr->type eq 'NS');
-		next unless ($rr->name eq $zone);
+		next unless lc($rr->name) eq lc($zone);
 		push(@nslist, lc($rr->nsdname));
 	}
 	return @nslist;
