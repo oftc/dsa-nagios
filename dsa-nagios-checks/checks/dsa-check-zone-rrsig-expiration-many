@@ -189,7 +189,7 @@ for my $k (keys %$count) {
 	@{$count->{$k}} = sort {$a cmp $b} @{$count->{$k}};
 }
 
-my $exit = 0;
+my $exit;
 my %state_mapping = (
 	'unknown' => 255,
 	'critical' => 2,
@@ -209,4 +209,4 @@ for my $state (sort {$state_mapping{$b} <=> $state_mapping{$a}} keys %state_mapp
 printf "unsigned: %d", scalar @{$count->{'unsigned'}};
 print "\n";
 print $_ for (@details);
-exit $exit;
+exit ((defined $exit) ? $exit : 0);
