@@ -279,7 +279,7 @@ sub output {
 }
 
 sub usage {
-	print STDERR "usage: $0 [-d] [-w=<warn>] [-c=<crit>] [-t=<timeout>] [-r=<initialns1>[,<initialns2>[,..]] [-s=<packet-size>] <zone>\n";
+	print STDERR "usage: $0 [-d] [-w=<warn>] [-c=<crit>] [-t=<timeout>] [-r=<initialns1>[,<initialns2>[,..]]] [-s=<packet-size>] <zone>\n";
 	exit 3;
 }
 
