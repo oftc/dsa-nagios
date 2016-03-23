@@ -25,6 +25,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
     domain share nameservers.
   * dsa-check-zone-rrsig-expiration: Handle upper/lower case mismatch in
     labels for NS responses.
+  * dsa-check-zone-rrsig-expiration: document -r and -s in help output.
 
   [ Tollef Fog Heen ]
   * dsa-update-unowned-file-status: ignore fdescfs, used for /dev/fd on
@@ -37,7 +38,7 @@ dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
   * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
   * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
 
- -- Peter Palfrader <weasel@debian.org>  Wed, 23 Mar 2016 09:53:53 +0100
+ -- Peter Palfrader <weasel@debian.org>  Wed, 23 Mar 2016 10:12:46 +0100
 
 dsa-nagios-checks (108) unstable; urgency=medium
 
