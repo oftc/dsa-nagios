@@ -177,8 +177,8 @@ while (time - $begin <= $params->{timeout}) {
 		else { push @{$count->{'unknown'}}, $zone; };
 		delete $threads{$zone};
 	}
-	# print STDERR "foo #threads:", (scalar keys %threads), ":", join(",", keys %threads),"\n";
 	last if scalar keys %threads == 0;
+	print STDERR (scalar keys %threads), " threads left: ", join(" ", keys %threads), "\n" if $params->{'debug'};
 	sleep 1;
 }
 for my $zone (sort {$a cmp $b} keys %threads) {
