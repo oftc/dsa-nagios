@@ -47,9 +47,11 @@ import copy
 import time
 import re
 import os
+import errno
 import sys
 import yaml
 import optparse
+import socket
 
 def load_conf(cf):
     if cf is not None:
@@ -96,11 +98,14 @@ def note_warning_db(host, db, key, value):
     problems_per_db[host][db] = True
 
 
-def wal_pre(w):
+def wal_pre(w, host, db):
     (w1,w2) = w
     if w2 == 0:
         w1 -= 1
-        w2 = 0xFE
+        if (host,db) in ( ('moszumanska', 'main'), ):
+            w2 = 0xFE
+        else:
+            w2 = 0xFF
     else:
         w2 -= 1
 
@@ -143,7 +148,15 @@ for dir in os.listdir('.'):
         continue
 
     if not os.path.isdir(dir):
-        if min(os.path.getmtime(dir), os.path.getctime(dir)) + 3600*4 > time.time():
+        try:
+            mtime = os.path.getmtime(dir)
+            ctime = os.path.getctime(dir)
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                continue
+            else:
+                raise e
+        if min(mtime, ctime) + 3600*4 > time.time():
             note_info('IGNORED', dir)
         else:
             note_warning('NOT-A-DIR', dir)
@@ -182,7 +195,7 @@ for dir in os.listdir('.'):
             continue
 
         (db, type) = r.groups(1)
-        if not isinstance(config['backups'][dir], list) or not db in config['backups'][dir]:
+        if not isinstance(config['backups'][dir], dict) or not db in config['backups'][dir]:
             if not db in ignored_dbs:
                 note_warning_db(dir, db, 'NOT-CONFIGURED', '%s/%s'%(dir, db))
             ignored_dbs[db] = True
@@ -198,6 +211,10 @@ for dir in os.listdir('.'):
             # can_expire_next: Can expire all files that we handle from now on
             backup_state[db]['can_expire_next'] = False
             backup_state[db]['expires'] = []
+            if isinstance(config['backups'][dir][db], dict) and 'timeline' in config['backups'][dir][db]:
+                backup_state[db]['timeline'] = config['backups'][dir][db]['timeline']
+            else:
+                backup_state[db]['timeline'] = 1
 
         # Apparently we already have seen a base backup and all its wal files
         # which we want to keep, so everything what we see now is older than
@@ -222,8 +239,13 @@ for dir in os.listdir('.'):
                     basefn = '%s.BASE.%s.tar.gz'%(db, info['label'])
                     baseffn = os.path.join(dir, basefn)
                     if not basefn in files:
-                        note_warning_db(dir, db, 'MISSING-BASE', basefn)
-                        continue
+                        m = re.match('([a-z0-9.]+)-\d{8}-\d{6}', info['label'])
+                        if m and (m.group(1) != socket.getfqdn()):
+                            note_info(dir, 'IGNORED-OTHER-BASE: '+basefn)
+                            continue
+                        else:
+                            note_warning_db(dir, db, 'MISSING-BASE', basefn)
+                            continue
                 files.remove(basefn)
                 if backup_state[db]['can_expire_next']:
                     backup_state[db]['expires'].append(baseffn)
@@ -255,8 +277,8 @@ for dir in os.listdir('.'):
                             backup_state[db]['can_expire_next'] = True
 
                 (timeline, wal1, wal2) = map(lambda x: int(x,16), r.groups())
-                if not timeline == 1:
-                    note_warning_db(dir, db, 'CANNOT-HANDLE-TIMELINES_NOT_1', ffn)
+                if not timeline == backup_state[db]['timeline']:
+                    note_warning_db(dir, db, 'UNEXPECTED-TIMELINE', ffn)
                     continue
 
                 thissegment = (wal1, wal2)
@@ -264,7 +286,7 @@ for dir in os.listdir('.'):
                     backup_state[db]['newest-wal'] = thissegment
                     backup_state[db]['newest-wal-file'] = ffn
                 else:
-                    if not wal_pre(backup_state[db]['oldest-wal']) == thissegment:
+                    if not wal_pre(backup_state[db]['oldest-wal'], dir, db) == thissegment:
                         note_warning_db(dir, db, 'WAL-MISSING-AFTER', ffn)
                         ignored_dbs[db] = True
                         continue

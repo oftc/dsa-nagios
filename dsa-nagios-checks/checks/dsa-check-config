@@ -40,25 +40,39 @@ check_aliases() {
 	log warn "debian-admin not found in root entry in aliases"
 }
 
-check_ldap_conf() {
-	if ! [ -e /etc/ldap/ldap.conf ]; then
-		log unknown "/etc/ldap/ldap.conf not found"
+check_ssh_hostkeys() {
+	if [ -e /etc/ssh/ssh_host_ed25519_key ] ; then
+		if ! [ -e /etc/ssh/ssh_host_ed25519_key.pub ]; then
+			log warn "Have /etc/ssh/ssh_host_ed25519_key without .pub"
+			return
+		fi
+		if cat /etc/ssh/ssh_known_hosts | awk -v hostname=$(hostname -f) '{split($1,a,","); if (a[1] == hostname) { print } }' | grep -q -F -f /etc/ssh/ssh_host_ed25519_key.pub; then
+			log ok "ed25519 host key in known_hosts"
+			return
+		else
+			log warn "ed25519 host key missing from known_hosts"
+			return
+		fi
+	else
+		log ok "no ed25519 host key"
 		return
 	fi
-
-	if egrep '^URI.*ldap://db.debian.org' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^BASE.*dc=debian,dc=org' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^TLS_CACERT.*/etc/ssl/servicecerts/db.debian.org.crt' /etc/ldap/ldap.conf > /dev/null &&
-	   egrep '^TLS_REQCERT.*hard' /etc/ldap/ldap.conf > /dev/null ; then
-		log ok "ldap.conf configured properly"
-		return
-	fi
-
-	log warn "ldap.conf does not have URI, BASE, TLS_CACERT, TLS_REQCERT all configured correctly"
 }
 
+check_ipv6_dad() {
+	if ip a | grep -q dadfailed; then
+		log warn "some configured ipv6 addresses failed DAD"
+	else
+		log ok "no DAD failures"
+	fi
+
+}
+
+
+
 check_aliases
-check_ldap_conf
+check_ssh_hostkeys
+check_ipv6_dad
 
 [ "$critical" = "" ] || echo -n "Critical: $critical; "
 [ "$warn" = "" ] || echo -n "Warning: $warn; "

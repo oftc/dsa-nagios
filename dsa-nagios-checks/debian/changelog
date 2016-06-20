@@ -1,9 +1,129 @@
-dsa-nagios-checks (100) UNRELEASED; urgency=low
+dsa-nagios-checks (108+XXXX) UNRELEASED; urgency=medium
+
+  [ Peter Palfrader ]
+  * dsa-check-dabackup: use old logfile if lockfile indicates da-backup still
+    running.
+  * dsa-check-soas: on soa disagreement, list nameservers.
+
+  [ Aurelien Jarno ]
+  * dsa-check-libs: also ignore files that are open via normal file handles
+    on NFS.
+
+  [ Peter Palfrader ]
+  * dsa-check-libs: accept -v as short for --verbose.
+  * dsa-check-libs: ignore deleted CWDs.
+  * dsa-check-drbd: Add --ok-no-devices option.
+  * dsa-check-backuppg: allow specifying which timeline we expect a database
+    to be on.
+  * dsa-check-cert-expire-dir: add
+  * dsa-check-raid-3ware: modernize
+  * dsa-check-zone-rrsig-expiration-many: actually exit non-zero if there were
+    warnings.
+  * dsa-check-zone-rrsig-expiration-many: stop waiting for the timeout after
+    the last zone checker finished.
+  * dsa-check-zone-rrsig-expiration-many: print which threads we are waiting
+    on with --debug.
+  * dsa-check-zone-rrsig-expiration: Handle cases where a child and parent
+    domain share nameservers.
+  * dsa-check-zone-rrsig-expiration: Handle upper/lower case mismatch in
+    labels for NS responses.
+  * dsa-check-zone-rrsig-expiration: document -r and -s in help output.
+  * dsa-check-mirrorsync: support unix timestamps in tracefile
+    (for staticsync mirrors).
+
+  [ Tollef Fog Heen ]
+  * dsa-update-unowned-file-status: ignore fdescfs, used for /dev/fd on
+    FreeBSD.
+  * dsa-update-unowned-file-status: avoid printing the apex of pruned
+    directory trees.
+
+  [ Julien Cristau ]
+  * dsa-check-hpacucli: accept 3.0Gbps as transfer speed for SATA
+  * Add dsa-check-hpssacli, replaces hpacucli for new hosts.
+  * dsa-check-hpssacli: accept 12.0Gbps as transfer speed for SAS
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 15 Jun 2016 10:58:31 +0200
+
+dsa-nagios-checks (108) unstable; urgency=medium
+
+  * dsa-check-stunnel-sanity: Fix variable name in output.
+  * dsa-check-dabackup: Fix regex as rsync now adds thousands separator on its
+      numbers.
+  * dsa-check-config: check for DAD failures.
+  * dsa-check-config: retire ldap.conf check - we ship it with puppet
+      nowadays anyway.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 31 May 2015 19:16:43 +0200
+
+dsa-nagios-checks (107) unstable; urgency=medium
+
+  * Add dsa-check-stunnel-sanity.
+
+ -- Peter Palfrader <weasel@debian.org>  Mon, 23 Mar 2015 13:32:18 +0100
+
+dsa-nagios-checks (106) unstable; urgency=medium
+
+  * Depend on libyaml-syck-perl.
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 14:17:39 +0100
+
+dsa-nagios-checks (105) unstable; urgency=medium
+
+  [ Peter Palfrader ]
+  * dsa-check-dnssec-delegation: Ignore revoked DNSKEYs in zone.
+  * dsa-check-libs: add.
+
+  [ Paul Wise ]
+  * dsa-check-backuppg: Ignore removed tmp files instead of crashing
+
+ -- Peter Palfrader <weasel@debian.org>  Wed, 28 Jan 2015 00:10:25 +0100
+
+dsa-nagios-checks (104) unstable; urgency=medium
+
+  * Fix iptables-save cronjob.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 14:29:31 +0100
+
+dsa-nagios-checks (103) unstable; urgency=medium
+
+  * dsa-update-apt-status: run apt-get update in a flock wrapper.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:29:20 +0100
+
+dsa-nagios-checks (102) unstable; urgency=medium
+
+  * dsa-check-entropy: unbreak script by removing non-ASCII characters.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 12:04:38 +0100
+
+dsa-nagios-checks (101) unstable; urgency=low
+
+  [ Peter Palfrader ]
+  * dsa-check-zone-rrsig-expiration-many: add --debug option to pass through.
+  * dsa-check-zone-rrsig-expiration: Do not ask for RRSIG directly, instead
+    ask for SOA with dnssec data.  Apparently some nameservers do give you the
+    RRSIG on the DS record instead of a referral (rcode0's for instance).
+  * dsa-check-hpasm: Support supplying a list of things for which failures are
+    ignored.
+  * dsa-check-soas: do some queries without RD set.
+  * dsa-check-running-kernel: in cat_vmlinux(), only consider the first 5 hits
+    for the magic start sequence.  This makes running times bearable on our
+    new octeons.
+  * dsa-check-config: check if existing ed25519 host keys are in ldap.
+
+  [ Hendrik Köhler ]
+  * Extend dsa-check-entropy output so Icinga2 can process performance
+    data (e.g. used by Graphite).
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 07 Dec 2014 10:58:47 +0100
+
+dsa-nagios-checks (100) unstable; urgency=low
 
   [ Peter Palfrader ]
   * dsa-check-running-kernel: Check from all compression tokens.
   * dsa-check-zone-rrsig-expiration-many: Initialize exit properly, in case
     it does not get set later.
+  * dsa-check-running-kernel: fix kernel metapackage version regex
 
   [ Evgeni Golov ]
   * dsa-check-packages: go critical if there are security updates.
@@ -17,7 +137,7 @@ dsa-nagios-checks (100) UNRELEASED; urgency=low
   [ Stephen Gran ]
   * dsa-check-mq-connection: Catch case when host has never connected
 
- -- Peter Palfrader <weasel@debian.org>  Sat, 26 Apr 2014 14:54:38 +0200
+ -- Peter Palfrader <weasel@debian.org>  Mon, 19 May 2014 12:33:55 +0200
 
 dsa-nagios-checks (99) unstable; urgency=low
 

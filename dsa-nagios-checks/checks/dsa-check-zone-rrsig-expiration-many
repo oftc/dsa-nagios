@@ -71,6 +71,7 @@ sub check_one {
 
 	my @cmd = ($check, '-w', $params->{'warn'}, '-c', $params->{'critical'});
 	push(@cmd, '-r', $extra->{'initial_refs'}) if exists $extra->{'initial_refs'};
+	push(@cmd, '-d') if $params->{'debug'};
 	push(@cmd, $zone);
 	open(P, '-|', @cmd) or die ("Cannot run $CHECK for $zone\n");
 	my @p = <P>;
@@ -82,13 +83,14 @@ sub check_one {
 	return ($res, \@p);
 }
 
-my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--timeout=<nn>] [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
+my $USAGE = "Usage: $PROGRAM_NAME [--help] | [--debug] [--timeout=<nn>] [--warn=<nn>] [--critical=<nn>] [--geozonedir=<geodir>] <indir>\n";
 my $params = { 'timeout' => 45, 'warn' => '14d', 'critical' => '7d' };
 Getopt::Long::config('bundling');
 GetOptions (
 	'--help' => \$params->{'help'},
 	'--timeout=i' => \$params->{'timeout'},
 	'--warn=s' => \$params->{'warn'},
+	'--debug' => \$params->{'debug'},
 	'--critical=s' => \$params->{'critical'},
 	'--geozonedir=s' => \$params->{'geozonedir'},
 ) or die ($USAGE);
@@ -175,7 +177,9 @@ while (time - $begin <= $params->{timeout}) {
 		else { push @{$count->{'unknown'}}, $zone; };
 		delete $threads{$zone};
 	}
-	sleep(1) unless scalar keys %threads == 0;
+	last if scalar keys %threads == 0;
+	print STDERR (scalar keys %threads), " threads left: ", join(" ", keys %threads), "\n" if $params->{'debug'};
+	sleep 1;
 }
 for my $zone (sort {$a cmp $b} keys %threads) {
 	push @{$count->{'warn'}}, $zone;
@@ -187,7 +191,7 @@ for my $k (keys %$count) {
 	@{$count->{$k}} = sort {$a cmp $b} @{$count->{$k}};
 }
 
-my $exit = 0;
+my $exit;
 my %state_mapping = (
 	'unknown' => 255,
 	'critical' => 2,
@@ -207,4 +211,4 @@ for my $state (sort {$state_mapping{$b} <=> $state_mapping{$a}} keys %state_mapp
 printf "unsigned: %d", scalar @{$count->{'unsigned'}};
 print "\n";
 print $_ for (@details);
-exit $exit;
+exit ((defined $exit) ? $exit : 0);

@@ -3,7 +3,7 @@
 # nagios check for debian security sync checks
 #
 #  Copyright (c) 2008 Alexander Wirt <formorer@debian.org>
-#  Copyright (c) 2009, 2010 Peter Palfrader <peter@palfrader.org>
+#  Copyright (c) 2009, 2010, 2016 Peter Palfrader <peter@palfrader.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,6 +45,8 @@ sub usage($$) {
 	print $fh "  --verbose           Be a little verbose.\n";
 	print $fh "  --host              hostname to check.\n";
 	print $fh "  --path              path to tracefile.\n";
+	print $fh "  --unix              tracefile has a unix timestamp.\n";
+	print $fh "  --ssl               use https.\n";
 	print $fh "  --allow-skew=<foo>:<bar> if the newest timestamp is newer than <foo>secs\n";
 	print $fh "                      then the mirror sync is still ok, assuming the oldest\n";
 	print $fh "                      trace file is no older than <bar>\n";
@@ -52,6 +54,9 @@ sub usage($$) {
 	exit ($exit);
 };
 
+# Work around LWP not being able to verify service certs directly
+my $ca_dir = '/etc/ssl/ca-debian';
+$ENV{'PERL_LWP_SSL_CA_PATH'} = $ca_dir if -d $ca_dir;
 
 $ENV{'PATH'} = '/bin:/sbin:/usr/bin:/usr/sbin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -70,6 +75,8 @@ if (!GetOptions (
                 '--help'                => \$params->{'help'},
                 '--verbose'             => \$params->{'verbose'},
                 '--version'             => \$params->{'version'},
+                '--unix'                => \$params->{'unix'},
+                '--ssl'                 => \$params->{'ssl'},
                 '--host=s'              => \$params->{'host'},
                 '--path=s'              => \$params->{'path'},
                 '--allow-skew=s'        => \$params->{'skew'},
@@ -100,27 +107,37 @@ my $exitcode = $OK;
 print "Checking the following hosts:\n" . join("\n", @slaves) . "\n" if $params->{'verbose'};
 
 my @critical;
+my $schema = $params->{'ssl'} ? 'https' : 'http';
 
 foreach my $slave (@slaves) {
 	my $ua = LWP::UserAgent->new;
-	$ua->proxy('http', "http://$slave");
-	print "Requesting http://$host/$path from $slave\n" if $params->{'verbose'};
-	my $response = $ua->get("http://$host/$path");
+	$ua->proxy('http', "$schema://$slave");
+	print "Requesting $schema://$host/$path from $slave\n" if $params->{'verbose'};
+	my $response = $ua->get("$schema://$host/$path");
 
 
 	if ($response->is_success) {
 		my $content = $response->content;  # or whatever
 		my ($date, $foo, $bar) = split("\n", $content);
-		my $synctime = str2time($date);;
-		if (! defined $synctime) {
+		my $synctime;
+
+		if ($params->{'unix'}) {
+			if ($date =~ /^([0-9]+)$/) {
+				$synctime = $1;
+			}
+		} else {
+			$synctime = str2time($date);
+		}
+
+		if (defined $synctime) {
+			print "$slave last synced $synctime ", scalar(gmtime($synctime)), "\n" if $params->{'verbose'};
+			$status->{$slave}->{'synced'} = $synctime;
+		} else {
 			$synctime = 0;
 			$exitcode = $UNKNOWN;
 			push @exitstatus, "Cannot parse tracefile on $slave";
-		};
-		print "$slave last synced $synctime\n" if $params->{'verbose'};
-		$status->{$slave}->{'synced'} = $synctime;
-	}
-	else {
+		}
+	} else {
 		push @exitstatus, "$slave broken: " . $response->status_line; 
 		$status->{$slave}->{'error'} = $response->status_line;
 		$status->{$slave}->{'synced'} = 0;
@@ -154,19 +171,19 @@ if ($o_sync > 1) {
 	};
 	push @exitstatus, $msg . join(", ", @not_most_recent);
 } else {
-	print "All mirrors unique\n" if $params->{'verbose'};
+	print "All mirrors on same sync timestamp\n" if $params->{'verbose'};
 }
 
 if ($exitcode == $CRITICAL) {
-	print "CRITICAL: " . join(',',@exitstatus) . "\n";
+	print "CRITICAL: " . join(', ',@exitstatus) . "\n";
 } elsif ($exitcode == $OK) {
 	if (scalar @exitstatus > 0) {
-		print "OK: " . join(',',@exitstatus) . "\n";
+		print "OK: " . join(', ',@exitstatus) . "\n";
 	} else {
 		print "OK: all mirrors up2date\n";
 	}
 } else {
-	print join(',',@exitstatus) . "\n";
+	print "UNKNOWN: ", join(', ',@exitstatus) . "\n";
 }
 
 foreach my $mirror (keys(%{$status})) {

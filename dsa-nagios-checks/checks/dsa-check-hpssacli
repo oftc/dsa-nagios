@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # check _physical_ disk status of disks on HP smart array controllers
-# requires hpacucli
+# requires hpssacli
 #
 # does _not_ check raid status.  use arrayprobe for that.
 
@@ -47,7 +47,7 @@ $SIG{'__DIE__'} = sub {
 
 sub runcmd($) {
 	my ($cmd) = @_;
-	$cmd = "sudo hpacucli $cmd";
+	$cmd = "sudo hpssacli $cmd";
 	open(FH, $cmd."|") or die ("Cannot run $cmd: $!");
 	my @lines = <FH>;
 	close FH;
@@ -92,15 +92,15 @@ for (@$ctrlallshow) {
 		push @controllers, $1;
 		next;
 	};
-	die ("Cannot read line '$_' gotten from hpacucli controller all show\n");
+	die ("Cannot read line '$_' gotten from hpssacli controller all show\n");
 };
 
 if (scalar @controllers == 0) {
 	if ($params->{'no-controller-ok'}) {
-		print "No smartarray controllers found with hpacucli\n";
+		print "No smartarray controllers found with hpssacli\n";
 		exit $CODE{'OK'}
 	} else {
-		print "UNKNOWN: No smartarray controllers found with hpacucli\n";
+		print "UNKNOWN: No smartarray controllers found with hpssacli\n";
 		exit $CODE{'UNKNOWN'}
 	}
 };
@@ -125,7 +125,7 @@ for my $slot (sort @controllers) {
 		} elsif (/^Error: The specified device does not have any logical drives.$/) {
 			$nodrives = 1;
 		} else {
-			die ("Cannot read line '$_' gotten from hpacucli controller slot = $slot logicaldrive all show\n");
+			die ("Cannot read line '$_' gotten from hpssacli controller slot = $slot logicaldrive all show\n");
 		}
 	};
 
@@ -147,6 +147,14 @@ for my $slot (sort @controllers) {
 					record('CRITICAL');
 				} else {
 					record('UNKNOWN');
+				}
+			}
+			if (/^ *LD Acceleration Method: (.*)$/) {
+				my $status = $1;
+				# can at least be "Controller Cache" or HP SSD Smart Path", both OK
+				if ($status eq 'All disabled') {
+					push @{$status{'Acceleration method'}}, "LD$logicaldrive disabled";
+					record('WARNING');
 				}
 			}
 		}
@@ -191,7 +199,7 @@ for my $slot (sort @controllers) {
 			};	
 			push @drives, $drive;
 		} else {
-			die ("Cannot read line '$_' gotten from hpacucli controller slot=$slot pd all show\n");
+			die ("Cannot read line '$_' gotten from hpssacli controller slot=$slot pd all show\n");
 		};
 	};
 
@@ -245,16 +253,18 @@ for my $slot (sort @controllers) {
 		} elsif ($type eq 'SAS' || $type eq 'SAS+') {
 			$key = 'PHY Transfer Rate';
 			if ($value{'Interface Type'} eq 'SATA') {
-				$expected = [ '1.5Gbps', '3.0Gbps' ];
+				$expected = [ '1.5Gbps', '3.0Gbps', '6.0Gbps' ];
 			} elsif ($value{'PHY Count'} eq '2') {
 				if (defined($value{'Redundant Path(s)'})) {
-					$expected = [ '3.0GBPS, 3.0GBPS', '6.0GBPS, 6.0GBPS' ];
+					$expected = [ '3.0GBPS, 3.0GBPS', '6.0GBPS, 6.0GBPS',
+					       	      '12.0GBPS, 12.0GBPS' ];
 				} else {
 					$expected = [ '3.0GBPS, Unknown', 'Unknown, 3.0GBPS',
-					              '6.0GBPS, Unknown', 'Unknown, 6.0GBPS' ];
+					              '6.0GBPS, Unknown', 'Unknown, 6.0GBPS',
+					              '12.0GBPS, Unknown', 'Unknown, 12.0GBPS' ];
 				}
 			} else {
-				$expected = [ '3.0GBPS', '6.0GBPS' ];
+				$expected = [ '3.0GBPS', '6.0GBPS', '12.0GBPS' ];
 			}
 		} else {
 			warn "Should not be here.  Do not know what to do with type '$type'\n";
@@ -298,14 +308,17 @@ for my $slot (sort @controllers) {
 		if (/^ *(.*) Status: (.*)$/) {
 			my $system = $1;
 			my $status = $2;
+
+			# skip the cache check, we track the LD Acceleration Method above
+			next if ($system eq 'Cache');
+
 			push @{$status{$status}}, $system;
 			if ($status ne 'OK') {
-				next if ($params->{'no-battery'} && $system eq 'Cache');
 				next if ($params->{'no-battery'} && $system eq 'Battery/Capacitor');
 				record('WARNING');
 			};
 		} else {
-			die ("Cannot read line '$_' gotten from hpacucli controller slot=$slot show status\n");
+			die ("Cannot read line '$_' gotten from hpssacli controller slot=$slot show status\n");
 		};
 	};
 
